@@ -1,0 +1,9 @@
+2026-09-04 16:09:38,814 | INFO | modbus_client | Connected | Port=/tmp/akvo_modbus_master Baud=9600 Parity=N Stop=1 Bits=8 Timeout=1.000
+2026-09-04 16:09:42,824 | WARNING | modbus_client | FC03: No response from slave. | Modbus Error: [Input/Output] No response received after 3 retries, continue with next request
+2026-09-04 16:09:46,835 | WARNING | modbus_client | FC04: No response from slave. | Modbus Error: [Input/Output] No response received after 3 retries, continue with next request
+2026-09-04 16:09:50,846 | WARNING | modbus_client | FC01: No response from slave. | Modbus Error: [Input/Output] No response received after 3 retries, continue with next request
+2026-09-04 16:09:54,856 | WARNING | modbus_client | FC02: No response from slave. | Modbus Error: [Input/Output] No response received after 3 retries, continue with next request
+2026-09-04 16:09:58,865 | WARNING | modbus_client | FC06: No response from slave. | Modbus Error: [Input/Output] No response received after 3 retries, continue with next request
+2026-09-04 16:10:00,116 | INFO | modbus_client | Serial port closed
+2026-09-04 16:10:09,070 | INFO | modbus_client | Connected | Port=/tmp/akvo_modbus_master Baud=9600 Parity=N Stop=1 Bits=8 Timeout=1.000
+2026-09-04 16:10:09,604 | INFO | modbus_client | Serial port closed

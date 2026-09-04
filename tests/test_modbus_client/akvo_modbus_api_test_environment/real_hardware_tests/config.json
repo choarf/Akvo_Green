@@ -1,0 +1,30 @@
+{
+  "port": "/dev/ttyUSB0",
+  "baudrate": 9600,
+  "bytesize": 8,
+  "parity": "N",
+  "stopbits": 1,
+  "timeout": 1.0,
+  "slave_id": 1,
+  "holding_address": 0,
+  "holding_count": 2,
+  "input_address": 0,
+  "input_count": 2,
+  "coil_address": 0,
+  "coil_count": 4,
+  "discrete_address": 0,
+  "discrete_count": 4,
+  "write_tests_enabled": false,
+  "safe_write_register": 0,
+  "safe_write_value": 1,
+  "safe_write_registers": [
+    1,
+    2
+  ],
+  "safe_write_coil": 0,
+  "safe_write_coil_value": true,
+  "safe_write_coils": [
+    true,
+    false
+  ]
+}
