@@ -1,0 +1,177 @@
+2026-09-10 19:56:44,024 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-10 19:56:44,025 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-10 19:56:44,025 | INFO | Thread-1 (start) | MQTT connected
+2026-09-10 19:56:44,025 | INFO | ModbusConnect | Modbus connected
+2026-09-10 19:56:44,027 | INFO | ConfigWatcher | Reloading config...
+2026-09-10 19:56:56,025 | INFO | MainThread | Stopping Edge Node
+2026-09-10 19:57:06,327 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-10 19:57:06,328 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-10 19:57:06,328 | INFO | Thread-1 (start) | MQTT connected
+2026-09-10 19:57:06,329 | INFO | ModbusConnect | Modbus connected
+2026-09-10 19:57:06,330 | INFO | ConfigWatcher | Reloading config...
+2026-09-10 19:57:16,328 | INFO | MainThread | Stopping Edge Node
+2026-09-11 12:56:41,476 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 12:56:41,477 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 12:56:41,478 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 12:56:41,478 | INFO | ModbusConnect | Modbus connected
+2026-09-11 12:56:41,479 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 12:57:11,476 | INFO | MainThread | Stopping Edge Node
+2026-09-11 14:54:10,518 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 14:54:10,518 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 14:54:10,519 | INFO | ModbusConnect | Modbus connected
+2026-09-11 14:54:10,519 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 14:54:10,521 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 14:54:25,565 | WARNING | Worker | [ALERT] DEV_1.Temp HIGH
+2026-09-11 14:54:25,674 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-11 14:54:25,727 | WARNING | Worker | [ALERT] DEV_5.Presion2 HIGH
+2026-09-11 14:54:40,731 | WARNING | Worker | [ALERT] DEV_5.Presion2 HIGH
+2026-09-11 14:54:40,999 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-11 14:54:55,574 | WARNING | Worker | [ALERT] DEV_1.Temp HIGH
+2026-09-11 14:54:55,684 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-11 14:54:55,895 | WARNING | Worker | [ALERT] DEV_8.Temp HIGH
+2026-09-11 14:54:55,947 | WARNING | Worker | [ALERT] DEV_9.Presion1 HIGH
+2026-09-11 14:54:56,004 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-11 14:55:10,688 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-11 14:55:10,741 | WARNING | Worker | [ALERT] DEV_5.Presion2 HIGH
+2026-09-11 14:55:10,903 | WARNING | Worker | [ALERT] DEV_8.Temp HIGH
+2026-09-11 14:55:10,956 | WARNING | Worker | [ALERT] DEV_9.Presion1 HIGH
+2026-09-11 14:55:11,009 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-11 14:55:20,534 | INFO | MainThread | Stopping Edge Node
+2026-09-11 14:55:44,279 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 14:55:44,279 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 14:55:44,280 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 14:55:44,280 | INFO | ModbusConnect | Modbus connected
+2026-09-11 14:55:44,282 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 14:55:48,368 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-11 14:56:03,358 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-11 14:56:03,415 | WARNING | Worker | [ALERT] DEV_5.Presion2 HIGH
+2026-09-11 14:56:18,352 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-11 14:56:33,344 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-11 14:56:33,397 | WARNING | Worker | [ALERT] DEV_5.Presion2 HIGH
+2026-09-11 14:56:37,480 | WARNING | Worker | [ALERT] DEV_8.Temp HIGH
+2026-09-11 14:56:44,279 | INFO | MainThread | Stopping Edge Node
+2026-09-11 15:04:25,247 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 15:04:25,248 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:04:25,248 | INFO | ModbusConnect | Modbus connected
+2026-09-11 15:04:25,249 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 15:04:25,251 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 15:04:33,248 | INFO | MainThread | Stopping Edge Node
+2026-09-11 15:04:38,119 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 15:04:38,120 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-11 15:04:38,120 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:04:38,121 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 15:04:38,122 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 15:04:41,120 | INFO | MainThread | Stopping Edge Node
+2026-09-11 15:10:35,420 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 15:10:35,420 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:10:35,421 | ERROR | Thread-1 (start) | MQTT connect failed: [Errno 2] No such file or directory: './certs/certificate.pem.crt'
+2026-09-11 15:10:35,421 | INFO | ModbusConnect | Modbus connected
+2026-09-11 15:10:40,422 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:10:40,422 | ERROR | Thread-1 (start) | MQTT connect failed: [Errno 2] No such file or directory: './certs/certificate.pem.crt'
+2026-09-11 15:10:45,422 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:10:45,423 | ERROR | Thread-1 (start) | MQTT connect failed: [Errno 2] No such file or directory: './certs/certificate.pem.crt'
+2026-09-11 15:10:50,423 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:10:50,424 | ERROR | Thread-1 (start) | MQTT connect failed: [Errno 2] No such file or directory: './certs/certificate.pem.crt'
+2026-09-11 15:10:55,425 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:10:55,426 | ERROR | Thread-1 (start) | MQTT connect failed: [Errno 2] No such file or directory: './certs/certificate.pem.crt'
+2026-09-11 15:11:00,427 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:11:00,428 | ERROR | Thread-1 (start) | MQTT connect failed: [Errno 2] No such file or directory: './certs/certificate.pem.crt'
+2026-09-11 15:11:05,420 | INFO | MainThread | Stopping Edge Node
+2026-09-11 15:11:45,432 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 15:11:45,432 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:11:45,433 | ERROR | Thread-1 (start) | MQTT connect failed: [Errno 2] No such file or directory: './certs/certificate.pem.crt'
+2026-09-11 15:11:45,433 | INFO | ModbusConnect | Modbus connected
+2026-09-11 15:11:50,433 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:11:50,435 | ERROR | Thread-1 (start) | MQTT connect failed: [Errno 2] No such file or directory: './certs/certificate.pem.crt'
+2026-09-11 15:11:55,435 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:11:55,437 | ERROR | Thread-1 (start) | MQTT connect failed: [Errno 2] No such file or directory: './certs/certificate.pem.crt'
+2026-09-11 15:12:00,437 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:12:00,438 | ERROR | Thread-1 (start) | MQTT connect failed: [Errno 2] No such file or directory: './certs/certificate.pem.crt'
+2026-09-11 15:12:05,439 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:12:05,440 | ERROR | Thread-1 (start) | MQTT connect failed: [Errno 2] No such file or directory: './certs/certificate.pem.crt'
+2026-09-11 15:12:10,440 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:12:10,441 | ERROR | Thread-1 (start) | MQTT connect failed: [Errno 2] No such file or directory: './certs/certificate.pem.crt'
+2026-09-11 15:12:15,432 | INFO | MainThread | Stopping Edge Node
+2026-09-11 15:15:25,327 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 15:15:25,328 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:15:25,328 | INFO | ModbusConnect | Modbus connected
+2026-09-11 15:15:25,552 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 15:15:25,557 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 15:15:55,327 | INFO | MainThread | Stopping Edge Node
+2026-09-11 15:17:22,582 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 15:17:22,583 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:17:22,583 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 15:17:22,585 | INFO | ModbusConnect | Modbus connected
+2026-09-11 15:17:22,585 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 15:17:37,817 | WARNING | Worker | [ALERT] DEV_6.Hum HIGH
+2026-09-11 15:17:37,870 | WARNING | Worker | [ALERT] DEV_7.Temp HIGH
+2026-09-11 15:17:52,583 | INFO | MainThread | Stopping Edge Node
+2026-09-11 15:20:32,602 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 15:20:32,602 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:20:32,603 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 15:20:32,603 | INFO | ModbusConnect | Modbus connected
+2026-09-11 15:20:32,604 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 15:20:38,602 | INFO | MainThread | Stopping Edge Node
+2026-09-11 15:20:47,116 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 15:20:47,116 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:20:47,117 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 15:20:47,118 | INFO | ModbusConnect | Modbus connected
+2026-09-11 15:20:47,119 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 15:21:02,184 | WARNING | Worker | [ALERT] DEV_3.Temp HIGH
+2026-09-11 15:21:02,237 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-11 15:21:02,289 | WARNING | Worker | [ALERT] DEV_5.Presion2 HIGH
+2026-09-11 15:21:02,504 | WARNING | Worker | [ALERT] DEV_9.Presion1 HIGH
+2026-09-11 15:21:05,116 | INFO | MainThread | Stopping Edge Node
+2026-09-11 15:21:48,499 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 15:21:48,500 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:21:48,500 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 15:21:48,501 | INFO | ModbusConnect | Modbus connected
+2026-09-11 15:21:48,502 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 15:22:03,825 | WARNING | Worker | [ALERT] DEV_7.Temp HIGH
+2026-09-11 15:22:18,500 | INFO | MainThread | Stopping Edge Node
+2026-09-11 15:22:48,807 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 15:22:48,807 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:22:48,807 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 15:22:48,808 | INFO | ModbusConnect | Modbus connected
+2026-09-11 15:22:48,809 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 15:22:53,807 | INFO | MainThread | Stopping Edge Node
+2026-09-11 15:23:17,935 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 15:23:17,936 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:23:17,936 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 15:23:17,937 | INFO | ModbusConnect | Modbus connected
+2026-09-11 15:23:17,939 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 15:23:56,114 | WARNING | Worker | [ALERT] DEV_7.Temp HIGH
+2026-09-11 15:24:00,202 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-11 15:24:07,005 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-11 15:24:11,090 | WARNING | Worker | [ALERT] DEV_7.Temp HIGH
+2026-09-11 15:24:15,176 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-11 15:24:17,935 | INFO | MainThread | Stopping Edge Node
+2026-09-11 15:24:32,902 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 15:24:32,902 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 15:24:32,903 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 15:24:32,904 | INFO | ModbusConnect | Modbus connected
+2026-09-11 15:24:32,906 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 15:24:52,205 | WARNING | Worker | [ALERT] DEV_8.Temp HIGH
+2026-09-11 15:25:07,235 | WARNING | Worker | [ALERT] DEV_8.Temp HIGH
+2026-09-11 15:25:32,902 | INFO | MainThread | Stopping Edge Node
+2026-09-11 18:47:10,908 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 18:47:10,908 | INFO | ModbusConnect | Modbus connected
+2026-09-11 18:47:10,908 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 18:47:10,909 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 18:47:10,910 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 18:47:56,011 | WARNING | Worker | [ALERT] DEV_3.Temp HIGH
+2026-09-11 18:48:00,095 | WARNING | Worker | [ALERT] DEV_6.Hum HIGH
+2026-09-11 18:48:10,908 | INFO | MainThread | Stopping Edge Node
+2026-09-11 18:48:33,161 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 18:48:33,162 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 18:48:33,162 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 18:48:33,164 | INFO | ModbusConnect | Modbus connected
+2026-09-11 18:48:33,164 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 18:48:43,161 | INFO | MainThread | Stopping Edge Node
+2026-09-11 18:52:17,402 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 18:52:17,403 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 18:52:17,403 | INFO | ModbusConnect | Modbus connected
+2026-09-11 18:52:17,647 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 18:52:17,652 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 18:52:18,061 | WARNING | Worker | [ALERT] DEV_9.Presion1 HIGH
+2026-09-11 18:52:27,402 | INFO | MainThread | Stopping Edge Node

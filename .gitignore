@@ -1,0 +1,5 @@
+# AWS IoT Core / TLS credentials - never commit private keys or certs
+*.pem
+*.key
+*.crt
+*.pfx

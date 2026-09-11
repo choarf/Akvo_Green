@@ -1,0 +1,70 @@
+2026-09-10 20:54:30,428 | INFO | MainThread | Starting Edge Node
+2026-09-10 20:54:30,429 | INFO | MainThread | Connecting MQTT...
+2026-09-10 20:54:30,429 | INFO | MainThread | MQTT connected
+2026-09-10 20:54:30,430 | INFO | ModbusConnect | Modbus connected
+2026-09-10 20:54:30,432 | INFO | ConfigWatcher | Reloading config...
+2026-09-10 20:54:45,444 | WARNING | Worker | [ALERT] DEV_1.Temp HIGH
+2026-09-10 20:55:05,256 | INFO | MainThread | Starting Edge Node
+2026-09-10 20:55:05,257 | INFO | MainThread | Connecting MQTT...
+2026-09-10 20:55:05,257 | INFO | MainThread | MQTT connected
+2026-09-10 20:55:05,257 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:55:05,260 | INFO | ConfigWatcher | Reloading config...
+2026-09-10 20:55:10,259 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:55:15,261 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:55:20,262 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:55:25,263 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:55:30,264 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:55:35,265 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:55:40,266 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:55:45,267 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:55:50,268 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:55:55,269 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:56:00,270 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:56:05,271 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:56:10,272 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:56:15,273 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:56:20,274 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:56:25,275 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:56:30,276 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:56:35,277 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:56:40,278 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:56:45,279 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:56:50,280 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:56:55,281 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:57:00,283 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:57:05,284 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:57:10,284 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:57:15,286 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:57:20,287 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:57:25,288 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:57:30,289 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:57:35,290 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:57:40,291 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:57:45,292 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:57:50,293 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:57:55,294 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:58:00,295 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:58:05,296 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:58:10,297 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:58:15,298 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:58:20,299 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:58:25,300 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:58:30,302 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:58:35,303 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:58:40,304 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:58:45,305 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:58:50,305 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:58:55,306 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:59:00,307 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:59:05,308 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:59:10,310 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-10 20:59:15,311 | ERROR | ModbusConnect | Modbus connect error: Connection failed
+2026-09-11 14:49:17,717 | INFO | Thread-6 (start) | Starting Edge Node
+2026-09-11 14:49:17,732 | INFO | Thread-6 (start) | Connecting MQTT...
+2026-09-11 14:49:17,733 | INFO | Thread-6 (start) | MQTT connected
+2026-09-11 14:49:17,734 | INFO | ModbusConnect | Modbus connected
+2026-09-11 14:49:17,735 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 14:49:18,092 | WARNING | Worker | [ALERT] DEV_8.Temp HIGH
+2026-09-11 14:49:33,017 | WARNING | Worker | [ALERT] DEV_7.Temp HIGH
+2026-09-11 14:49:33,070 | WARNING | Worker | [ALERT] DEV_8.Temp HIGH
+2026-09-11 14:49:47,718 | INFO | MainThread | Stopping Edge Node
