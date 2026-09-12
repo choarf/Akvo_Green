@@ -39,7 +39,7 @@ both live on Modbus slave 3, at different registers).
 | `scale` | yes (may be blank) | float | Multiplier applied to the raw register value. Blank defaults to `1`. |
 | `offset` | yes (may be blank) | float | Added after scaling. Blank defaults to `0`. |
 | `unit` | yes | string | Free-text unit label (`C`, `Mpa`, `%`, ...). Stored in `config.json` but not currently read anywhere at runtime — documentation only for now. |
-| `type` | yes (may be blank) | one of `int`, `float`, `uint16`, `uint32`, `int32`, `float32` | Blank defaults to `int`. **Only `float` is special-cased at runtime**: `SensorNode.read()` applies `scale`/`offset` solely when `type == "float"`. Any other declared type is validated (must be one of the six above) but is otherwise read as the raw register value with no scaling. |
+| `type` | yes (may be blank) | one of `int`, `float`, `uint16`, `uint32`, `int32`, `float32` | Blank defaults to `int`. `float`/`float32`/`uint32`/`int32` are read from registers and combined as described in [Sensor types and scaling](#sensor-types-and-scaling) below; `int`/`uint16` are read raw with no scaling. `uint32`/`int32`/`float32` need `count >= 2` — `config_manager.py build` rejects a smaller `count` for these types. |
 | `min` / `max` | no | float | Alarm thresholds against the *scaled* value. A read below `min` logs `LOW`, above `max` logs `HIGH`. Leave blank to disable that bound. Registers are unsigned 16-bit, so a negative `min` can only ever be exceeded if `offset` makes that reachable — see the [edge-node mock harness README](../../tests/edge_node_mock/README.md#known-limitations-mirrors-the-real-app-not-a-mock-bug) for the same caveat in the test mock. |
 | `enabled` | no | `1/0`, `true/false`, `yes/no`, `y/n`, `on/off` | Defaults to enabled if the column is absent, or if a row leaves it blank. A disabled device is **dropped entirely** when building `config.json` — see [Known behaviors](#known-behaviors) below. |
 
@@ -50,6 +50,7 @@ failure, logging every problem found):
 - register overlap between two sensors of the same device (`addr`..`addr+count`)
 - `addr` outside `0..65535`, or `count <= 0`
 - `type` not one of the six valid values
+- `type` is `uint32`/`int32`/`float32` with `count < 2`
 - inconsistent `slave` across rows sharing one `device_id`
 
 Duplicate `slave` across *different* `device_id`s is allowed and only
@@ -96,7 +97,7 @@ One header row + one data row — gateway identity and timing.
 | `city` | string | **Actually an IANA/Olson timezone name** (e.g. `America/Mexico_City`), not a display label — it's passed straight to `zoneinfo.ZoneInfo()` to compute `city_time` in the system payload. An invalid value doesn't fail the build; at runtime `city_time()` catches the lookup error and falls back to a UTC timestamp suffixed with `Error`. |
 | `poll_interval` | int (seconds) | Used **twice**: it's both how often the scheduler queues every device for a Modbus poll, and how often the publisher thread sends the `AKVO/data` payload. |
 | `system_interval` | int (seconds) | How often the `AKVO/system` host-telemetry payload (CPU/RAM/disk/IP) is published. |
-| `watchdog_timeout` | int (seconds) | Loaded into `config.json` but **not currently consumed anywhere** in `edge_node_improved.py` — reserved for a future watchdog, not an active behavior today. |
+| `watchdog_timeout` | int (seconds) | If the worker thread (the one doing Modbus reads) stalls for longer than this — genuinely stuck, e.g. blocked inside a library call that never returns, not just returning read errors — a dedicated watchdog thread logs a `CRITICAL` line and exits the process via `os._exit(1)`. Leave blank/`0` to disable. **Requires an external supervisor** (systemd `Restart=always`, a container restart policy, etc.) to actually bring the process back up — without one, the gateway just stays down after the watchdog fires. |
 
 Unlike `devices.csv`, a missing column here isn't caught with a friendly
 error — it surfaces as a raw `KeyError` during `build`.
@@ -213,15 +214,23 @@ or changed (`reload_devices()`), leaving unaffected devices running.
 
 ## Sensor types and scaling
 
-| `type` | Runtime behavior |
-|---|---|
-| `float` | `val = registers[0] * scale + offset` |
-| `int`, `uint16`, `uint32`, `int32`, `float32` | `val = registers[0]` — read as-is, `scale`/`offset` are ignored |
+| `type` | Registers used | Runtime behavior |
+|---|---|---|
+| `int`, `uint16` | 1 (`registers[0]`) | `val = registers[0]` — raw, `scale`/`offset` ignored |
+| `float` | 1 (`registers[0]`) | `val = registers[0] * scale + offset` |
+| `uint32` | 2 | `val = <32-bit unsigned combine>` — raw, `scale`/`offset` ignored |
+| `int32` | 2 | `val = <32-bit signed combine>` — raw, `scale`/`offset` ignored |
+| `float32` | 2 | `val = <32-bit IEEE-754 combine> * scale + offset` |
 
-All of these are valid per `config_manager.py`'s `VALID_SENSOR_TYPES`, but
-today only `float` actually applies scaling in
-`edge_node_improved.py::SensorNode.read()`. If a sensor's value looks
-unscaled, check its `type` is exactly `float`.
+The 32-bit types (`uint32`/`int32`/`float32`) combine `registers[0]` and
+`registers[1]` as one big-endian 32-bit word (`registers[0]` = high 16 bits),
+matching pymodbus's own default word order. **A device using the opposite
+word order will read wrong values with no error** — there's no way to detect
+that automatically from the register values alone; swap `registers[0]`/`[1]`
+in `_combine_32bit()` (`edge_node_improved.py`) if so. `count` must be `>= 2`
+for these three types — `config_manager.py build` rejects a smaller `count`,
+and a hand-edited `config.json` that slips through anyway gets an
+`"EXCEPTION"` status at read time rather than a silently truncated value.
 
 ## Known behaviors
 
@@ -232,9 +241,10 @@ unscaled, check its `type` is exactly `float`.
   `config.json`, so a device that was disabled in your original
   `devices.csv` will be **missing entirely** from the exported CSV, not
   present-but-disabled.
-- **Registers are unsigned.** A sensor's raw register is always `0..65535`;
-  a `min` below what `offset`/`scale` can reach from that range can never
-  actually trigger a `LOW` alarm. This is exercised (not worked around) by
-  the [edge-node mock harness](../../tests/edge_node_mock/README.md).
-- **`watchdog_timeout` is parsed but unused.** It's present in
-  `config.json` for forward-compatibility; no code currently reads it.
+- **Single-register types are unsigned.** `int`/`uint16`/`float`'s raw
+  register is always `0..65535`; a `min` below what `offset`/`scale` can
+  reach from that range can never actually trigger a `LOW` alarm. This is
+  exercised (not worked around) by the
+  [edge-node mock harness](../../tests/edge_node_mock/README.md). This does
+  **not** apply to `int32`/`float32`, which properly represent negative
+  values via the signed 32-bit combine described above.

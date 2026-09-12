@@ -1,0 +1,5 @@
+psutil
+pymodbus>=3.6,<4
+pyserial>=3.5
+awsiotsdk
+pytest>=8,<10

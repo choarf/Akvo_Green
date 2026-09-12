@@ -175,3 +175,208 @@
 2026-09-11 18:52:17,652 | INFO | ConfigWatcher | Reloading config...
 2026-09-11 18:52:18,061 | WARNING | Worker | [ALERT] DEV_9.Presion1 HIGH
 2026-09-11 18:52:27,402 | INFO | MainThread | Stopping Edge Node
+2026-09-11 19:21:06,429 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 19:21:06,429 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 19:21:06,430 | INFO | ModbusConnect | Modbus connected
+2026-09-11 19:21:06,789 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 19:21:06,794 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 19:21:16,429 | INFO | MainThread | Stopping Edge Node
+2026-09-11 19:21:26,976 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 19:21:26,977 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 19:21:26,977 | INFO | ModbusConnect | Modbus connected
+2026-09-11 19:21:27,217 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 19:21:27,221 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 19:22:12,674 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-11 19:22:26,977 | INFO | MainThread | Stopping Edge Node
+2026-09-11 19:24:11,350 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 19:24:11,351 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 19:24:11,351 | INFO | ModbusConnect | Modbus connected
+2026-09-11 19:24:11,585 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 19:24:11,587 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 19:25:11,350 | INFO | MainThread | Stopping Edge Node
+2026-09-11 19:26:07,710 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 19:26:07,711 | INFO | ModbusConnect | Modbus connected
+2026-09-11 19:26:07,711 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 19:26:07,950 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 19:26:07,955 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 19:26:22,977 | WARNING | Worker | [ALERT] DEV_1.Temp HIGH
+2026-09-11 19:26:23,085 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-11 19:26:23,406 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-11 19:26:37,978 | WARNING | Worker | [ALERT] DEV_1.Temp HIGH
+2026-09-11 19:26:38,083 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-11 19:26:38,297 | WARNING | Worker | [ALERT] DEV_8.Temp HIGH
+2026-09-11 19:26:38,406 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-11 19:26:52,983 | WARNING | Worker | [ALERT] DEV_1.Temp HIGH
+2026-09-11 19:26:53,302 | WARNING | Worker | [ALERT] DEV_8.Temp HIGH
+2026-09-11 19:26:53,411 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-11 19:27:07,711 | INFO | MainThread | Stopping Edge Node
+2026-09-11 19:39:58,078 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 19:39:58,078 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 19:39:58,078 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 19:39:58,078 | INFO | ModbusConnect | Modbus connected
+2026-09-11 19:39:58,080 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 19:40:06,078 | INFO | MainThread | Stopping Edge Node
+2026-09-11 19:46:54,844 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 19:46:54,845 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 19:46:54,845 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 19:46:54,845 | INFO | ModbusConnect | Modbus connected
+2026-09-11 19:46:54,848 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 19:47:25,171 | WARNING | Worker | [ALERT] DEV_7.Temp HIGH
+2026-09-11 19:47:25,329 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-11 19:47:40,066 | WARNING | Worker | [ALERT] DEV_5.Presion2 HIGH
+2026-09-11 19:47:40,171 | WARNING | Worker | [ALERT] DEV_7.Temp HIGH
+2026-09-11 19:47:40,281 | WARNING | Worker | [ALERT] DEV_9.Presion1 HIGH
+2026-09-11 19:47:40,333 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-11 19:47:54,844 | INFO | MainThread | Stopping Edge Node
+2026-09-11 19:51:12,949 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 19:51:12,949 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 19:51:12,950 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 19:51:12,950 | INFO | ModbusConnect | Modbus connected
+2026-09-11 19:51:12,952 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 19:51:18,949 | INFO | MainThread | Stopping Edge Node
+2026-09-11 19:51:18,950 | INFO | MainThread | MQTT disconnected
+2026-09-11 19:51:18,950 | INFO | MainThread | Modbus disconnected
+2026-09-11 19:51:28,197 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 19:51:28,197 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 19:51:28,198 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 19:51:28,200 | INFO | ModbusConnect | Modbus connected
+2026-09-11 19:51:28,201 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 19:51:33,197 | INFO | MainThread | Stopping Edge Node
+2026-09-11 19:51:33,198 | INFO | MainThread | MQTT disconnected
+2026-09-11 19:51:33,198 | INFO | MainThread | Modbus disconnected
+2026-09-11 19:52:57,324 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 19:52:57,324 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 19:52:57,325 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 19:52:57,326 | INFO | ModbusConnect | Modbus connected
+2026-09-11 19:52:57,327 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 19:53:12,353 | WARNING | Worker | [ALERT] DEV_1.Temp HIGH
+2026-09-11 19:53:27,357 | WARNING | Worker | [ALERT] DEV_1.Temp HIGH
+2026-09-11 19:53:27,466 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-11 19:53:42,345 | WARNING | Worker | [ALERT] DEV_1.Temp HIGH
+2026-09-11 19:53:42,450 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-11 19:53:42,503 | WARNING | Worker | [ALERT] DEV_5.Presion2 HIGH
+2026-09-11 19:53:57,324 | INFO | MainThread | Stopping Edge Node
+2026-09-11 19:53:57,325 | INFO | MainThread | MQTT disconnected
+2026-09-11 19:53:57,325 | INFO | MainThread | Modbus disconnected
+2026-09-11 19:55:22,998 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 19:55:22,999 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 19:55:22,999 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 19:55:23,000 | INFO | ModbusConnect | Modbus connected
+2026-09-11 19:55:23,001 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 19:55:30,998 | INFO | MainThread | Stopping Edge Node
+2026-09-11 19:55:30,999 | INFO | MainThread | MQTT disconnected
+2026-09-11 19:55:30,999 | INFO | MainThread | Modbus disconnected
+2026-09-11 19:56:46,619 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 19:56:46,619 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 19:56:46,620 | INFO | ModbusConnect | Modbus connected
+2026-09-11 19:56:46,847 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 19:56:46,851 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 19:57:02,215 | WARNING | Worker | [ALERT] DEV_8.Temp HIGH
+2026-09-11 19:57:32,167 | WARNING | Worker | [ALERT] DEV_7.Temp HIGH
+2026-09-11 19:57:32,274 | WARNING | Worker | [ALERT] DEV_9.Presion1 HIGH
+2026-09-11 19:57:46,619 | INFO | MainThread | Stopping Edge Node
+2026-09-11 19:57:46,619 | INFO | MainThread | MQTT disconnected
+2026-09-11 19:57:46,620 | INFO | MainThread | Modbus disconnected
+2026-09-11 19:58:08,108 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 19:58:08,108 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 19:58:08,109 | INFO | ModbusConnect | Modbus connected
+2026-09-11 19:58:08,359 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 19:58:08,364 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 19:58:23,671 | WARNING | Worker | [ALERT] DEV_7.Temp HIGH
+2026-09-11 19:58:23,829 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-11 19:59:23,522 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-11 19:59:38,518 | INFO | Worker | [CLEAR] DEV_4.Presion1 no longer HIGH
+2026-09-11 19:59:38,733 | WARNING | Worker | [ALERT] DEV_8.Temp HIGH
+2026-09-11 19:59:53,554 | WARNING | Worker | [ALERT] DEV_5.Presion2 HIGH
+2026-09-11 20:00:08,550 | INFO | Worker | [CLEAR] DEV_5.Presion2 no longer HIGH
+2026-09-11 20:00:23,811 | INFO | Worker | [CLEAR] DEV_10.Presion2 no longer HIGH
+2026-09-11 20:01:08,108 | INFO | MainThread | Stopping Edge Node
+2026-09-11 20:01:08,109 | INFO | MainThread | MQTT disconnected
+2026-09-11 20:01:08,110 | INFO | MainThread | Modbus disconnected
+2026-09-11 20:08:42,811 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 20:08:42,811 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 20:08:42,812 | INFO | ModbusConnect | Modbus connected
+2026-09-11 20:08:43,070 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 20:08:43,072 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 20:08:58,323 | WARNING | Worker | [ALERT] DEV_6.Hum HIGH
+2026-09-11 20:09:13,526 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-11 20:09:43,456 | WARNING | Worker | [ALERT] DEV_9.Presion1 HIGH
+2026-09-11 20:09:43,509 | INFO | Worker | [CLEAR] DEV_10.Presion2 no longer HIGH
+2026-09-11 20:09:58,185 | WARNING | Worker | [ALERT] DEV_3.Temp HIGH
+2026-09-11 20:09:58,557 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-11 20:10:13,285 | WARNING | Worker | [ALERT] DEV_5.Presion2 HIGH
+2026-09-11 20:10:28,549 | INFO | Worker | [CLEAR] DEV_10.Presion2 no longer HIGH
+2026-09-11 20:10:43,111 | WARNING | Worker | [ALERT] DEV_1.Temp HIGH
+2026-09-11 20:10:43,483 | INFO | Worker | [CLEAR] DEV_9.Presion1 no longer HIGH
+2026-09-11 20:11:13,247 | INFO | Worker | [CLEAR] DEV_5.Presion2 no longer HIGH
+2026-09-11 20:11:28,396 | WARNING | Worker | [ALERT] DEV_7.Temp HIGH
+2026-09-11 20:11:42,811 | INFO | MainThread | Stopping Edge Node
+2026-09-11 20:11:42,812 | INFO | MainThread | MQTT disconnected
+2026-09-11 20:11:42,812 | INFO | MainThread | Modbus disconnected
+2026-09-11 20:32:42,009 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 20:32:42,020 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 20:32:42,021 | INFO | ModbusConnect | Modbus connected
+2026-09-11 20:32:42,385 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 20:32:42,390 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 20:33:02,435 | WARNING | Worker | [ALERT] DEV_1.Temp HIGH
+2026-09-11 20:33:10,548 | WARNING | Worker | [ALERT] DEV_7.Temp HIGH
+2026-09-11 20:33:41,286 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 20:33:41,287 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 20:33:41,287 | INFO | ModbusConnect | Modbus connected
+2026-09-11 20:33:41,510 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 20:33:41,515 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 20:34:01,660 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-11 20:34:41,287 | INFO | MainThread | Stopping Edge Node
+2026-09-11 20:34:41,288 | INFO | MainThread | MQTT disconnected
+2026-09-11 20:34:41,288 | INFO | MainThread | Modbus disconnected
+2026-09-11 20:49:14,354 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 20:49:14,369 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 20:49:14,369 | INFO | ModbusConnect | Modbus connected
+2026-09-11 20:49:14,668 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 20:49:14,670 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 20:49:34,722 | WARNING | Worker | [ALERT] DEV_1.Temp HIGH
+2026-09-11 20:49:34,988 | WARNING | Worker | [ALERT] DEV_7.Temp HIGH
+2026-09-11 20:49:54,730 | INFO | Worker | [CLEAR] DEV_1.Temp no longer HIGH
+2026-09-11 20:49:55,102 | WARNING | Worker | [ALERT] DEV_9.Presion1 HIGH
+2026-09-11 20:50:14,812 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-11 20:50:15,026 | WARNING | Worker | [ALERT] DEV_8.Temp HIGH
+2026-09-11 20:50:54,955 | INFO | Worker | [CLEAR] DEV_7.Temp no longer HIGH
+2026-09-11 20:51:14,764 | WARNING | Worker | [ALERT] DEV_3.Temp HIGH
+2026-09-11 20:51:14,817 | INFO | Worker | [CLEAR] DEV_4.Presion1 no longer HIGH
+2026-09-11 20:51:54,975 | WARNING | Worker | [ALERT] DEV_7.Temp HIGH
+2026-09-11 20:51:55,028 | INFO | Worker | [CLEAR] DEV_8.Temp no longer HIGH
+2026-09-11 20:51:55,080 | INFO | Worker | [CLEAR] DEV_9.Presion1 no longer HIGH
+2026-09-11 20:52:14,939 | WARNING | Worker | [ALERT] DEV_6.Hum HIGH
+2026-09-11 20:52:15,049 | WARNING | Worker | [ALERT] DEV_8.Temp HIGH
+2026-09-11 20:52:15,155 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-11 20:52:35,033 | INFO | Worker | [CLEAR] DEV_8.Temp no longer HIGH
+2026-09-11 20:52:54,726 | WARNING | Worker | [ALERT] DEV_1.Temp HIGH
+2026-09-11 20:52:54,889 | WARNING | Worker | [ALERT] DEV_5.Presion2 HIGH
+2026-09-11 20:52:55,049 | WARNING | Worker | [ALERT] DEV_8.Temp HIGH
+2026-09-11 20:53:34,863 | INFO | Worker | [CLEAR] DEV_5.Presion2 no longer HIGH
+2026-09-11 20:54:14,354 | INFO | MainThread | Stopping Edge Node
+2026-09-11 20:54:14,355 | INFO | MainThread | MQTT disconnected
+2026-09-11 20:54:14,355 | INFO | MainThread | Modbus disconnected
+2026-09-11 21:01:49,640 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 21:01:49,640 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 21:01:49,641 | INFO | ModbusConnect | Modbus connected
+2026-09-11 21:01:49,882 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 21:01:49,887 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 21:03:22,301 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 21:03:22,302 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 21:03:22,302 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 21:03:22,303 | INFO | ModbusConnect | Modbus connected
+2026-09-11 21:03:22,305 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 21:03:42,426 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-11 21:04:02,776 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-11 21:04:19,783 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-11 21:04:19,784 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-11 21:04:19,785 | INFO | Thread-1 (start) | MQTT connected
+2026-09-11 21:04:19,785 | INFO | ModbusConnect | Modbus connected
+2026-09-11 21:04:19,787 | INFO | ConfigWatcher | Reloading config...
+2026-09-11 21:04:59,995 | WARNING | Worker | [ALERT] DEV_5.Presion2 HIGH
+2026-09-11 21:05:19,966 | INFO | Worker | [CLEAR] DEV_5.Presion2 no longer HIGH
+2026-09-11 21:05:20,019 | WARNING | Worker | [ALERT] DEV_6.Hum HIGH
+2026-09-11 21:05:20,181 | WARNING | Worker | [ALERT] DEV_9.Presion1 HIGH
+2026-09-11 21:05:40,044 | INFO | Worker | [CLEAR] DEV_6.Hum no longer HIGH
+2026-09-11 21:05:59,922 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH

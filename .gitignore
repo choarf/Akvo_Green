@@ -3,3 +3,7 @@
 *.key
 *.crt
 *.pfx
+
+# pytest coverage output (local test-run artifact, not previously tracked)
+.coverage
+__pycache__/

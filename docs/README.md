@@ -33,7 +33,6 @@ Akvo_Green/
 │   ├── utils/logger.py           # Shared logger used by the Modbus client
 │   └── Venko_Green/               # Edge gateway application
 │       ├── edge_node_improved.py # Main engine: scheduler/worker/publisher threads
-│       ├── akvo_edge_node_cl.py  # Earlier/alternate edge node entry point
 │       ├── config_manager.py     # CSV <-> config.json build/export tool
 │       ├── config.json           # Generated runtime configuration
 │       ├── devices.csv / modbus.csv / system.csv / aws.csv
@@ -41,7 +40,8 @@ Akvo_Green/
 ├── tests/
 │   ├── akvo_modbus_mock/         # Virtual-serial mock Modbus slave + client tests
 │   ├── test_modbus_client/       # Additional pytest suite + real-hardware test plan
-│   └── edge_node_mock/           # Full edge-node test harness (multi-slave mock + fake MQTT)
+│   ├── edge_node_mock/           # Full edge-node test harness (multi-slave mock + fake MQTT)
+│   └── test_edge_node/           # Unit tests for edge_node_improved.py's own logic
 └── docs/Modbus_client/           # Modbus client API documentation
 ```
 
@@ -145,6 +145,21 @@ python3 run_edge_node_test.py --no-fake-modbus
 ```
 
 See [`tests/edge_node_mock/README.md`](tests/edge_node_mock/README.md) for the full configuration reference, a caution about `fake_mqtt: false` against production AWS IoT things, and a manual (multi-terminal) walkthrough.
+
+The edge node's own logic (alarm evaluation, 32-bit register combining, device-reload diffing, retry backoff) has a fast, hardware-free unit test suite under `tests/test_edge_node/`, using fake collaborators instead of real Modbus/MQTT connections:
+
+```bash
+cd tests/test_edge_node
+pip install -r requirements.txt   # only needed if these aren't already installed
+./run_tests.sh                    # all tests
+
+# a single file or test
+python3 -m pytest test_sensor_node.py -v
+python3 -m pytest test_sensor_node.py::test_read_uint32 -v
+
+# with coverage
+python3 -m pytest --cov=edge_node_improved --cov-report=term-missing -q
+```
 
 ## Documentation
 

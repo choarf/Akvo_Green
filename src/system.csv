@@ -1,2 +1,2 @@
 gateway_id,city,poll_interval,system_interval,watchdog_timeout
-AKVO_GW_101,America/Mexico_City,10,10,120
+AKVO_GW_101,America/Mexico_City,20,60,120

@@ -1,0 +1,36 @@
+2026-09-11 20:08:13,630 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-11 20:08:13,631 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-11 20:08:13,631 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-11 20:08:13,632 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-11 20:08:13,632 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-11 20:08:13,634 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-11 20:08:13,634 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-11 20:08:13,637 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-11 20:08:13,638 | INFO | MainThread | MQTT disconnected
+2026-09-11 20:08:13,640 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-11 20:08:13,642 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-11 20:08:13,642 | INFO | MainThread | Modbus disconnected
+2026-09-11 20:08:21,894 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-11 20:08:21,896 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-11 20:08:21,896 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-11 20:08:21,896 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-11 20:08:21,896 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-11 20:08:21,898 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-11 20:08:21,899 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-11 20:08:21,902 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-11 20:08:21,903 | INFO | MainThread | MQTT disconnected
+2026-09-11 20:08:21,904 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-11 20:08:21,906 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-11 20:08:21,906 | INFO | MainThread | Modbus disconnected
+2026-09-11 20:08:42,866 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-11 20:08:42,868 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-11 20:08:42,868 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-11 20:08:42,868 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-11 20:08:42,869 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-11 20:08:42,871 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-11 20:08:42,872 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-11 20:08:42,875 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-11 20:08:42,876 | INFO | MainThread | MQTT disconnected
+2026-09-11 20:08:42,878 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-11 20:08:42,879 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-11 20:08:42,880 | INFO | MainThread | Modbus disconnected

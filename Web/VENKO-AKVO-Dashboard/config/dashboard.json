@@ -1,0 +1,13 @@
+{
+  "sensors": [
+    { "id": "dev1_temp",     "device": "DEV_1",  "slave": 1,  "sensor": "Temp",     "title": "Temperatura", "unit": "°C",  "min": -10, "max": 50,  "target": 20,  "value": 20 },
+    { "id": "dev3_temp",     "device": "DEV_3",  "slave": 3,  "sensor": "Temp",     "title": "Temperatura", "unit": "°C",  "min": -10, "max": 50,  "target": 20,  "value": 20 },
+    { "id": "dev4_presion1", "device": "DEV_4",  "slave": 4,  "sensor": "Presion1", "title": "Presión 1",  "unit": "MPa", "min": 0,   "max": 450, "target": 150, "value": 150 },
+    { "id": "dev5_presion2", "device": "DEV_5",  "slave": 5,  "sensor": "Presion2", "title": "Presión 2",  "unit": "MPa", "min": 0,   "max": 450, "target": 150, "value": 150 },
+    { "id": "dev6_hum",      "device": "DEV_6",  "slave": 3,  "sensor": "Hum",      "title": "Humedad",     "unit": "%",   "min": 0,   "max": 100, "target": 50,  "value": 50 },
+    { "id": "dev7_temp",     "device": "DEV_7",  "slave": 7,  "sensor": "Temp",     "title": "Temperatura", "unit": "°C",  "min": -10, "max": 50,  "target": 20,  "value": 20 },
+    { "id": "dev8_temp",     "device": "DEV_8",  "slave": 8,  "sensor": "Temp",     "title": "Temperatura", "unit": "°C",  "min": -10, "max": 50,  "target": 20,  "value": 20 },
+    { "id": "dev9_presion1", "device": "DEV_9",  "slave": 9,  "sensor": "Presion1", "title": "Presión 1",  "unit": "MPa", "min": 0,   "max": 450, "target": 150, "value": 150 },
+    { "id": "dev10_presion2","device": "DEV_10", "slave": 10, "sensor": "Presion2", "title": "Presión 2",  "unit": "MPa", "min": 0,   "max": 450, "target": 150, "value": 150 }
+  ]
+}

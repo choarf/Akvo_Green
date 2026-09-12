@@ -56,6 +56,10 @@ DEVICE_COLUMNS = {
 
 VALID_SENSOR_TYPES = {"int", "float", "uint16", "uint32", "int32", "float32"}
 
+# 32-bit types are read from two consecutive holding registers by
+# SensorNode.read() (edge_node_improved.py) - count must cover both.
+MULTI_REGISTER_TYPES = {"uint32", "int32", "float32"}
+
 # ------------------------------------------------------------------
 # Logging
 # ------------------------------------------------------------------
@@ -209,6 +213,11 @@ class ConfigManager:
                 if sensor["type"] not in VALID_SENSOR_TYPES:
                     errors.append(
                         f"{dev_id}.{name}: Unsupported type '{sensor['type']}'"
+                    )
+                elif sensor["type"] in MULTI_REGISTER_TYPES and count < 2:
+                    errors.append(
+                        f"{dev_id}.{name}: type '{sensor['type']}' requires "
+                        f"count >= 2 (got {count})"
                     )
 
         if errors:

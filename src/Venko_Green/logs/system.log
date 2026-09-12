@@ -648,3 +648,13 @@
 2026-09-10 20:33:44,013 | INFO | MainThread | Starting Edge Node
 2026-09-10 20:33:44,013 | ERROR | MainThread | Modbus connect error: Connection failed
 2026-09-10 20:33:49,014 | ERROR | MainThread | Modbus connect error: Connection failed
+2026-09-11 19:40:42,616 | CRITICAL | MainThread | Watchdog: worker has not made progress in 10s (watchdog_timeout=2s) - exiting for restart by a process supervisor
+2026-09-11 19:51:05,954 | INFO | MainThread | MQTT disconnected
+2026-09-11 19:51:05,954 | INFO | MainThread | Modbus disconnected
+2026-09-11 19:55:13,053 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-11 19:55:13,053 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-11 19:55:13,053 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-11 19:55:13,053 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-11 19:55:42,703 | ERROR | Thread-1 (connect) | Modbus connect error: Connection failed - retrying in 6.2s
+2026-09-11 19:55:48,913 | ERROR | Thread-1 (connect) | Modbus connect error: Connection failed - retrying in 8.8s
+2026-09-11 19:55:57,709 | ERROR | Thread-1 (connect) | Modbus connect error: Connection failed - retrying in 17.8s

@@ -1,14 +1,14 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-09-05T01:04:33.346619+00:00",
-        "hash": "e789a58cdaf803a272763d87ed0c6d77"
+        "generated_at": "2026-09-12T01:05:33.780811+00:00",
+        "hash": "22643c07f9d2a0f848ebc7903c2c72c0"
     },
     "gateway": {
         "gateway_id": "AKVO_GW_101",
         "city": "America/Mexico_City",
-        "poll_interval": 15,
-        "system_interval": 30,
+        "poll_interval": 20,
+        "system_interval": 60,
         "watchdog_timeout": 120
     },
     "modbus": {

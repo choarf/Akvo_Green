@@ -1,4 +1,4 @@
 {
     "fake_modbus": true,
-    "fake_mqtt": false
+    "fake_mqtt": true
 }

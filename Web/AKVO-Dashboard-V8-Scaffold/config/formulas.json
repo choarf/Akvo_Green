@@ -1,0 +1,6 @@
+{
+  "recovery":"(permflow/feedflow)*100",
+  "deltaP":"presion1-presion4",
+  "saltRejection":"(1-permCond/feedCond)*100",
+  "fouling":"(deltaP/20)*100"
+}

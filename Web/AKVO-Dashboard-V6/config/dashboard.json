@@ -1,0 +1,68 @@
+{
+  "gauges": [
+    {
+      "id": "recovery",
+      "title": "Recovery",
+      "unit": "%",
+      "value": 72,
+      "max": 100,
+      "target": 75
+    },
+    {
+      "id": "reject",
+      "title": "Reject",
+      "unit": "%",
+      "value": 98.5,
+      "max": 100,
+      "target": 98
+    },
+    {
+      "id": "conductivity",
+      "title": "Conductivity",
+      "unit": "uS/cm",
+      "value": 25,
+      "max": 50,
+      "target": 20
+    },
+    {
+      "id": "presion1",
+      "title": "Presi\u00f3n 1",
+      "unit": "psi",
+      "value": 120,
+      "max": 200,
+      "target": 150
+    },
+    {
+      "id": "presion2",
+      "title": "Presi\u00f3n 2",
+      "unit": "psi",
+      "value": 145,
+      "max": 200,
+      "target": 150
+    },
+    {
+      "id": "presion3",
+      "title": "Presi\u00f3n 3",
+      "unit": "psi",
+      "value": 165,
+      "max": 200,
+      "target": 150
+    },
+    {
+      "id": "presion4",
+      "title": "Presi\u00f3n 4",
+      "unit": "psi",
+      "value": 138,
+      "max": 200,
+      "target": 150
+    },
+    {
+      "id": "caudal",
+      "title": "Flujo de Caudal",
+      "unit": "L/min",
+      "value": 82,
+      "max": 150,
+      "target": 90
+    }
+  ]
+}

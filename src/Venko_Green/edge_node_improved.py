@@ -2,7 +2,9 @@ import os
 import json
 import time
 import queue
+import random
 import socket
+import struct
 import hashlib
 import logging
 import platform
@@ -69,6 +71,18 @@ class ConfigManager:
             return self.config
 
 
+def _retry_delay(attempt, base=5, cap=60, jitter=0.3):
+    """Exponential backoff with jitter, capped at `cap` seconds.
+
+    Used by MQTTManager/ModbusManager.connect() so a permanently wrong
+    cert/host/port doesn't retry every 5s forever - it escalates up to
+    `cap` and stays there, with jitter to avoid a reconnect-storm if many
+    gateways fail at once. `attempt` is 0 on the first failure.
+    """
+    delay = min(base * (2 ** min(attempt, 10)), cap)
+    return delay * (1 + random.uniform(-jitter, jitter))
+
+
 def _section_hash(section: dict) -> str:
     """Stable hash of a config sub-section, used to detect changes that
     require reconnecting Modbus/MQTT rather than just rebuilding devices."""
@@ -97,6 +111,11 @@ def get_system_status(gateway_cfg: dict) -> dict:
 
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        # UDP connect() is just a local route lookup (no handshake), so this
+        # rarely blocks - but an explicit timeout is cheap insurance against
+        # an unusual routing setup hanging this thread indefinitely, which
+        # would otherwise stall host-health reporting itself.
+        s.settimeout(2.0)
         s.connect(("8.8.8.8", 80))
         ip_address = s.getsockname()[0]
         s.close()
@@ -142,6 +161,7 @@ class MQTTManager:
         self.lock = threading.RLock()
 
     def connect(self):
+        attempt = 0
         while True:
             try:
                 logger.info("Connecting MQTT...")
@@ -169,8 +189,10 @@ class MQTTManager:
                 return
 
             except Exception as e:
-                logger.error(f"MQTT connect failed: {e}")
-                time.sleep(5)
+                delay = _retry_delay(attempt)
+                logger.error(f"MQTT connect failed: {e} - retrying in {delay:.1f}s")
+                time.sleep(delay)
+                attempt += 1
 
     def update_config(self, cfg):
         """Called by config_watcher when the 'aws' section changes.
@@ -201,6 +223,19 @@ class MQTTManager:
             logger.error(f"MQTT publish failed: {e}")
             self.connect()
 
+    def disconnect(self):
+        """Cleanly close the connection. Called from EdgeNode.stop() so AWS
+        IoT sees a proper DISCONNECT instead of an unclean session drop."""
+        with self.lock:
+            connection = self.connection
+            self.connection = None
+        if connection is not None:
+            try:
+                connection.disconnect().result()
+                logger.info("MQTT disconnected")
+            except Exception as e:
+                logger.warning(f"MQTT disconnect failed: {e}")
+
 
 # =========================
 # MODBUS MANAGER (RETRY SAFE)
@@ -214,6 +249,7 @@ class ModbusManager:
         self.lock = threading.RLock()
 
     def connect(self):
+        attempt = 0
         while True:
             try:
                 client = ModbusSerialClient(**self.cfg)
@@ -226,8 +262,10 @@ class ModbusManager:
                     raise Exception("Connection failed")
 
             except Exception as e:
-                logger.error(f"Modbus connect error: {e}")
-                time.sleep(5)
+                delay = _retry_delay(attempt)
+                logger.error(f"Modbus connect error: {e} - retrying in {delay:.1f}s")
+                time.sleep(delay)
+                attempt += 1
 
     def update_config(self, cfg):
         """Called by config_watcher when the 'modbus' section changes."""
@@ -251,10 +289,34 @@ class ModbusManager:
             address=address, count=count, device_id=device_id
         )
 
+    def disconnect(self):
+        """Cleanly close the serial port. Called from EdgeNode.stop()."""
+        with self.lock:
+            client = self.client
+            self.client = None
+        if client is not None:
+            try:
+                client.close()
+                logger.info("Modbus disconnected")
+            except Exception as e:
+                logger.warning(f"Modbus close failed: {e}")
+
 
 # =========================
 # SENSOR + DEVICE
 # =========================
+
+# High-register-first ("big-endian word order"), matching pymodbus's own
+# default (Endian.BIG for both byte order and word order). Devices that use
+# the opposite word order will need this flipped - there's no way to detect
+# that automatically from the register values alone.
+def _combine_32bit(registers, signed=False, as_float=False):
+    raw = struct.pack(">HH", registers[0], registers[1])
+    if as_float:
+        return struct.unpack(">f", raw)[0]
+    return struct.unpack(">i" if signed else ">I", raw)[0]
+
+
 class SensorNode:
     def __init__(self, cfg, slave, modbus_mgr):
         self.cfg = cfg
@@ -279,10 +341,27 @@ class SensorNode:
             if res.isError():
                 return {"status": "BUS_ERROR"}
 
-            val = res.registers[0]
+            sensor_type = self.cfg.get("type", "int")
 
-            if self.cfg.get("type") == "float":
-                val = val * self.cfg.get("scale", 1) + self.cfg.get("offset", 0)
+            if sensor_type in ("uint32", "int32", "float32"):
+                if len(res.registers) < 2:
+                    # config_manager.py's build validation rejects this
+                    # combination, but a hand-edited config.json can still
+                    # reach here - fail loudly instead of silently reading
+                    # only the low/high half of the value.
+                    return {
+                        "status": "EXCEPTION",
+                        "err": f"type '{sensor_type}' needs count >= 2, got {len(res.registers)}",
+                    }
+                if sensor_type == "float32":
+                    val = _combine_32bit(res.registers, as_float=True)
+                    val = val * self.cfg.get("scale", 1) + self.cfg.get("offset", 0)
+                else:
+                    val = _combine_32bit(res.registers, signed=(sensor_type == "int32"))
+            else:
+                val = res.registers[0]
+                if sensor_type == "float":
+                    val = val * self.cfg.get("scale", 1) + self.cfg.get("offset", 0)
 
             return {"val": val, "status": "OK", "alarm": self._evaluate_alarm(val)}
 
@@ -298,6 +377,10 @@ class DeviceNode:
             for s in cfg["sensors"]
         ]
         self.cache = {}
+        # Last alarm value seen per sensor name, so _evaluate_rules() can
+        # log on transition rather than re-logging every single cycle a
+        # value stays out of range.
+        self._last_alarms = {}
 
     def poll(self):
         for s in self.sensors:
@@ -315,8 +398,16 @@ class DeviceNode:
     def _evaluate_rules(self):
         for name, data in self.cache.items():
             alarm = data.get("alarm")
-            if alarm in ("HIGH", "LOW"):
-                logger.warning(f"[ALERT] {self.id}.{name} {alarm}")
+            previous = self._last_alarms.get(name)
+
+            if alarm != previous:
+                if alarm in ("HIGH", "LOW"):
+                    logger.warning(f"[ALERT] {self.id}.{name} {alarm}")
+                elif previous in ("HIGH", "LOW"):
+                    status_note = f" (status={data.get('status')})" if alarm is None else ""
+                    logger.info(f"[CLEAR] {self.id}.{name} no longer {previous}{status_note}")
+
+            self._last_alarms[name] = alarm
 
     def snapshot(self):
         return self.cache
@@ -342,6 +433,14 @@ class EdgeNode:
         self._aws_hash = None
         # Last-seen device configs, keyed by id, for partial-reload diffing.
         self._device_cfgs = {}
+
+        # Updated by worker() every loop iteration (whether or not a device
+        # was actually polled that tick). watchdog() checks this - a stall
+        # here means the worker thread is genuinely stuck (e.g. blocked
+        # inside a library call that never returns), not just reporting
+        # errors, since per-device failures are already caught and recorded
+        # by SensorNode.read()/DeviceNode.poll() without stopping the loop.
+        self._last_heartbeat = time.time()
 
     def init_system(self):
         cfg = self.config_mgr.get()
@@ -420,14 +519,22 @@ class EdgeNode:
     # =========================
     def scheduler(self):
         while not self.stop_event.is_set():
-            cfg = self.config_mgr.get()
-            interval = cfg["gateway"]["poll_interval"]
+            interval = 5  # fallback if config access below fails
+            try:
+                cfg = self.config_mgr.get()
+                interval = cfg["gateway"]["poll_interval"]
 
-            for d in self.devices.values():
-                try:
-                    self.queue.put(d, timeout=1)
-                except queue.Full:
-                    logger.warning("Queue full, dropping task")
+                for d in self.devices.values():
+                    try:
+                        self.queue.put(d, timeout=1)
+                    except queue.Full:
+                        logger.warning("Queue full, dropping task")
+            except Exception as e:
+                # Without this, a bad/missing config key here (e.g. during
+                # a hand-edited config.json) kills the scheduler thread
+                # permanently and silently - polling just stops forever
+                # with nothing in the logs to explain why.
+                logger.error(f"Scheduler error: {e}")
 
             time.sleep(interval)
 
@@ -436,6 +543,7 @@ class EdgeNode:
             try:
                 device = self.queue.get(timeout=1)
             except queue.Empty:
+                self._last_heartbeat = time.time()
                 continue
             try:
                 device.poll()
@@ -447,32 +555,47 @@ class EdgeNode:
                 logger.error(f"Unexpected error polling device {device.id}: {e}")
             finally:
                 self.queue.task_done()
+                self._last_heartbeat = time.time()
 
     def publisher(self):
         while not self.stop_event.is_set():
-            cfg = self.config_mgr.get()
+            interval = 5  # fallback if config access below fails
+            try:
+                cfg = self.config_mgr.get()
+                interval = cfg["gateway"]["poll_interval"]
 
-            payload = {
-                "ts": datetime.now(UTC).isoformat(),
-                "devices": {
-                    k: v.snapshot()
-                    for k, v in self.devices.items()
+                payload = {
+                    "ts": datetime.now(UTC).isoformat(),
+                    "devices": {
+                        k: v.snapshot()
+                        for k, v in self.devices.items()
+                    }
                 }
-            }
 
-            self.mqtt.publish(cfg["aws"]["topic_pub"], payload)
+                self.mqtt.publish(cfg["aws"]["topic_pub"], payload)
+            except Exception as e:
+                # See scheduler() - same reasoning: don't let one bad cycle
+                # permanently kill the thread that reports device data.
+                logger.error(f"Publisher error: {e}")
 
-            time.sleep(cfg["gateway"]["poll_interval"])
+            time.sleep(interval)
 
     def system_publisher(self):
         while not self.stop_event.is_set():
-            cfg = self.config_mgr.get()
+            interval = 5  # fallback if config access below fails
+            try:
+                cfg = self.config_mgr.get()
+                interval = cfg["gateway"]["system_interval"]
 
-            payload = get_system_status(cfg["gateway"])
+                payload = get_system_status(cfg["gateway"])
 
-            self.mqtt.publish(cfg["aws"]["topic_system"], payload)
+                self.mqtt.publish(cfg["aws"]["topic_system"], payload)
+            except Exception as e:
+                # See scheduler() - same reasoning: don't let one bad cycle
+                # permanently kill host-health reporting.
+                logger.error(f"System publisher error: {e}")
 
-            time.sleep(cfg["gateway"]["system_interval"])
+            time.sleep(interval)
 
     def config_watcher(self):
         last_mtime = 0
@@ -507,6 +630,38 @@ class EdgeNode:
 
             time.sleep(5)
 
+    def watchdog(self):
+        """Exits the process if the worker thread stops making progress.
+
+        gateway.watchdog_timeout was previously loaded from config and
+        never used. This is a last resort, not a substitute for the
+        per-thread try/except guards elsewhere: those recover from
+        expected failures (bad reads, bad config values) without missing
+        a beat, whereas this only fires when worker() has stopped
+        advancing entirely - e.g. blocked inside a library call that
+        never returns. os._exit() skips cleanup deliberately (the process
+        may be in a genuinely stuck state, so a graceful shutdown could
+        hang too) and relies on an external supervisor (systemd
+        Restart=always, a container restart policy, etc.) to bring the
+        process back up - without one, the gateway just stays down.
+        """
+        while not self.stop_event.is_set():
+            try:
+                timeout = self.config_mgr.get().get("gateway", {}).get("watchdog_timeout")
+                if timeout:
+                    stalled_for = time.time() - self._last_heartbeat
+                    if stalled_for > timeout:
+                        logger.critical(
+                            f"Watchdog: worker has not made progress in "
+                            f"{stalled_for:.0f}s (watchdog_timeout={timeout}s) "
+                            f"- exiting for restart by a process supervisor"
+                        )
+                        os._exit(1)
+            except Exception as e:
+                logger.error(f"Watchdog error: {e}")
+
+            time.sleep(5)
+
     # =========================
     # LIFECYCLE
     # =========================
@@ -521,6 +676,7 @@ class EdgeNode:
             threading.Thread(target=self.publisher, name="Publisher"),
             threading.Thread(target=self.system_publisher, name="SystemPublisher"),
             threading.Thread(target=self.config_watcher, name="ConfigWatcher"),
+            threading.Thread(target=self.watchdog, name="Watchdog"),
         ]
 
         for t in threads:
@@ -536,6 +692,14 @@ class EdgeNode:
     def stop(self):
         logger.info("Stopping Edge Node")
         self.stop_event.set()
+
+        # Close both connections cleanly instead of just abandoning them -
+        # otherwise AWS IoT sees an unclean session drop rather than a
+        # proper disconnect, and the serial port is never released.
+        if self.mqtt is not None:
+            self.mqtt.disconnect()
+        if self.modbus is not None:
+            self.modbus.disconnect()
 
 
 # =========================
