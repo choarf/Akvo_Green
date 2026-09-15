@@ -7,3 +7,6 @@
 # pytest coverage output (local test-run artifact, not previously tracked)
 .coverage
 __pycache__/
+
+# run_tests.sh's generated reports and per-suite scratch logs
+reports/
