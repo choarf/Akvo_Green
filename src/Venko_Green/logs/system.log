@@ -658,3 +658,4 @@
 2026-09-11 19:55:42,703 | ERROR | Thread-1 (connect) | Modbus connect error: Connection failed - retrying in 6.2s
 2026-09-11 19:55:48,913 | ERROR | Thread-1 (connect) | Modbus connect error: Connection failed - retrying in 8.8s
 2026-09-11 19:55:57,709 | ERROR | Thread-1 (connect) | Modbus connect error: Connection failed - retrying in 17.8s
+2026-09-14 20:15:29,899 | WARNING | MainThread | DEV_6: Duplicate slave ID 3

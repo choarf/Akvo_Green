@@ -380,3 +380,350 @@
 2026-09-11 21:05:20,181 | WARNING | Worker | [ALERT] DEV_9.Presion1 HIGH
 2026-09-11 21:05:40,044 | INFO | Worker | [CLEAR] DEV_6.Hum no longer HIGH
 2026-09-11 21:05:59,922 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-14 20:15:14,384 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:15:14,408 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:15:14,408 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:15:14,409 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:15:14,410 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:15:14,411 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:15:14,411 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:15:22,408 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:15:22,408 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:15:22,408 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:18:47,030 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:18:47,030 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:18:47,031 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:18:47,031 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:18:47,031 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:18:47,033 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:18:47,033 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:19:07,235 | WARNING | Worker | [ALERT] DEV_5.Presion2 HIGH
+2026-09-14 20:19:11,428 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-14 20:19:12,031 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:19:12,031 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:19:12,031 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:30:02,151 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:30:02,152 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:30:02,153 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:30:02,153 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:30:02,154 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:30:02,155 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:30:02,156 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:30:22,602 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-14 20:30:32,153 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:30:32,153 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:30:32,153 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:33:02,074 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:33:02,074 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:33:02,075 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:33:02,075 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:33:02,076 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:33:02,077 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:33:02,077 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:33:22,554 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-14 20:33:32,075 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:33:32,075 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:33:32,076 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:33:51,688 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:33:51,688 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:33:51,689 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:33:51,689 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:33:51,689 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:33:51,691 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:33:51,691 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:34:11,789 | WARNING | Worker | [ALERT] DEV_3.Temp HIGH
+2026-09-14 20:34:11,897 | WARNING | Worker | [ALERT] DEV_5.Presion2 HIGH
+2026-09-14 20:34:16,689 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:34:16,689 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:34:16,689 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:39:20,516 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:39:20,517 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:39:20,517 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:39:20,518 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:39:20,757 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:39:20,759 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:39:20,759 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:39:21,221 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-14 20:39:28,517 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:39:28,518 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:39:28,519 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:39:29,361 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:39:29,361 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:39:29,362 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:39:29,362 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:39:29,584 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:39:29,588 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:39:29,590 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:39:37,361 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:39:37,362 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:39:37,363 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:39:38,207 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:39:38,208 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:39:38,209 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:39:38,209 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:39:38,446 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:39:38,450 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:39:38,452 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:39:46,208 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:39:46,210 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:39:46,210 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:39:47,084 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:39:47,085 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:39:47,085 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:39:47,086 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:39:47,314 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:39:47,319 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:39:47,320 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:39:55,085 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:39:55,086 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:39:55,086 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:39:55,894 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:39:55,894 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:39:55,895 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:39:55,896 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:39:56,103 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:39:56,107 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:39:56,109 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:40:03,895 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:40:03,895 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:40:03,896 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:40:17,167 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:40:17,167 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:40:17,168 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:40:17,168 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:40:17,430 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:40:17,435 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:40:17,436 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:40:37,527 | WARNING | Worker | [ALERT] DEV_3.Temp HIGH
+2026-09-14 20:40:37,689 | WARNING | Worker | [ALERT] DEV_6.Hum HIGH
+2026-09-14 20:40:42,168 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:40:42,168 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:40:42,169 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:40:42,972 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:40:42,972 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:40:42,973 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:40:42,973 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:40:43,214 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:40:43,218 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:40:43,220 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:41:03,268 | WARNING | Worker | [ALERT] DEV_1.Temp HIGH
+2026-09-14 20:41:07,973 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:41:07,974 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:41:07,975 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:41:08,851 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:41:08,851 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:41:08,852 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:41:08,852 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:41:09,090 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:41:09,095 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:41:09,096 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:41:29,162 | WARNING | Worker | [ALERT] DEV_3.Temp HIGH
+2026-09-14 20:41:29,482 | WARNING | Worker | [ALERT] DEV_9.Presion1 HIGH
+2026-09-14 20:41:33,851 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:41:33,852 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:41:33,853 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:41:34,723 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:41:34,724 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:41:34,725 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:41:34,725 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:41:34,950 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:41:34,954 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:41:34,956 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:41:59,724 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:41:59,725 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:41:59,726 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:42:08,948 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:42:08,949 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:42:08,949 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:42:08,950 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:42:09,198 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:42:09,203 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:42:09,204 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:42:33,949 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:42:33,950 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:42:33,951 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:42:34,770 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:42:34,771 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:42:34,771 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:42:34,772 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:42:34,984 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:42:34,988 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:42:34,990 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:42:55,441 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-14 20:42:59,771 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:42:59,772 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:42:59,773 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:43:00,619 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:43:00,619 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:43:00,620 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:43:00,620 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:43:00,852 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:43:00,857 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:43:00,858 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:43:21,287 | WARNING | Worker | [ALERT] DEV_9.Presion1 HIGH
+2026-09-14 20:43:25,619 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:43:25,620 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:43:25,621 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:43:26,490 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:43:26,490 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:43:26,491 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:43:26,491 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:43:26,724 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:43:26,728 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:43:26,730 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:43:46,791 | WARNING | Worker | [ALERT] DEV_3.Temp HIGH
+2026-09-14 20:43:46,843 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-14 20:43:47,110 | WARNING | Worker | [ALERT] DEV_9.Presion1 HIGH
+2026-09-14 20:43:51,490 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:43:51,492 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:43:51,492 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:43:52,362 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:43:52,362 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:43:52,363 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:43:52,363 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:43:52,598 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:43:52,602 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:43:52,604 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:44:12,844 | WARNING | Worker | [ALERT] DEV_6.Hum HIGH
+2026-09-14 20:44:17,363 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:44:17,364 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:44:17,365 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:44:18,222 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:44:18,222 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:44:18,223 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:44:18,224 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:44:18,402 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:44:18,406 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:44:18,408 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:44:18,527 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-14 20:44:38,591 | WARNING | Worker | [ALERT] DEV_5.Presion2 HIGH
+2026-09-14 20:44:43,223 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:44:43,223 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:44:43,224 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:44:44,039 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:44:44,040 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:44:44,047 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:44:44,047 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:44:44,289 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:44:44,294 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:44:44,295 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:45:09,040 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:45:09,041 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:45:09,041 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:45:09,886 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:45:09,886 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:45:09,887 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:45:09,887 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:45:10,115 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:45:10,119 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:45:10,121 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:45:10,301 | WARNING | Worker | [ALERT] DEV_5.Presion2 HIGH
+2026-09-14 20:45:30,313 | INFO | Worker | [CLEAR] DEV_5.Presion2 no longer HIGH
+2026-09-14 20:45:30,581 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-14 20:45:34,887 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:45:34,888 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:45:34,888 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:45:35,734 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:45:35,734 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:45:35,734 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:45:35,736 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:45:35,986 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:45:35,990 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:45:35,992 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:46:00,734 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:46:00,735 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:46:00,736 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:46:01,607 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:46:01,608 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:46:01,608 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:46:01,609 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:46:01,883 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:46:01,888 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:46:01,889 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:46:22,028 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-14 20:46:22,138 | WARNING | Worker | [ALERT] DEV_6.Hum HIGH
+2026-09-14 20:46:22,353 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-14 20:46:26,608 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:46:26,609 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:46:26,610 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:48:51,024 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 20:48:51,024 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 20:48:51,025 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 20:48:51,025 | INFO | ModbusConnect | Modbus connected
+2026-09-14 20:48:51,267 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 20:48:51,272 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 20:48:51,273 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 20:49:11,671 | WARNING | Worker | [ALERT] DEV_9.Presion1 HIGH
+2026-09-14 20:49:21,025 | INFO | MainThread | Stopping Edge Node
+2026-09-14 20:49:21,026 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:49:21,027 | INFO | MainThread | Modbus disconnected
+2026-09-14 21:00:23,391 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 21:00:23,391 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 21:00:23,392 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 21:00:23,393 | INFO | ModbusConnect | Modbus connected
+2026-09-14 21:00:23,623 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 21:00:23,628 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 21:00:23,629 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 21:00:23,896 | WARNING | Worker | [ALERT] DEV_6.Hum HIGH
+2026-09-14 21:00:53,392 | INFO | MainThread | Stopping Edge Node
+2026-09-14 21:00:53,393 | INFO | MainThread | MQTT disconnected
+2026-09-14 21:00:53,394 | INFO | MainThread | Modbus disconnected
+2026-09-14 21:08:30,324 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 21:08:30,324 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 21:08:30,324 | INFO | ModbusConnect | Modbus connected
+2026-09-14 21:08:30,324 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 21:08:30,325 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 21:08:30,326 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 21:08:30,327 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 21:08:50,324 | INFO | MainThread | Stopping Edge Node
+2026-09-14 21:08:50,324 | INFO | MainThread | MQTT disconnected
+2026-09-14 21:08:50,324 | INFO | MainThread | Modbus disconnected
+2026-09-14 21:09:31,417 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 21:09:31,418 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 21:09:31,418 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 21:09:31,419 | INFO | ModbusConnect | Modbus connected
+2026-09-14 21:09:31,663 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 21:09:31,667 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 21:09:31,669 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 21:09:52,037 | WARNING | Worker | [ALERT] DEV_8.Temp HIGH
+2026-09-14 21:10:01,418 | INFO | MainThread | Stopping Edge Node
+2026-09-14 21:10:01,421 | INFO | MainThread | MQTT disconnected
+2026-09-14 21:10:01,421 | INFO | MainThread | Modbus disconnected
+2026-09-14 21:21:36,501 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-14 21:21:36,502 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-14 21:21:36,502 | INFO | ModbusConnect | Modbus connected
+2026-09-14 21:21:36,503 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-14 21:21:36,503 | INFO | Thread-1 (start) | MQTT connected
+2026-09-14 21:21:36,506 | INFO | ConfigWatcher | Reloading config...
+2026-09-14 21:21:36,506 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-14 21:21:36,518 | INFO | WifiConnect | WiFi connected
+2026-09-14 21:21:51,502 | INFO | MainThread | Stopping Edge Node
+2026-09-14 21:21:51,503 | INFO | MainThread | MQTT disconnected
+2026-09-14 21:21:51,503 | INFO | MainThread | Modbus disconnected
+2026-09-14 21:21:51,503 | INFO | MainThread | WiFi disconnected
+2026-09-15 07:08:39,005 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-15 07:08:39,005 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-15 07:08:39,006 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-15 07:08:39,006 | INFO | ModbusConnect | Modbus connected
+2026-09-15 07:08:39,022 | INFO | WifiConnect | WiFi connected
+2026-09-15 07:08:39,244 | INFO | Thread-1 (start) | MQTT connected
+2026-09-15 07:08:39,247 | INFO | ConfigWatcher | Reloading config...
+2026-09-15 07:08:39,248 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-15 07:08:59,320 | WARNING | Worker | [ALERT] DEV_3.Temp HIGH
+2026-09-15 07:08:59,372 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-15 07:09:09,005 | INFO | MainThread | Stopping Edge Node
+2026-09-15 07:09:09,006 | INFO | MainThread | MQTT disconnected
+2026-09-15 07:09:09,006 | INFO | MainThread | Modbus disconnected
+2026-09-15 07:09:09,007 | INFO | MainThread | WiFi disconnected
+2026-09-15 07:32:44,043 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-15 07:32:44,043 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-15 07:32:44,044 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-15 07:32:44,044 | INFO | Thread-1 (start) | MQTT connected
+2026-09-15 07:32:44,044 | INFO | ModbusConnect | Modbus connected
+2026-09-15 07:32:44,047 | INFO | ConfigWatcher | Reloading config...
+2026-09-15 07:32:44,048 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-15 07:32:44,059 | INFO | WifiConnect | WiFi connected
+2026-09-15 07:32:56,043 | INFO | MainThread | Stopping Edge Node
+2026-09-15 07:32:56,044 | INFO | MainThread | MQTT disconnected
+2026-09-15 07:32:56,044 | INFO | MainThread | Modbus disconnected
+2026-09-15 07:32:56,044 | INFO | MainThread | WiFi disconnected

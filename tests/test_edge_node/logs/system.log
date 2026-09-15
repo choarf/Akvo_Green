@@ -34,3 +34,1105 @@
 2026-09-11 20:08:42,878 | ERROR | MainThread | MQTT publish skipped: not yet connected
 2026-09-11 20:08:42,879 | ERROR | MainThread | MQTT publish failed: boom
 2026-09-11 20:08:42,880 | INFO | MainThread | Modbus disconnected
+2026-09-11 21:13:04,982 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-11 21:13:04,984 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-11 21:13:04,984 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-11 21:13:04,984 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-11 21:13:04,984 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-11 21:13:04,986 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-11 21:13:04,987 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-11 21:13:04,990 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-11 21:13:04,992 | INFO | MainThread | MQTT disconnected
+2026-09-11 21:13:04,994 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-11 21:13:04,996 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-11 21:13:04,996 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:15:07,733 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-14 20:15:07,735 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-14 20:15:07,735 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-14 20:15:07,736 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-14 20:15:07,736 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-14 20:15:07,761 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-14 20:15:07,762 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-14 20:15:07,765 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-14 20:15:07,766 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:15:07,768 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-14 20:15:07,769 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-14 20:15:07,770 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:27:23,505 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-14 20:27:23,507 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-14 20:27:23,507 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-14 20:27:23,507 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-14 20:27:23,507 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-14 20:27:23,535 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-14 20:27:23,536 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-14 20:27:23,539 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-14 20:27:23,541 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:27:23,543 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-14 20:27:23,545 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-14 20:27:23,546 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:32:22,422 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-14 20:32:22,424 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-14 20:32:22,424 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-14 20:32:22,424 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-14 20:32:22,424 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-14 20:32:22,446 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-14 20:32:22,447 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-14 20:32:22,449 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-14 20:32:22,452 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:32:22,453 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-14 20:32:22,455 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-14 20:32:22,455 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:47:29,050 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-14 20:47:29,052 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-14 20:47:29,052 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-14 20:47:29,052 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-14 20:47:29,052 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-14 20:47:29,079 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-14 20:47:29,079 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-14 20:47:29,082 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-14 20:47:29,084 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:47:29,085 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-14 20:47:29,086 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-14 20:47:29,087 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:52:46,233 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-14 20:52:46,234 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-14 20:52:46,234 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-14 20:52:46,234 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-14 20:52:46,235 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-14 20:52:46,259 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-14 20:52:46,260 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-14 20:52:46,263 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-14 20:52:46,264 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:52:46,266 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-14 20:52:46,267 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-14 20:52:46,268 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:56:43,852 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-14 20:56:43,854 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-14 20:56:43,854 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-14 20:56:43,854 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-14 20:56:43,854 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-14 20:56:43,885 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-14 20:56:43,885 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-14 20:56:43,888 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-14 20:56:43,890 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:56:43,892 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-14 20:56:43,894 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-14 20:56:43,895 | INFO | MainThread | Modbus disconnected
+2026-09-14 20:58:50,414 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-14 20:58:50,416 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-14 20:58:50,416 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-14 20:58:50,416 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-14 20:58:50,416 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-14 20:58:50,443 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-14 20:58:50,444 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-14 20:58:50,447 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-14 20:58:50,449 | INFO | MainThread | MQTT disconnected
+2026-09-14 20:58:50,450 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-14 20:58:50,452 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-14 20:58:50,453 | INFO | MainThread | Modbus disconnected
+2026-09-14 21:00:22,414 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-14 21:00:22,417 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-14 21:00:22,417 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-14 21:00:22,417 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-14 21:00:22,417 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-14 21:00:22,449 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-14 21:00:22,450 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-14 21:00:22,454 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-14 21:00:22,456 | INFO | MainThread | MQTT disconnected
+2026-09-14 21:00:22,457 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-14 21:00:22,459 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-14 21:00:22,460 | INFO | MainThread | Modbus disconnected
+2026-09-14 21:08:24,090 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-14 21:08:24,092 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-14 21:08:24,092 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-14 21:08:24,092 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-14 21:08:24,092 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-14 21:08:24,113 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-14 21:08:24,114 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-14 21:08:24,116 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-14 21:08:24,117 | INFO | MainThread | MQTT disconnected
+2026-09-14 21:08:24,119 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-14 21:08:24,120 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-14 21:08:24,121 | INFO | MainThread | Modbus disconnected
+2026-09-14 21:09:30,426 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-14 21:09:30,428 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-14 21:09:30,429 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-14 21:09:30,429 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-14 21:09:30,429 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-14 21:09:30,462 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-14 21:09:30,463 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-14 21:09:30,467 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-14 21:09:30,468 | INFO | MainThread | MQTT disconnected
+2026-09-14 21:09:30,470 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-14 21:09:30,471 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-14 21:09:30,472 | INFO | MainThread | Modbus disconnected
+2026-09-14 21:21:17,367 | INFO | MainThread | Modbus connected
+2026-09-14 21:21:17,369 | ERROR | MainThread | Modbus connect error: port busy - retrying in 4.6s
+2026-09-14 21:21:17,369 | ERROR | MainThread | Modbus connect error: port busy - retrying in 10.8s
+2026-09-14 21:21:17,369 | INFO | MainThread | Modbus connected
+2026-09-14 21:21:17,370 | INFO | MainThread | Modbus connected
+2026-09-14 21:21:17,370 | INFO | MainThread | Modbus disconnected
+2026-09-14 21:21:17,371 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 4.1s
+2026-09-14 21:21:17,371 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 8.7s
+2026-09-14 21:21:17,371 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 24.6s
+2026-09-14 21:21:17,371 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 49.0s
+2026-09-14 21:21:17,371 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 76.9s
+2026-09-14 21:21:17,372 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 48.5s
+2026-09-14 21:21:17,372 | CRITICAL | Thread-1 (connect) | Modbus has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-14 21:21:17,373 | INFO | MainThread | Connecting MQTT...
+2026-09-14 21:21:17,373 | INFO | MainThread | MQTT connected
+2026-09-14 21:21:17,374 | INFO | MainThread | Connecting MQTT...
+2026-09-14 21:21:17,374 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 4.0s
+2026-09-14 21:21:17,374 | INFO | MainThread | Connecting MQTT...
+2026-09-14 21:21:17,374 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 11.5s
+2026-09-14 21:21:17,374 | INFO | MainThread | Connecting MQTT...
+2026-09-14 21:21:17,374 | INFO | MainThread | MQTT connected
+2026-09-14 21:21:17,375 | INFO | MainThread | Connecting MQTT...
+2026-09-14 21:21:17,375 | INFO | MainThread | MQTT connected
+2026-09-14 21:21:17,375 | INFO | MainThread | MQTT disconnected
+2026-09-14 21:21:17,376 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-14 21:21:17,376 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 6.4s
+2026-09-14 21:21:17,377 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-14 21:21:17,377 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 8.9s
+2026-09-14 21:21:17,377 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-14 21:21:17,377 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 18.6s
+2026-09-14 21:21:17,377 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-14 21:21:17,377 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 40.5s
+2026-09-14 21:21:17,377 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-14 21:21:17,377 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 48.7s
+2026-09-14 21:21:17,377 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-14 21:21:17,377 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 58.0s
+2026-09-14 21:21:17,378 | CRITICAL | Thread-2 (connect) | MQTT has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-14 21:21:17,379 | INFO | MainThread | WiFi connected
+2026-09-14 21:21:17,380 | ERROR | MainThread | WiFi unreachable - retrying in 5.2s
+2026-09-14 21:21:17,380 | ERROR | MainThread | WiFi unreachable - retrying in 11.8s
+2026-09-14 21:21:17,380 | INFO | MainThread | WiFi connected
+2026-09-14 21:21:17,381 | INFO | MainThread | WiFi connected
+2026-09-14 21:21:17,381 | INFO | MainThread | WiFi disconnected
+2026-09-14 21:21:17,382 | INFO | MainThread | WiFi connected
+2026-09-14 21:21:17,382 | WARNING | Thread-3 (monitor) | WiFi disconnected
+2026-09-14 21:21:17,382 | ERROR | Thread-3 (monitor) | WiFi unreachable - retrying in 5.6s
+2026-09-14 21:21:17,382 | INFO | Thread-3 (monitor) | WiFi connected
+2026-09-14 21:21:17,393 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 5.2s
+2026-09-14 21:21:17,394 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 10.0s
+2026-09-14 21:21:17,394 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 19.9s
+2026-09-14 21:21:17,394 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 35.2s
+2026-09-14 21:21:17,394 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 61.1s
+2026-09-14 21:21:17,394 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 49.7s
+2026-09-14 21:21:17,394 | CRITICAL | Thread-4 (connect) | WiFi has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-14 21:21:17,396 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-14 21:21:17,397 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-14 21:21:17,397 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-14 21:21:26,307 | INFO | MainThread | Modbus connected
+2026-09-14 21:21:26,308 | ERROR | MainThread | Modbus connect error: port busy - retrying in 5.2s
+2026-09-14 21:21:26,308 | ERROR | MainThread | Modbus connect error: port busy - retrying in 7.1s
+2026-09-14 21:21:26,308 | INFO | MainThread | Modbus connected
+2026-09-14 21:21:26,309 | INFO | MainThread | Modbus connected
+2026-09-14 21:21:26,309 | INFO | MainThread | Modbus disconnected
+2026-09-14 21:21:26,310 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 4.3s
+2026-09-14 21:21:26,310 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 11.8s
+2026-09-14 21:21:26,310 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 23.7s
+2026-09-14 21:21:26,310 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 42.6s
+2026-09-14 21:21:26,311 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 55.1s
+2026-09-14 21:21:26,311 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 42.8s
+2026-09-14 21:21:26,311 | CRITICAL | Thread-1 (connect) | Modbus has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-14 21:21:26,312 | INFO | MainThread | Connecting MQTT...
+2026-09-14 21:21:26,312 | INFO | MainThread | MQTT connected
+2026-09-14 21:21:26,313 | INFO | MainThread | Connecting MQTT...
+2026-09-14 21:21:26,313 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 3.5s
+2026-09-14 21:21:26,313 | INFO | MainThread | Connecting MQTT...
+2026-09-14 21:21:26,313 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 13.0s
+2026-09-14 21:21:26,313 | INFO | MainThread | Connecting MQTT...
+2026-09-14 21:21:26,313 | INFO | MainThread | MQTT connected
+2026-09-14 21:21:26,314 | INFO | MainThread | Connecting MQTT...
+2026-09-14 21:21:26,314 | INFO | MainThread | MQTT connected
+2026-09-14 21:21:26,314 | INFO | MainThread | MQTT disconnected
+2026-09-14 21:21:26,316 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-14 21:21:26,316 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 5.9s
+2026-09-14 21:21:26,316 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-14 21:21:26,316 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 10.3s
+2026-09-14 21:21:26,316 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-14 21:21:26,316 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 16.7s
+2026-09-14 21:21:26,316 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-14 21:21:26,316 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 31.1s
+2026-09-14 21:21:26,316 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-14 21:21:26,316 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 46.8s
+2026-09-14 21:21:26,316 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-14 21:21:26,316 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 63.6s
+2026-09-14 21:21:26,317 | CRITICAL | Thread-2 (connect) | MQTT has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-14 21:21:26,318 | INFO | MainThread | WiFi connected
+2026-09-14 21:21:26,318 | ERROR | MainThread | WiFi unreachable - retrying in 5.2s
+2026-09-14 21:21:26,319 | ERROR | MainThread | WiFi unreachable - retrying in 10.3s
+2026-09-14 21:21:26,319 | INFO | MainThread | WiFi connected
+2026-09-14 21:21:26,320 | INFO | MainThread | WiFi connected
+2026-09-14 21:21:26,320 | INFO | MainThread | WiFi disconnected
+2026-09-14 21:21:26,321 | INFO | MainThread | WiFi connected
+2026-09-14 21:21:26,321 | WARNING | Thread-3 (monitor) | WiFi disconnected
+2026-09-14 21:21:26,321 | ERROR | Thread-3 (monitor) | WiFi unreachable - retrying in 5.0s
+2026-09-14 21:21:26,321 | INFO | Thread-3 (monitor) | WiFi connected
+2026-09-14 21:21:26,322 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 3.6s
+2026-09-14 21:21:26,322 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 9.6s
+2026-09-14 21:21:26,322 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 18.2s
+2026-09-14 21:21:26,322 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 36.8s
+2026-09-14 21:21:26,322 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 47.6s
+2026-09-14 21:21:26,323 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 46.4s
+2026-09-14 21:21:26,323 | CRITICAL | Thread-4 (connect) | WiFi has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-14 21:21:26,324 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-14 21:21:26,325 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-14 21:21:26,325 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-14 21:21:26,335 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-14 21:21:26,336 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-14 21:21:26,336 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-14 21:21:26,337 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-14 21:21:26,337 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-14 21:21:26,358 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-14 21:21:26,359 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-14 21:21:26,361 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-14 21:21:26,362 | INFO | MainThread | MQTT disconnected
+2026-09-14 21:21:26,364 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-14 21:21:26,365 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-14 21:21:26,366 | INFO | MainThread | Modbus disconnected
+2026-09-14 21:22:19,678 | INFO | MainThread | Modbus connected
+2026-09-14 21:22:19,679 | ERROR | MainThread | Modbus connect error: port busy - retrying in 4.4s
+2026-09-14 21:22:19,679 | ERROR | MainThread | Modbus connect error: port busy - retrying in 9.6s
+2026-09-14 21:22:19,679 | INFO | MainThread | Modbus connected
+2026-09-14 21:22:19,680 | INFO | MainThread | Modbus connected
+2026-09-14 21:22:19,680 | INFO | MainThread | Modbus disconnected
+2026-09-14 21:22:19,682 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 5.7s
+2026-09-14 21:22:19,682 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 10.0s
+2026-09-14 21:22:19,682 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 22.6s
+2026-09-14 21:22:19,682 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 40.5s
+2026-09-14 21:22:19,682 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 51.1s
+2026-09-14 21:22:19,682 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 59.3s
+2026-09-14 21:22:19,682 | CRITICAL | Thread-1 (connect) | Modbus has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-14 21:22:19,683 | INFO | MainThread | Connecting MQTT...
+2026-09-14 21:22:19,683 | INFO | MainThread | MQTT connected
+2026-09-14 21:22:19,684 | INFO | MainThread | Connecting MQTT...
+2026-09-14 21:22:19,685 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 5.4s
+2026-09-14 21:22:19,685 | INFO | MainThread | Connecting MQTT...
+2026-09-14 21:22:19,685 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 12.9s
+2026-09-14 21:22:19,685 | INFO | MainThread | Connecting MQTT...
+2026-09-14 21:22:19,685 | INFO | MainThread | MQTT connected
+2026-09-14 21:22:19,686 | INFO | MainThread | Connecting MQTT...
+2026-09-14 21:22:19,686 | INFO | MainThread | MQTT connected
+2026-09-14 21:22:19,686 | INFO | MainThread | MQTT disconnected
+2026-09-14 21:22:19,687 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-14 21:22:19,687 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 5.6s
+2026-09-14 21:22:19,687 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-14 21:22:19,688 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 9.8s
+2026-09-14 21:22:19,688 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-14 21:22:19,688 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 21.0s
+2026-09-14 21:22:19,688 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-14 21:22:19,688 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 41.9s
+2026-09-14 21:22:19,688 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-14 21:22:19,688 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 75.3s
+2026-09-14 21:22:19,688 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-14 21:22:19,688 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 49.9s
+2026-09-14 21:22:19,688 | CRITICAL | Thread-2 (connect) | MQTT has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-14 21:22:19,689 | INFO | MainThread | WiFi connected
+2026-09-14 21:22:19,690 | ERROR | MainThread | WiFi unreachable - retrying in 5.3s
+2026-09-14 21:22:19,690 | ERROR | MainThread | WiFi unreachable - retrying in 11.6s
+2026-09-14 21:22:19,690 | INFO | MainThread | WiFi connected
+2026-09-14 21:22:19,691 | INFO | MainThread | WiFi connected
+2026-09-14 21:22:19,691 | INFO | MainThread | WiFi disconnected
+2026-09-14 21:22:19,692 | INFO | MainThread | WiFi connected
+2026-09-14 21:22:19,692 | WARNING | Thread-3 (monitor) | WiFi disconnected
+2026-09-14 21:22:19,692 | ERROR | Thread-3 (monitor) | WiFi unreachable - retrying in 3.9s
+2026-09-14 21:22:19,693 | INFO | Thread-3 (monitor) | WiFi connected
+2026-09-14 21:22:19,694 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 4.9s
+2026-09-14 21:22:19,694 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 9.6s
+2026-09-14 21:22:19,694 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 26.0s
+2026-09-14 21:22:19,694 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 49.7s
+2026-09-14 21:22:19,694 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 70.4s
+2026-09-14 21:22:19,695 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 59.3s
+2026-09-14 21:22:19,695 | CRITICAL | Thread-4 (connect) | WiFi has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-14 21:22:19,697 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-14 21:22:19,698 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-14 21:22:19,698 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-14 21:22:19,707 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-14 21:22:19,709 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-14 21:22:19,709 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-14 21:22:19,709 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-14 21:22:19,709 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-14 21:22:19,733 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-14 21:22:19,734 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-14 21:22:19,736 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-14 21:22:19,738 | INFO | MainThread | MQTT disconnected
+2026-09-14 21:22:19,739 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-14 21:22:19,740 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-14 21:22:19,741 | INFO | MainThread | Modbus disconnected
+2026-09-15 06:40:15,734 | INFO | MainThread | Modbus connected
+2026-09-15 06:40:15,735 | ERROR | MainThread | Modbus connect error: port busy - retrying in 4.8s
+2026-09-15 06:40:15,735 | ERROR | MainThread | Modbus connect error: port busy - retrying in 12.7s
+2026-09-15 06:40:15,735 | INFO | MainThread | Modbus connected
+2026-09-15 06:40:15,736 | INFO | MainThread | Modbus connected
+2026-09-15 06:40:15,736 | INFO | MainThread | Modbus disconnected
+2026-09-15 06:40:15,737 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 5.4s
+2026-09-15 06:40:15,737 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 11.2s
+2026-09-15 06:40:15,738 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 22.6s
+2026-09-15 06:40:15,738 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 36.8s
+2026-09-15 06:40:15,738 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 71.3s
+2026-09-15 06:40:15,738 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 75.9s
+2026-09-15 06:40:15,738 | CRITICAL | Thread-1 (connect) | Modbus has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-15 06:40:15,739 | INFO | MainThread | Connecting MQTT...
+2026-09-15 06:40:15,739 | INFO | MainThread | MQTT connected
+2026-09-15 06:40:15,740 | INFO | MainThread | Connecting MQTT...
+2026-09-15 06:40:15,740 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 4.2s
+2026-09-15 06:40:15,740 | INFO | MainThread | Connecting MQTT...
+2026-09-15 06:40:15,740 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 10.6s
+2026-09-15 06:40:15,740 | INFO | MainThread | Connecting MQTT...
+2026-09-15 06:40:15,740 | INFO | MainThread | MQTT connected
+2026-09-15 06:40:15,741 | INFO | MainThread | Connecting MQTT...
+2026-09-15 06:40:15,741 | INFO | MainThread | MQTT connected
+2026-09-15 06:40:15,741 | INFO | MainThread | MQTT disconnected
+2026-09-15 06:40:15,743 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 06:40:15,743 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 4.7s
+2026-09-15 06:40:15,743 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 06:40:15,743 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 12.1s
+2026-09-15 06:40:15,743 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 06:40:15,743 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 22.2s
+2026-09-15 06:40:15,743 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 06:40:15,743 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 30.1s
+2026-09-15 06:40:15,743 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 06:40:15,743 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 49.5s
+2026-09-15 06:40:15,743 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 06:40:15,744 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 58.9s
+2026-09-15 06:40:15,744 | CRITICAL | Thread-2 (connect) | MQTT has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-15 06:40:15,745 | INFO | MainThread | WiFi connected
+2026-09-15 06:40:15,746 | ERROR | MainThread | WiFi unreachable - retrying in 4.6s
+2026-09-15 06:40:15,746 | ERROR | MainThread | WiFi unreachable - retrying in 11.9s
+2026-09-15 06:40:15,746 | INFO | MainThread | WiFi connected
+2026-09-15 06:40:15,747 | INFO | MainThread | WiFi connected
+2026-09-15 06:40:15,747 | INFO | MainThread | WiFi disconnected
+2026-09-15 06:40:15,748 | INFO | MainThread | WiFi connected
+2026-09-15 06:40:15,748 | WARNING | Thread-3 (monitor) | WiFi disconnected
+2026-09-15 06:40:15,748 | ERROR | Thread-3 (monitor) | WiFi unreachable - retrying in 3.8s
+2026-09-15 06:40:15,748 | INFO | Thread-3 (monitor) | WiFi connected
+2026-09-15 06:40:15,750 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 5.7s
+2026-09-15 06:40:15,750 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 11.8s
+2026-09-15 06:40:15,750 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 15.4s
+2026-09-15 06:40:15,750 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 42.6s
+2026-09-15 06:40:15,750 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 45.9s
+2026-09-15 06:40:15,750 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 42.9s
+2026-09-15 06:40:15,750 | CRITICAL | Thread-4 (connect) | WiFi has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-15 06:40:15,752 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-15 06:40:15,753 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-15 06:40:15,753 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-15 06:40:15,766 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-15 06:40:15,767 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-15 06:40:15,767 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-15 06:40:15,767 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-15 06:40:15,767 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-15 06:40:15,790 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-15 06:40:15,791 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-15 06:40:15,794 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-15 06:40:15,795 | INFO | MainThread | MQTT disconnected
+2026-09-15 06:40:15,797 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-15 06:40:15,798 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-15 06:40:15,799 | INFO | MainThread | Modbus disconnected
+2026-09-15 06:40:44,847 | INFO | MainThread | Modbus connected
+2026-09-15 06:40:44,849 | ERROR | MainThread | Modbus connect error: port busy - retrying in 5.7s
+2026-09-15 06:40:44,849 | ERROR | MainThread | Modbus connect error: port busy - retrying in 11.7s
+2026-09-15 06:40:44,849 | INFO | MainThread | Modbus connected
+2026-09-15 06:40:44,850 | INFO | MainThread | Modbus connected
+2026-09-15 06:40:44,850 | INFO | MainThread | Modbus disconnected
+2026-09-15 06:40:44,852 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 4.6s
+2026-09-15 06:40:44,852 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 10.5s
+2026-09-15 06:40:44,852 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 26.0s
+2026-09-15 06:40:44,852 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 45.2s
+2026-09-15 06:40:44,852 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 56.2s
+2026-09-15 06:40:44,852 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 56.6s
+2026-09-15 06:40:44,853 | CRITICAL | Thread-1 (connect) | Modbus has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-15 06:40:44,854 | INFO | MainThread | Connecting MQTT...
+2026-09-15 06:40:44,854 | INFO | MainThread | MQTT connected
+2026-09-15 06:40:44,855 | INFO | MainThread | Connecting MQTT...
+2026-09-15 06:40:44,855 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 4.4s
+2026-09-15 06:40:44,855 | INFO | MainThread | Connecting MQTT...
+2026-09-15 06:40:44,855 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 7.1s
+2026-09-15 06:40:44,855 | INFO | MainThread | Connecting MQTT...
+2026-09-15 06:40:44,855 | INFO | MainThread | MQTT connected
+2026-09-15 06:40:44,856 | INFO | MainThread | Connecting MQTT...
+2026-09-15 06:40:44,857 | INFO | MainThread | MQTT connected
+2026-09-15 06:40:44,857 | INFO | MainThread | MQTT disconnected
+2026-09-15 06:40:44,858 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 06:40:44,858 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 6.4s
+2026-09-15 06:40:44,858 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 06:40:44,858 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 7.2s
+2026-09-15 06:40:44,858 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 06:40:44,859 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 20.8s
+2026-09-15 06:40:44,859 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 06:40:44,859 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 50.1s
+2026-09-15 06:40:44,859 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 06:40:44,859 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 70.6s
+2026-09-15 06:40:44,859 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 06:40:44,859 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 44.0s
+2026-09-15 06:40:44,859 | CRITICAL | Thread-2 (connect) | MQTT has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-15 06:40:44,860 | INFO | MainThread | WiFi connected
+2026-09-15 06:40:44,861 | ERROR | MainThread | WiFi unreachable - retrying in 6.0s
+2026-09-15 06:40:44,861 | ERROR | MainThread | WiFi unreachable - retrying in 12.7s
+2026-09-15 06:40:44,861 | INFO | MainThread | WiFi connected
+2026-09-15 06:40:44,862 | INFO | MainThread | WiFi connected
+2026-09-15 06:40:44,862 | INFO | MainThread | WiFi disconnected
+2026-09-15 06:40:44,864 | INFO | MainThread | WiFi connected
+2026-09-15 06:40:44,864 | WARNING | Thread-3 (monitor) | WiFi disconnected
+2026-09-15 06:40:44,864 | ERROR | Thread-3 (monitor) | WiFi unreachable - retrying in 4.6s
+2026-09-15 06:40:44,864 | INFO | Thread-3 (monitor) | WiFi connected
+2026-09-15 06:40:44,871 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 6.3s
+2026-09-15 06:40:44,871 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 8.8s
+2026-09-15 06:40:44,871 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 23.0s
+2026-09-15 06:40:44,871 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 37.2s
+2026-09-15 06:40:44,871 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 60.8s
+2026-09-15 06:40:44,871 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 73.7s
+2026-09-15 06:40:44,871 | CRITICAL | Thread-4 (connect) | WiFi has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-15 06:40:44,874 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-15 06:40:44,875 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-15 06:40:44,875 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-15 06:40:51,456 | INFO | MainThread | Modbus connected
+2026-09-15 06:40:51,457 | ERROR | MainThread | Modbus connect error: port busy - retrying in 4.0s
+2026-09-15 06:40:51,457 | ERROR | MainThread | Modbus connect error: port busy - retrying in 11.2s
+2026-09-15 06:40:51,457 | INFO | MainThread | Modbus connected
+2026-09-15 06:40:51,458 | INFO | MainThread | Modbus connected
+2026-09-15 06:40:51,458 | INFO | MainThread | Modbus disconnected
+2026-09-15 06:40:51,460 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 4.3s
+2026-09-15 06:40:51,460 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 10.2s
+2026-09-15 06:40:51,460 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 22.7s
+2026-09-15 06:40:51,460 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 36.2s
+2026-09-15 06:40:51,460 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 50.9s
+2026-09-15 06:40:51,460 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 68.9s
+2026-09-15 06:40:51,460 | CRITICAL | Thread-1 (connect) | Modbus has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-15 06:40:51,461 | INFO | MainThread | Connecting MQTT...
+2026-09-15 06:40:51,461 | INFO | MainThread | MQTT connected
+2026-09-15 06:40:51,462 | INFO | MainThread | Connecting MQTT...
+2026-09-15 06:40:51,463 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 4.5s
+2026-09-15 06:40:51,463 | INFO | MainThread | Connecting MQTT...
+2026-09-15 06:40:51,463 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 10.0s
+2026-09-15 06:40:51,463 | INFO | MainThread | Connecting MQTT...
+2026-09-15 06:40:51,463 | INFO | MainThread | MQTT connected
+2026-09-15 06:40:51,464 | INFO | MainThread | Connecting MQTT...
+2026-09-15 06:40:51,464 | INFO | MainThread | MQTT connected
+2026-09-15 06:40:51,464 | INFO | MainThread | MQTT disconnected
+2026-09-15 06:40:51,465 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 06:40:51,465 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 6.4s
+2026-09-15 06:40:51,465 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 06:40:51,465 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 13.0s
+2026-09-15 06:40:51,465 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 06:40:51,465 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 21.8s
+2026-09-15 06:40:51,466 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 06:40:51,466 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 43.7s
+2026-09-15 06:40:51,466 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 06:40:51,466 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 56.6s
+2026-09-15 06:40:51,466 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 06:40:51,466 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 63.9s
+2026-09-15 06:40:51,466 | CRITICAL | Thread-2 (connect) | MQTT has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-15 06:40:51,467 | INFO | MainThread | WiFi connected
+2026-09-15 06:40:51,468 | ERROR | MainThread | WiFi unreachable - retrying in 6.5s
+2026-09-15 06:40:51,468 | ERROR | MainThread | WiFi unreachable - retrying in 10.1s
+2026-09-15 06:40:51,468 | INFO | MainThread | WiFi connected
+2026-09-15 06:40:51,469 | INFO | MainThread | WiFi connected
+2026-09-15 06:40:51,469 | INFO | MainThread | WiFi disconnected
+2026-09-15 06:40:51,470 | INFO | MainThread | WiFi connected
+2026-09-15 06:40:51,471 | WARNING | Thread-3 (monitor) | WiFi disconnected
+2026-09-15 06:40:51,471 | ERROR | Thread-3 (monitor) | WiFi unreachable - retrying in 5.5s
+2026-09-15 06:40:51,471 | INFO | Thread-3 (monitor) | WiFi connected
+2026-09-15 06:40:51,472 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 5.6s
+2026-09-15 06:40:51,473 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 11.9s
+2026-09-15 06:40:51,473 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 23.0s
+2026-09-15 06:40:51,473 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 30.0s
+2026-09-15 06:40:51,473 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 45.4s
+2026-09-15 06:40:51,473 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 55.1s
+2026-09-15 06:40:51,473 | CRITICAL | Thread-4 (connect) | WiFi has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-15 06:40:51,475 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-15 06:40:51,476 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-15 06:40:51,476 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-15 06:40:51,486 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-15 06:40:51,488 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-15 06:40:51,488 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-15 06:40:51,488 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-15 06:40:51,488 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-15 06:40:51,511 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-15 06:40:51,512 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-15 06:40:51,514 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-15 06:40:51,516 | INFO | MainThread | MQTT disconnected
+2026-09-15 06:40:51,517 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-15 06:40:51,519 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-15 06:40:51,520 | INFO | MainThread | Modbus disconnected
+2026-09-15 07:08:37,947 | INFO | MainThread | Modbus connected
+2026-09-15 07:08:37,949 | ERROR | MainThread | Modbus connect error: port busy - retrying in 4.6s
+2026-09-15 07:08:37,949 | ERROR | MainThread | Modbus connect error: port busy - retrying in 7.4s
+2026-09-15 07:08:37,949 | INFO | MainThread | Modbus connected
+2026-09-15 07:08:37,950 | INFO | MainThread | Modbus connected
+2026-09-15 07:08:37,950 | INFO | MainThread | Modbus disconnected
+2026-09-15 07:08:37,951 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 5.1s
+2026-09-15 07:08:37,951 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 12.9s
+2026-09-15 07:08:37,951 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 22.7s
+2026-09-15 07:08:37,951 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 39.2s
+2026-09-15 07:08:37,951 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 74.9s
+2026-09-15 07:08:37,952 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 72.8s
+2026-09-15 07:08:37,952 | CRITICAL | Thread-1 (connect) | Modbus has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-15 07:08:37,953 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:08:37,953 | INFO | MainThread | MQTT connected
+2026-09-15 07:08:37,954 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:08:37,955 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 5.3s
+2026-09-15 07:08:37,955 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:08:37,955 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 11.1s
+2026-09-15 07:08:37,955 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:08:37,955 | INFO | MainThread | MQTT connected
+2026-09-15 07:08:37,957 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:08:37,957 | INFO | MainThread | MQTT connected
+2026-09-15 07:08:37,957 | INFO | MainThread | MQTT disconnected
+2026-09-15 07:08:37,959 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:08:37,959 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 6.2s
+2026-09-15 07:08:37,959 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:08:37,959 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 10.4s
+2026-09-15 07:08:37,959 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:08:37,960 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 25.4s
+2026-09-15 07:08:37,960 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:08:37,960 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 48.9s
+2026-09-15 07:08:37,960 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:08:37,960 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 72.2s
+2026-09-15 07:08:37,960 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:08:37,960 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 74.6s
+2026-09-15 07:08:37,960 | CRITICAL | Thread-2 (connect) | MQTT has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-15 07:08:37,962 | INFO | MainThread | WiFi connected
+2026-09-15 07:08:37,963 | ERROR | MainThread | WiFi unreachable - retrying in 5.0s
+2026-09-15 07:08:37,963 | ERROR | MainThread | WiFi unreachable - retrying in 12.4s
+2026-09-15 07:08:37,963 | INFO | MainThread | WiFi connected
+2026-09-15 07:08:37,964 | INFO | MainThread | WiFi connected
+2026-09-15 07:08:37,964 | INFO | MainThread | WiFi disconnected
+2026-09-15 07:08:37,966 | INFO | MainThread | WiFi connected
+2026-09-15 07:08:37,966 | WARNING | Thread-3 (monitor) | WiFi disconnected
+2026-09-15 07:08:37,966 | ERROR | Thread-3 (monitor) | WiFi unreachable - retrying in 3.6s
+2026-09-15 07:08:37,966 | INFO | Thread-3 (monitor) | WiFi connected
+2026-09-15 07:08:37,968 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 4.7s
+2026-09-15 07:08:37,968 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 9.5s
+2026-09-15 07:08:37,968 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 22.7s
+2026-09-15 07:08:37,968 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 34.1s
+2026-09-15 07:08:37,969 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 51.8s
+2026-09-15 07:08:37,969 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 45.8s
+2026-09-15 07:08:37,969 | CRITICAL | Thread-4 (connect) | WiFi has not connected in 6s (reboot_after=5s) - exiting for restart by a process supervisor
+2026-09-15 07:08:37,971 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-15 07:08:37,973 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-15 07:08:37,973 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - exiting for restart by a process supervisor
+2026-09-15 07:08:37,988 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-15 07:08:37,991 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-15 07:08:37,991 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-15 07:08:37,991 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-15 07:08:37,991 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-15 07:08:38,027 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-15 07:08:38,029 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-15 07:08:38,033 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-15 07:08:38,035 | INFO | MainThread | MQTT disconnected
+2026-09-15 07:08:38,038 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-15 07:08:38,040 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-15 07:08:38,042 | INFO | MainThread | Modbus disconnected
+2026-09-15 07:13:43,461 | INFO | MainThread | Modbus connected
+2026-09-15 07:13:43,463 | ERROR | MainThread | Modbus connect error: port busy - retrying in 3.9s
+2026-09-15 07:13:43,463 | ERROR | MainThread | Modbus connect error: port busy - retrying in 7.9s
+2026-09-15 07:13:43,463 | INFO | MainThread | Modbus connected
+2026-09-15 07:13:43,464 | INFO | MainThread | Modbus connected
+2026-09-15 07:13:43,464 | INFO | MainThread | Modbus disconnected
+2026-09-15 07:13:43,465 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 5.4s
+2026-09-15 07:13:43,465 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 11.2s
+2026-09-15 07:13:43,465 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 23.4s
+2026-09-15 07:13:43,465 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 29.7s
+2026-09-15 07:13:43,465 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 55.0s
+2026-09-15 07:13:43,465 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 53.3s
+2026-09-15 07:13:43,466 | CRITICAL | Thread-1 (connect) | Modbus has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:13:43,466 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:13:43,467 | INFO | MainThread | MQTT connected
+2026-09-15 07:13:43,467 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:13:43,468 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 6.5s
+2026-09-15 07:13:43,468 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:13:43,468 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 10.1s
+2026-09-15 07:13:43,468 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:13:43,468 | INFO | MainThread | MQTT connected
+2026-09-15 07:13:43,469 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:13:43,469 | INFO | MainThread | MQTT connected
+2026-09-15 07:13:43,469 | INFO | MainThread | MQTT disconnected
+2026-09-15 07:13:43,471 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:13:43,471 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 3.7s
+2026-09-15 07:13:43,471 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:13:43,471 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 7.9s
+2026-09-15 07:13:43,471 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:13:43,471 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 20.6s
+2026-09-15 07:13:43,471 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:13:43,471 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 51.1s
+2026-09-15 07:13:43,471 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:13:43,471 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 76.4s
+2026-09-15 07:13:43,471 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:13:43,471 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 51.2s
+2026-09-15 07:13:43,472 | CRITICAL | Thread-2 (connect) | MQTT has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:13:43,473 | INFO | MainThread | WiFi connected
+2026-09-15 07:13:43,474 | ERROR | MainThread | WiFi unreachable - retrying in 3.8s
+2026-09-15 07:13:43,474 | ERROR | MainThread | WiFi unreachable - retrying in 10.2s
+2026-09-15 07:13:43,474 | INFO | MainThread | WiFi connected
+2026-09-15 07:13:43,475 | INFO | MainThread | WiFi connected
+2026-09-15 07:13:43,475 | INFO | MainThread | WiFi disconnected
+2026-09-15 07:13:43,476 | INFO | MainThread | WiFi connected
+2026-09-15 07:13:43,476 | WARNING | Thread-3 (monitor) | WiFi disconnected
+2026-09-15 07:13:43,476 | ERROR | Thread-3 (monitor) | WiFi unreachable - retrying in 4.8s
+2026-09-15 07:13:43,476 | INFO | Thread-3 (monitor) | WiFi connected
+2026-09-15 07:13:43,477 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 4.2s
+2026-09-15 07:13:43,477 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 11.6s
+2026-09-15 07:13:43,478 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 19.7s
+2026-09-15 07:13:43,478 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 50.2s
+2026-09-15 07:13:43,478 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 75.6s
+2026-09-15 07:13:43,478 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 73.7s
+2026-09-15 07:13:43,478 | CRITICAL | Thread-4 (connect) | WiFi has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:13:43,480 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:13:43,481 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:13:43,481 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:13:43,491 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-15 07:13:43,492 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-15 07:13:43,492 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-15 07:13:43,492 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-15 07:13:43,492 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-15 07:13:43,514 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-15 07:13:43,514 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-15 07:13:43,517 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-15 07:13:43,518 | INFO | MainThread | MQTT disconnected
+2026-09-15 07:13:43,519 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-15 07:13:43,521 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-15 07:13:43,521 | INFO | MainThread | Modbus disconnected
+2026-09-15 07:14:08,497 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - no process supervisor to fall back on in the field
+2026-09-15 07:14:08,498 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - no process supervisor to fall back on in the field
+2026-09-15 07:14:08,498 | CRITICAL | MainThread | System reboot command failed (reboot: command not found) - exiting process as a fallback
+2026-09-15 07:14:15,128 | INFO | MainThread | Modbus connected
+2026-09-15 07:14:15,130 | ERROR | MainThread | Modbus connect error: port busy - retrying in 4.0s
+2026-09-15 07:14:15,130 | ERROR | MainThread | Modbus connect error: port busy - retrying in 11.7s
+2026-09-15 07:14:15,130 | INFO | MainThread | Modbus connected
+2026-09-15 07:14:15,131 | INFO | MainThread | Modbus connected
+2026-09-15 07:14:15,131 | INFO | MainThread | Modbus disconnected
+2026-09-15 07:14:15,132 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 6.4s
+2026-09-15 07:14:15,132 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 10.8s
+2026-09-15 07:14:15,132 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 20.5s
+2026-09-15 07:14:15,133 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 30.1s
+2026-09-15 07:14:15,133 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 76.3s
+2026-09-15 07:14:15,133 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 73.7s
+2026-09-15 07:14:15,133 | CRITICAL | Thread-1 (connect) | Modbus has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:14:15,134 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:14:15,134 | INFO | MainThread | MQTT connected
+2026-09-15 07:14:15,136 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:14:15,136 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 5.0s
+2026-09-15 07:14:15,136 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:14:15,136 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 11.5s
+2026-09-15 07:14:15,136 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:14:15,136 | INFO | MainThread | MQTT connected
+2026-09-15 07:14:15,137 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:14:15,138 | INFO | MainThread | MQTT connected
+2026-09-15 07:14:15,138 | INFO | MainThread | MQTT disconnected
+2026-09-15 07:14:15,139 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:14:15,139 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 5.7s
+2026-09-15 07:14:15,139 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:14:15,139 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 12.7s
+2026-09-15 07:14:15,139 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:14:15,140 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 14.5s
+2026-09-15 07:14:15,140 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:14:15,140 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 41.9s
+2026-09-15 07:14:15,140 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:14:15,140 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 50.0s
+2026-09-15 07:14:15,140 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:14:15,140 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 42.6s
+2026-09-15 07:14:15,140 | CRITICAL | Thread-2 (connect) | MQTT has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:14:15,141 | INFO | MainThread | WiFi connected
+2026-09-15 07:14:15,143 | ERROR | MainThread | WiFi unreachable - retrying in 4.1s
+2026-09-15 07:14:15,143 | ERROR | MainThread | WiFi unreachable - retrying in 7.6s
+2026-09-15 07:14:15,143 | INFO | MainThread | WiFi connected
+2026-09-15 07:14:15,144 | INFO | MainThread | WiFi connected
+2026-09-15 07:14:15,144 | INFO | MainThread | WiFi disconnected
+2026-09-15 07:14:15,145 | INFO | MainThread | WiFi connected
+2026-09-15 07:14:15,145 | WARNING | Thread-3 (monitor) | WiFi disconnected
+2026-09-15 07:14:15,146 | ERROR | Thread-3 (monitor) | WiFi unreachable - retrying in 4.4s
+2026-09-15 07:14:15,146 | INFO | Thread-3 (monitor) | WiFi connected
+2026-09-15 07:14:15,147 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 4.5s
+2026-09-15 07:14:15,147 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 8.4s
+2026-09-15 07:14:15,147 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 19.6s
+2026-09-15 07:14:15,147 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 43.4s
+2026-09-15 07:14:15,147 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 72.6s
+2026-09-15 07:14:15,147 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 59.6s
+2026-09-15 07:14:15,147 | CRITICAL | Thread-4 (connect) | WiFi has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:14:15,149 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:14:15,150 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:14:15,150 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:14:15,151 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - no process supervisor to fall back on in the field
+2026-09-15 07:14:15,152 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - no process supervisor to fall back on in the field
+2026-09-15 07:14:15,152 | CRITICAL | MainThread | System reboot command failed (reboot: command not found) - exiting process as a fallback
+2026-09-15 07:14:15,162 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-15 07:14:15,163 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-15 07:14:15,163 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-15 07:14:15,163 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-15 07:14:15,163 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-15 07:14:15,184 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-15 07:14:15,185 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-15 07:14:15,187 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-15 07:14:15,189 | INFO | MainThread | MQTT disconnected
+2026-09-15 07:14:15,190 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-15 07:14:15,191 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-15 07:14:15,192 | INFO | MainThread | Modbus disconnected
+2026-09-15 07:14:48,844 | INFO | MainThread | Modbus connected
+2026-09-15 07:14:48,845 | ERROR | MainThread | Modbus connect error: port busy - retrying in 3.5s
+2026-09-15 07:14:48,845 | ERROR | MainThread | Modbus connect error: port busy - retrying in 10.7s
+2026-09-15 07:14:48,846 | INFO | MainThread | Modbus connected
+2026-09-15 07:14:48,846 | INFO | MainThread | Modbus connected
+2026-09-15 07:14:48,846 | INFO | MainThread | Modbus disconnected
+2026-09-15 07:14:48,848 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 6.2s
+2026-09-15 07:14:48,848 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 7.8s
+2026-09-15 07:14:48,848 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 14.5s
+2026-09-15 07:14:48,848 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 35.4s
+2026-09-15 07:14:48,848 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 66.0s
+2026-09-15 07:14:48,848 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 76.7s
+2026-09-15 07:14:48,849 | CRITICAL | Thread-1 (connect) | Modbus has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:14:48,850 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:14:48,850 | INFO | MainThread | MQTT connected
+2026-09-15 07:14:48,851 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:14:48,851 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 4.1s
+2026-09-15 07:14:48,851 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:14:48,851 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 12.4s
+2026-09-15 07:14:48,851 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:14:48,851 | INFO | MainThread | MQTT connected
+2026-09-15 07:14:48,852 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:14:48,852 | INFO | MainThread | MQTT connected
+2026-09-15 07:14:48,852 | INFO | MainThread | MQTT disconnected
+2026-09-15 07:14:48,853 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:14:48,854 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 4.5s
+2026-09-15 07:14:48,854 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:14:48,854 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 8.9s
+2026-09-15 07:14:48,854 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:14:48,854 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 16.7s
+2026-09-15 07:14:48,854 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:14:48,854 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 48.8s
+2026-09-15 07:14:48,854 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:14:48,854 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 75.8s
+2026-09-15 07:14:48,854 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:14:48,854 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 54.8s
+2026-09-15 07:14:48,854 | CRITICAL | Thread-2 (connect) | MQTT has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:14:48,856 | INFO | MainThread | WiFi connected
+2026-09-15 07:14:48,857 | ERROR | MainThread | WiFi unreachable - retrying in 5.5s
+2026-09-15 07:14:48,857 | ERROR | MainThread | WiFi unreachable - retrying in 10.9s
+2026-09-15 07:14:48,857 | INFO | MainThread | WiFi connected
+2026-09-15 07:14:48,858 | INFO | MainThread | WiFi connected
+2026-09-15 07:14:48,858 | INFO | MainThread | WiFi disconnected
+2026-09-15 07:14:48,859 | INFO | MainThread | WiFi connected
+2026-09-15 07:14:48,860 | WARNING | Thread-3 (monitor) | WiFi disconnected
+2026-09-15 07:14:48,860 | ERROR | Thread-3 (monitor) | WiFi unreachable - retrying in 4.3s
+2026-09-15 07:14:48,860 | INFO | Thread-3 (monitor) | WiFi connected
+2026-09-15 07:14:48,861 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 6.2s
+2026-09-15 07:14:48,861 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 9.4s
+2026-09-15 07:14:48,861 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 25.8s
+2026-09-15 07:14:48,861 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 46.2s
+2026-09-15 07:14:48,861 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 53.3s
+2026-09-15 07:14:48,861 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 49.7s
+2026-09-15 07:14:48,862 | CRITICAL | Thread-4 (connect) | WiFi has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:14:48,864 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:14:48,864 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:14:48,865 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:14:48,865 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - no process supervisor to fall back on in the field
+2026-09-15 07:14:48,866 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - no process supervisor to fall back on in the field
+2026-09-15 07:14:48,866 | CRITICAL | MainThread | System reboot command failed (reboot: command not found) - exiting process as a fallback
+2026-09-15 07:14:48,876 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-15 07:14:48,877 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-15 07:14:48,877 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-15 07:14:48,877 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-15 07:14:48,877 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-15 07:14:48,899 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-15 07:14:48,900 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-15 07:14:48,902 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-15 07:14:48,904 | INFO | MainThread | MQTT disconnected
+2026-09-15 07:14:48,905 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-15 07:14:48,906 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-15 07:14:48,907 | INFO | MainThread | Modbus disconnected
+2026-09-15 07:24:54,662 | INFO | MainThread | Modbus connected
+2026-09-15 07:24:54,664 | ERROR | MainThread | Modbus connect error: port busy - retrying in 5.8s
+2026-09-15 07:24:54,664 | ERROR | MainThread | Modbus connect error: port busy - retrying in 12.0s
+2026-09-15 07:24:54,664 | INFO | MainThread | Modbus connected
+2026-09-15 07:24:54,666 | INFO | MainThread | Modbus connected
+2026-09-15 07:24:54,666 | INFO | MainThread | Modbus disconnected
+2026-09-15 07:24:54,667 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 5.6s
+2026-09-15 07:24:54,668 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 11.7s
+2026-09-15 07:24:54,668 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 18.5s
+2026-09-15 07:24:54,668 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 28.1s
+2026-09-15 07:24:54,668 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 61.4s
+2026-09-15 07:24:54,668 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 68.6s
+2026-09-15 07:24:54,668 | CRITICAL | Thread-1 (connect) | Modbus has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:24:54,670 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:24:54,670 | INFO | MainThread | MQTT connected
+2026-09-15 07:24:54,671 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:24:54,671 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 4.9s
+2026-09-15 07:24:54,672 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:24:54,672 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 12.6s
+2026-09-15 07:24:54,672 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:24:54,672 | INFO | MainThread | MQTT connected
+2026-09-15 07:24:54,673 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:24:54,673 | INFO | MainThread | MQTT connected
+2026-09-15 07:24:54,673 | INFO | MainThread | MQTT disconnected
+2026-09-15 07:24:54,675 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:24:54,675 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 4.6s
+2026-09-15 07:24:54,675 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:24:54,675 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 7.3s
+2026-09-15 07:24:54,676 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:24:54,676 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 23.6s
+2026-09-15 07:24:54,676 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:24:54,676 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 31.6s
+2026-09-15 07:24:54,676 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:24:54,676 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 54.4s
+2026-09-15 07:24:54,676 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:24:54,676 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 59.2s
+2026-09-15 07:24:54,676 | CRITICAL | Thread-2 (connect) | MQTT has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:24:54,678 | INFO | MainThread | WiFi connected
+2026-09-15 07:24:54,679 | ERROR | MainThread | WiFi unreachable - retrying in 3.6s
+2026-09-15 07:24:54,679 | ERROR | MainThread | WiFi unreachable - retrying in 12.9s
+2026-09-15 07:24:54,679 | INFO | MainThread | WiFi connected
+2026-09-15 07:24:54,681 | INFO | MainThread | WiFi connected
+2026-09-15 07:24:54,681 | INFO | MainThread | WiFi disconnected
+2026-09-15 07:24:54,682 | INFO | MainThread | WiFi connected
+2026-09-15 07:24:54,683 | WARNING | Thread-3 (monitor) | WiFi disconnected
+2026-09-15 07:24:54,683 | ERROR | Thread-3 (monitor) | WiFi unreachable - retrying in 3.7s
+2026-09-15 07:24:54,683 | INFO | Thread-3 (monitor) | WiFi connected
+2026-09-15 07:24:54,685 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 5.5s
+2026-09-15 07:24:54,685 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 7.7s
+2026-09-15 07:24:54,685 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 17.5s
+2026-09-15 07:24:54,685 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 34.0s
+2026-09-15 07:24:54,685 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 61.8s
+2026-09-15 07:24:54,685 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 56.4s
+2026-09-15 07:24:54,685 | CRITICAL | Thread-4 (connect) | WiFi has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:24:54,688 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:24:54,690 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:24:54,690 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:24:54,692 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - reboot 1/3 allowed in the last 3600s
+2026-09-15 07:24:54,693 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - reboot 1/3 allowed in the last 3600s
+2026-09-15 07:24:54,693 | CRITICAL | MainThread | System reboot command failed (reboot: command not found) - exiting process as a fallback
+2026-09-15 07:24:54,694 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - reboot 1/3 allowed in the last 3600s
+2026-09-15 07:24:54,695 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - reboot 2/3 allowed in the last 3600s
+2026-09-15 07:24:54,695 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - reboot 3/3 allowed in the last 3600s
+2026-09-15 07:24:54,695 | CRITICAL | MainThread | Refusing to reboot: 3 reboots already happened in the last 3600s (limit 3) - a reboot isn't fixing this, so giving up on rebooting and letting connect() keep retrying on its own instead
+2026-09-15 07:25:00,216 | INFO | MainThread | Modbus connected
+2026-09-15 07:25:00,217 | ERROR | MainThread | Modbus connect error: port busy - retrying in 6.4s
+2026-09-15 07:25:00,217 | ERROR | MainThread | Modbus connect error: port busy - retrying in 9.3s
+2026-09-15 07:25:00,218 | INFO | MainThread | Modbus connected
+2026-09-15 07:25:00,219 | INFO | MainThread | Modbus connected
+2026-09-15 07:25:00,219 | INFO | MainThread | Modbus disconnected
+2026-09-15 07:25:00,220 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 4.7s
+2026-09-15 07:25:00,220 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 8.4s
+2026-09-15 07:25:00,221 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 16.1s
+2026-09-15 07:25:00,221 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 36.9s
+2026-09-15 07:25:00,221 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 52.9s
+2026-09-15 07:25:00,221 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 50.6s
+2026-09-15 07:25:00,221 | CRITICAL | Thread-1 (connect) | Modbus has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:25:00,222 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:25:00,222 | INFO | MainThread | MQTT connected
+2026-09-15 07:25:00,224 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:25:00,224 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 6.2s
+2026-09-15 07:25:00,224 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:25:00,224 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 12.1s
+2026-09-15 07:25:00,224 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:25:00,224 | INFO | MainThread | MQTT connected
+2026-09-15 07:25:00,225 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:25:00,225 | INFO | MainThread | MQTT connected
+2026-09-15 07:25:00,225 | INFO | MainThread | MQTT disconnected
+2026-09-15 07:25:00,227 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:25:00,227 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 4.7s
+2026-09-15 07:25:00,227 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:25:00,227 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 11.1s
+2026-09-15 07:25:00,227 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:25:00,227 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 14.6s
+2026-09-15 07:25:00,227 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:25:00,227 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 39.6s
+2026-09-15 07:25:00,227 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:25:00,228 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 73.3s
+2026-09-15 07:25:00,228 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:25:00,228 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 67.7s
+2026-09-15 07:25:00,228 | CRITICAL | Thread-2 (connect) | MQTT has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:25:00,229 | INFO | MainThread | WiFi connected
+2026-09-15 07:25:00,230 | ERROR | MainThread | WiFi unreachable - retrying in 3.7s
+2026-09-15 07:25:00,230 | ERROR | MainThread | WiFi unreachable - retrying in 10.0s
+2026-09-15 07:25:00,231 | INFO | MainThread | WiFi connected
+2026-09-15 07:25:00,232 | INFO | MainThread | WiFi connected
+2026-09-15 07:25:00,232 | INFO | MainThread | WiFi disconnected
+2026-09-15 07:25:00,233 | INFO | MainThread | WiFi connected
+2026-09-15 07:25:00,233 | WARNING | Thread-3 (monitor) | WiFi disconnected
+2026-09-15 07:25:00,234 | ERROR | Thread-3 (monitor) | WiFi unreachable - retrying in 4.4s
+2026-09-15 07:25:00,234 | INFO | Thread-3 (monitor) | WiFi connected
+2026-09-15 07:25:00,235 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 5.4s
+2026-09-15 07:25:00,235 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 8.1s
+2026-09-15 07:25:00,236 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 18.6s
+2026-09-15 07:25:00,236 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 31.9s
+2026-09-15 07:25:00,236 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 72.9s
+2026-09-15 07:25:00,236 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 76.6s
+2026-09-15 07:25:00,236 | CRITICAL | Thread-4 (connect) | WiFi has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:25:00,238 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:25:00,240 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:25:00,240 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:25:00,241 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - reboot 1/3 allowed in the last 3600s
+2026-09-15 07:25:00,242 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - reboot 1/3 allowed in the last 3600s
+2026-09-15 07:25:00,242 | CRITICAL | MainThread | System reboot command failed (reboot: command not found) - exiting process as a fallback
+2026-09-15 07:25:00,244 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - reboot 1/3 allowed in the last 3600s
+2026-09-15 07:25:00,244 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - reboot 2/3 allowed in the last 3600s
+2026-09-15 07:25:00,244 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - reboot 3/3 allowed in the last 3600s
+2026-09-15 07:25:00,244 | CRITICAL | MainThread | Refusing to reboot: 3 reboots already happened in the last 3600s (limit 3) - a reboot isn't fixing this, so giving up on rebooting and letting connect() keep retrying on its own instead
+2026-09-15 07:25:00,261 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-15 07:25:00,262 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-15 07:25:00,262 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-15 07:25:00,262 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-15 07:25:00,262 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-15 07:25:00,284 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-15 07:25:00,285 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-15 07:25:00,289 | CRITICAL | MainThread | Watchdog: worker has not made progress in 999s (watchdog_timeout=1s) - exiting for restart by a process supervisor
+2026-09-15 07:25:00,292 | INFO | MainThread | MQTT disconnected
+2026-09-15 07:25:00,294 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-15 07:25:00,297 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-15 07:25:00,298 | INFO | MainThread | Modbus disconnected
+2026-09-15 07:32:30,390 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-15 07:32:30,391 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-15 07:32:30,393 | CRITICAL | MainThread | Worker has not connected in 999s (reboot_after=1s) - rebooting the system
+2026-09-15 07:32:36,257 | INFO | MainThread | Modbus connected
+2026-09-15 07:32:36,259 | ERROR | MainThread | Modbus connect error: port busy - retrying in 5.8s
+2026-09-15 07:32:36,259 | ERROR | MainThread | Modbus connect error: port busy - retrying in 9.3s
+2026-09-15 07:32:36,259 | INFO | MainThread | Modbus connected
+2026-09-15 07:32:36,261 | INFO | MainThread | Modbus connected
+2026-09-15 07:32:36,261 | INFO | MainThread | Modbus disconnected
+2026-09-15 07:32:36,262 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 3.8s
+2026-09-15 07:32:36,262 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 9.4s
+2026-09-15 07:32:36,262 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 18.3s
+2026-09-15 07:32:36,262 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 41.9s
+2026-09-15 07:32:36,263 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 63.6s
+2026-09-15 07:32:36,263 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 74.5s
+2026-09-15 07:32:36,263 | CRITICAL | Thread-1 (connect) | Modbus has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:32:36,264 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:32:36,264 | INFO | MainThread | MQTT connected
+2026-09-15 07:32:36,265 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:32:36,266 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 6.3s
+2026-09-15 07:32:36,266 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:32:36,266 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 8.1s
+2026-09-15 07:32:36,266 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:32:36,266 | INFO | MainThread | MQTT connected
+2026-09-15 07:32:36,267 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:32:36,267 | INFO | MainThread | MQTT connected
+2026-09-15 07:32:36,267 | INFO | MainThread | MQTT disconnected
+2026-09-15 07:32:36,269 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:32:36,269 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 4.3s
+2026-09-15 07:32:36,269 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:32:36,269 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 10.6s
+2026-09-15 07:32:36,269 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:32:36,270 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 15.1s
+2026-09-15 07:32:36,270 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:32:36,270 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 45.9s
+2026-09-15 07:32:36,270 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:32:36,270 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 64.9s
+2026-09-15 07:32:36,270 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:32:36,270 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 45.6s
+2026-09-15 07:32:36,270 | CRITICAL | Thread-2 (connect) | MQTT has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:32:36,272 | INFO | MainThread | WiFi connected
+2026-09-15 07:32:36,273 | ERROR | MainThread | WiFi unreachable - retrying in 5.4s
+2026-09-15 07:32:36,273 | ERROR | MainThread | WiFi unreachable - retrying in 10.2s
+2026-09-15 07:32:36,273 | INFO | MainThread | WiFi connected
+2026-09-15 07:32:36,274 | INFO | MainThread | WiFi connected
+2026-09-15 07:32:36,274 | INFO | MainThread | WiFi disconnected
+2026-09-15 07:32:36,275 | INFO | MainThread | WiFi connected
+2026-09-15 07:32:36,276 | WARNING | Thread-3 (monitor) | WiFi disconnected
+2026-09-15 07:32:36,276 | ERROR | Thread-3 (monitor) | WiFi unreachable - retrying in 5.1s
+2026-09-15 07:32:36,276 | INFO | Thread-3 (monitor) | WiFi connected
+2026-09-15 07:32:36,277 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 4.3s
+2026-09-15 07:32:36,277 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 12.7s
+2026-09-15 07:32:36,278 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 23.3s
+2026-09-15 07:32:36,278 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 36.2s
+2026-09-15 07:32:36,278 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 56.1s
+2026-09-15 07:32:36,278 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 45.5s
+2026-09-15 07:32:36,278 | CRITICAL | Thread-4 (connect) | WiFi has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:32:36,281 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:32:36,282 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:32:36,282 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:32:36,283 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - reboot 1/3 allowed in the last 3600s
+2026-09-15 07:32:36,285 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - reboot 1/3 allowed in the last 3600s
+2026-09-15 07:32:36,285 | CRITICAL | MainThread | System reboot command failed (reboot: command not found) - exiting process as a fallback
+2026-09-15 07:32:36,286 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - reboot 1/3 allowed in the last 3600s
+2026-09-15 07:32:36,286 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - reboot 2/3 allowed in the last 3600s
+2026-09-15 07:32:36,286 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - reboot 3/3 allowed in the last 3600s
+2026-09-15 07:32:36,287 | CRITICAL | MainThread | Refusing to reboot: 3 reboots already happened in the last 3600s (limit 3) - a reboot isn't fixing this, so giving up on rebooting and letting connect() keep retrying on its own instead
+2026-09-15 07:32:36,303 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-15 07:32:36,304 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-15 07:32:36,304 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-15 07:32:36,304 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-15 07:32:36,304 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-15 07:32:36,325 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-15 07:32:36,326 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-15 07:32:36,328 | CRITICAL | MainThread | Worker has not connected in 999s (reboot_after=1s) - rebooting the system
+2026-09-15 07:32:36,330 | INFO | MainThread | MQTT disconnected
+2026-09-15 07:32:36,332 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-15 07:32:36,333 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-15 07:32:36,334 | INFO | MainThread | Modbus disconnected
+2026-09-15 07:33:25,691 | INFO | MainThread | Modbus connected
+2026-09-15 07:33:25,693 | ERROR | MainThread | Modbus connect error: port busy - retrying in 4.5s
+2026-09-15 07:33:25,693 | ERROR | MainThread | Modbus connect error: port busy - retrying in 10.2s
+2026-09-15 07:33:25,693 | INFO | MainThread | Modbus connected
+2026-09-15 07:33:25,694 | INFO | MainThread | Modbus connected
+2026-09-15 07:33:25,694 | INFO | MainThread | Modbus disconnected
+2026-09-15 07:33:25,696 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 6.1s
+2026-09-15 07:33:25,696 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 11.0s
+2026-09-15 07:33:25,696 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 24.2s
+2026-09-15 07:33:25,696 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 41.4s
+2026-09-15 07:33:25,697 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 42.2s
+2026-09-15 07:33:25,697 | ERROR | Thread-1 (connect) | Modbus connect error: port busy - retrying in 61.5s
+2026-09-15 07:33:25,697 | CRITICAL | Thread-1 (connect) | Modbus has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:33:25,698 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:33:25,698 | INFO | MainThread | MQTT connected
+2026-09-15 07:33:25,700 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:33:25,700 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 3.8s
+2026-09-15 07:33:25,700 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:33:25,700 | ERROR | MainThread | MQTT connect failed: MQTT unreachable - retrying in 10.0s
+2026-09-15 07:33:25,701 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:33:25,701 | INFO | MainThread | MQTT connected
+2026-09-15 07:33:25,703 | INFO | MainThread | Connecting MQTT...
+2026-09-15 07:33:25,703 | INFO | MainThread | MQTT connected
+2026-09-15 07:33:25,703 | INFO | MainThread | MQTT disconnected
+2026-09-15 07:33:25,705 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:33:25,705 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 3.6s
+2026-09-15 07:33:25,705 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:33:25,705 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 7.3s
+2026-09-15 07:33:25,705 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:33:25,705 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 24.8s
+2026-09-15 07:33:25,705 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:33:25,706 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 40.9s
+2026-09-15 07:33:25,706 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:33:25,706 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 70.2s
+2026-09-15 07:33:25,706 | INFO | Thread-2 (connect) | Connecting MQTT...
+2026-09-15 07:33:25,706 | ERROR | Thread-2 (connect) | MQTT connect failed: MQTT unreachable - retrying in 67.9s
+2026-09-15 07:33:25,706 | CRITICAL | Thread-2 (connect) | MQTT has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:33:25,708 | INFO | MainThread | WiFi connected
+2026-09-15 07:33:25,709 | ERROR | MainThread | WiFi unreachable - retrying in 5.2s
+2026-09-15 07:33:25,709 | ERROR | MainThread | WiFi unreachable - retrying in 11.4s
+2026-09-15 07:33:25,709 | INFO | MainThread | WiFi connected
+2026-09-15 07:33:25,711 | INFO | MainThread | WiFi connected
+2026-09-15 07:33:25,711 | INFO | MainThread | WiFi disconnected
+2026-09-15 07:33:25,712 | INFO | MainThread | WiFi connected
+2026-09-15 07:33:25,712 | WARNING | Thread-3 (monitor) | WiFi disconnected
+2026-09-15 07:33:25,712 | ERROR | Thread-3 (monitor) | WiFi unreachable - retrying in 6.4s
+2026-09-15 07:33:25,713 | INFO | Thread-3 (monitor) | WiFi connected
+2026-09-15 07:33:25,714 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 5.4s
+2026-09-15 07:33:25,714 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 8.2s
+2026-09-15 07:33:25,714 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 15.0s
+2026-09-15 07:33:25,715 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 44.3s
+2026-09-15 07:33:25,715 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 44.8s
+2026-09-15 07:33:25,715 | ERROR | Thread-4 (connect) | WiFi unreachable - retrying in 65.9s
+2026-09-15 07:33:25,715 | CRITICAL | Thread-4 (connect) | WiFi has not connected in 6s (reboot_after=5s) - rebooting the system
+2026-09-15 07:33:25,717 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:33:25,719 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:33:25,719 | CRITICAL | MainThread | Test has not connected in 4s (reboot_after=3s) - rebooting the system
+2026-09-15 07:33:25,720 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - reboot 1/3 allowed in the last 3600s
+2026-09-15 07:33:25,721 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - reboot 1/3 allowed in the last 3600s
+2026-09-15 07:33:25,721 | CRITICAL | MainThread | System reboot command failed (reboot: command not found) - exiting process as a fallback
+2026-09-15 07:33:25,723 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - reboot 1/3 allowed in the last 3600s
+2026-09-15 07:33:25,723 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - reboot 2/3 allowed in the last 3600s
+2026-09-15 07:33:25,723 | CRITICAL | MainThread | Rebooting the system now (sudo reboot) - reboot 3/3 allowed in the last 3600s
+2026-09-15 07:33:25,723 | CRITICAL | MainThread | Refusing to reboot: 3 reboots already happened in the last 3600s (limit 3) - a reboot isn't fixing this, so giving up on rebooting and letting connect() keep retrying on its own instead
+2026-09-15 07:33:25,743 | ERROR | MainThread | Unexpected error polling sensor on device: 'name'
+2026-09-15 07:33:25,744 | WARNING | MainThread | [ALERT] DEV_TEST.Temp HIGH
+2026-09-15 07:33:25,744 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer HIGH
+2026-09-15 07:33:25,744 | WARNING | MainThread | [ALERT] DEV_TEST.Temp LOW
+2026-09-15 07:33:25,744 | INFO | MainThread | [CLEAR] DEV_TEST.Temp no longer LOW (status=EXCEPTION)
+2026-09-15 07:33:25,765 | INFO | MainThread | Device reload -> added:{'C'} removed:set() updated:{'B'}
+2026-09-15 07:33:25,766 | INFO | MainThread | Device reload -> added:set() removed:{'B'} updated:set()
+2026-09-15 07:33:25,769 | CRITICAL | MainThread | Worker has not connected in 999s (reboot_after=1s) - rebooting the system
+2026-09-15 07:33:25,771 | INFO | MainThread | MQTT disconnected
+2026-09-15 07:33:25,772 | ERROR | MainThread | MQTT publish skipped: not yet connected
+2026-09-15 07:33:25,774 | ERROR | MainThread | MQTT publish failed: boom
+2026-09-15 07:33:25,774 | INFO | MainThread | Modbus disconnected
