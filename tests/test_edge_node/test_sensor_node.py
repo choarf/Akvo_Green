@@ -1,4 +1,7 @@
-"""Unit tests for SensorNode (_evaluate_alarm, read) and _combine_32bit."""
+"""Unit tests for SensorNode (_evaluate_alarm, read). Register decoding
+itself (the decoder registry, 32-bit combining) is tested independently
+in test_domain_sensors.py - these tests only check that SensorNode wires
+into it correctly (right type/scale/offset passed, errors surfaced)."""
 
 import struct
 
@@ -133,21 +136,9 @@ def test_read_exception_when_modbus_mgr_raises():
     assert "not yet connected" in result["err"]
 
 
-# ---------------------------------------------------------------------------
-# _combine_32bit
-# ---------------------------------------------------------------------------
-
-@pytest.mark.parametrize("value", [0, 100000, 4294967295])
-def test_combine_32bit_unsigned_roundtrip(value):
-    assert en._combine_32bit(regs_for(">I", value), signed=False) == value
-
-
-@pytest.mark.parametrize("value", [-100000, -1, 0, 2147483647, -2147483648])
-def test_combine_32bit_signed_roundtrip(value):
-    assert en._combine_32bit(regs_for(">i", value), signed=True) == value
-
-
-@pytest.mark.parametrize("value", [3.14, -1.5, 0.0, 123456.75])
-def test_combine_32bit_float_roundtrip(value):
-    got = en._combine_32bit(regs_for(">f", value), as_float=True)
-    assert got == pytest.approx(value, abs=1e-3)
+def test_read_unsupported_type_is_exception():
+    mgr = FakeModbusMgr(result=FakeModbusResult(registers=[1]))
+    sensor = make_sensor({"addr": 0, "count": 1, "type": "bogus"}, mgr)
+    result = sensor.read()
+    assert result["status"] == "EXCEPTION"
+    assert "bogus" in result["err"]

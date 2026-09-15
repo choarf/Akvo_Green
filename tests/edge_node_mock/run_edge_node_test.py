@@ -26,7 +26,7 @@ Requires `socat` on PATH when fake_modbus is true (Linux/macOS):
 
 Usage:
     python3 run_edge_node_test.py
-    python3 run_edge_node_test.py --config ../../src/Venko_Green/config.json
+    python3 run_edge_node_test.py --config ../../src/Venko_Green/config_data/config.json
     python3 run_edge_node_test.py --duration 60 --offline 3 9
     python3 run_edge_node_test.py --duration 0            # run until Ctrl+C
     python3 run_edge_node_test.py --no-fake-mqtt           # real AWS, mock Modbus
@@ -48,7 +48,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 VENKO_GREEN_DIR = HERE.parents[1] / "src" / "Venko_Green"
-DEFAULT_CONFIG = VENKO_GREEN_DIR / "config.json"
+DEFAULT_CONFIG = VENKO_GREEN_DIR / "config_data" / "config.json"
 DEFAULT_SETTINGS = HERE / "harness_config.json"
 
 MASTER_PORT = "/tmp/akvo_edge_node_master"
@@ -110,15 +110,18 @@ def start_mock_slave(
     return subprocess.Popen(cmd)
 
 
-def build_test_config(source: Path, dest: Path, fake_modbus: bool) -> None:
+def build_test_config(source: Path, dest: Path, fake_modbus: bool, cert_base: Path) -> None:
     """Copy config.json, pointing modbus.port at the mock's virtual port
     when fake_modbus is enabled. Left untouched (real hardware port) otherwise.
 
-    AWS cert paths are always resolved to absolute paths against source's
-    directory: the harness chdir's into a scratch work dir before starting
-    EdgeNode, which would otherwise break the "./certs/..." relative paths
-    config.json normally expects to be resolved from src/Venko_Green/ (only
-    matters when fake_mqtt is disabled and the real builder opens them)."""
+    AWS cert paths are always resolved to absolute paths against cert_base
+    (normally VENKO_GREEN_DIR, not source's own directory - config.json now
+    lives in a config_data/ subfolder, but the "./certs/..." relative paths
+    it stores are still meant to resolve from src/Venko_Green/, since that's
+    where edge_node_improved.py is normally run from): the harness chdir's
+    into a scratch work dir before starting EdgeNode, which would otherwise
+    break those relative paths (only matters when fake_mqtt is disabled and
+    the real builder opens them)."""
     config = json.loads(source.read_text())
     if fake_modbus:
         config["modbus"]["port"] = MASTER_PORT
@@ -127,7 +130,7 @@ def build_test_config(source: Path, dest: Path, fake_modbus: bool) -> None:
     for key in ("cert", "key", "ca"):
         path = aws.get(key)
         if path:
-            aws[key] = str((source.parent / path).resolve())
+            aws[key] = str((cert_base / path).resolve())
 
     dest.write_text(json.dumps(config, indent=4))
 
@@ -192,7 +195,7 @@ def main() -> None:
 
     work_dir = Path(tempfile.mkdtemp(prefix="akvo_edge_node_test_"))
     test_config = work_dir / "config.json"
-    build_test_config(args.config, test_config, fake_modbus)
+    build_test_config(args.config, test_config, fake_modbus, cert_base=VENKO_GREEN_DIR)
 
     print(f"Test config: {test_config}")
     print(f"Working dir (logs go here): {work_dir}")

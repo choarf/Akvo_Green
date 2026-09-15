@@ -4,10 +4,10 @@ import time
 import queue
 import random
 import socket
-import struct
 import hashlib
 import logging
 import platform
+import subprocess
 import threading
 from datetime import datetime, UTC
 from zoneinfo import ZoneInfo
@@ -18,6 +18,9 @@ from pymodbus.client import ModbusSerialClient
 
 from awscrt import mqtt, io
 from awsiot import mqtt_connection_builder
+
+from config.schema import validate as validate_config
+from domain.sensors import decode as decode_sensor
 
 
 # =========================
@@ -59,7 +62,20 @@ class ConfigManager:
 
     def load(self):
         with open(self.path) as f:
-            return json.load(f)
+            config = json.load(f)
+
+        # Validates against the same schema config_manager.py's build
+        # enforces, so a hand-edited config.json that skips
+        # config_manager.py entirely is rejected here - with a clear,
+        # complete list of problems - instead of surfacing later as
+        # whichever thread hits the first missing/malformed field.
+        errors, warnings = validate_config(config)
+        for warning in warnings:
+            logger.warning(warning)
+        if errors:
+            raise ValueError("Invalid config: " + "; ".join(errors))
+
+        return config
 
     def get(self):
         with self.lock:
@@ -81,6 +97,137 @@ def _retry_delay(attempt, base=5, cap=60, jitter=0.3):
     """
     delay = min(base * (2 ** min(attempt, 10)), cap)
     return delay * (1 + random.uniform(-jitter, jitter))
+
+
+_REBOOT_HISTORY_PATH = "logs/reboot_history.json"
+_REBOOT_LOOP_WINDOW = 3600  # seconds
+_REBOOT_LOOP_LIMIT = 3  # max reboots _default_reboot_fn will trigger per window
+_reboot_history_lock = threading.RLock()
+
+
+def _load_reboot_history(path):
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except (FileNotFoundError, ValueError):
+        return []
+
+
+def _record_reboot_if_allowed(path, window, limit):
+    """Persisted, cross-manager reboot-loop guard for _default_reboot_fn -
+    the same idea as systemd's StartLimitBurst/StartLimitIntervalSec.
+
+    A reboot restarts this process from scratch, wiping every in-memory
+    counter with it, so "how many times have we rebooted recently" has to
+    live on disk (`path`) to survive that. One shared file/lock, not one
+    per manager: the thing being limited - the whole machine rebooting -
+    is global, whichever of Modbus/MQTT/WiFi triggered it.
+
+    Returns (allowed, recent_count) - recent_count excludes the reboot
+    just recorded when allowed is True, and is the full count that hit the
+    limit when allowed is False. If allowed is False, `limit` reboots
+    already happened within the last `window` seconds and the caller
+    should NOT reboot again right now.
+    """
+    with _reboot_history_lock:
+        now = time.time()
+        history = [t for t in _load_reboot_history(path) if now - t < window]
+        if len(history) >= limit:
+            return False, len(history)
+        recent_count = len(history)
+        history.append(now)
+        dirname = os.path.dirname(path)
+        if dirname:
+            os.makedirs(dirname, exist_ok=True)
+        with open(path, "w") as f:
+            json.dump(history, f)
+        return True, recent_count
+
+
+def _default_reboot_fn():
+    """Default reboot_fn for _RebootEscalator: reboots the whole host via
+    `sudo reboot`, not just this process.
+
+    Field deployments of this gateway run bare - no systemd unit, no
+    container restart policy, no supervisor of any kind - so exiting the
+    process (the old default, os._exit(1)) would just leave it dead with
+    nothing to bring it back. Only rebooting the OS itself actually
+    recovers a Pi whose network/serial stack has wedged in a way retries
+    alone can't clear.
+
+    Guarded by _record_reboot_if_allowed: if a communication layer is down
+    for a reason a reboot can't fix (the WiFi router itself is down, not
+    the Pi; a serial cable is unplugged), rebooting every reboot_after
+    seconds forever would just boot-loop the device. Past
+    _REBOOT_LOOP_LIMIT reboots in _REBOOT_LOOP_WINDOW seconds, this gives
+    up on rebooting - connect()'s own retry loop keeps running regardless,
+    so the gateway still recovers on its own once the real problem clears,
+    it just stops trying to fix it by rebooting.
+
+    Requires the user this process runs as to have passwordless sudo for
+    `reboot` (or to run as root outright) - set that up as part of
+    deployment, it's not handled here. If the reboot command itself can't
+    even be started (missing sudo rule, `reboot` not on PATH, etc.), this
+    falls back to os._exit(1) so the process at least stops instead of
+    silently spinning forever on a broken reboot path.
+    """
+    allowed, recent_count = _record_reboot_if_allowed(
+        _REBOOT_HISTORY_PATH, _REBOOT_LOOP_WINDOW, _REBOOT_LOOP_LIMIT
+    )
+    if not allowed:
+        logger.critical(
+            f"Refusing to reboot: {recent_count} reboots already happened in "
+            f"the last {_REBOOT_LOOP_WINDOW}s (limit {_REBOOT_LOOP_LIMIT}) - "
+            f"a reboot isn't fixing this, so giving up on rebooting and "
+            f"letting connect() keep retrying on its own instead"
+        )
+        return
+
+    logger.critical(
+        f"Rebooting the system now (sudo reboot) - reboot {recent_count + 1}/"
+        f"{_REBOOT_LOOP_LIMIT} allowed in the last {_REBOOT_LOOP_WINDOW}s"
+    )
+    try:
+        subprocess.run(["sudo", "reboot"], check=True)
+    except Exception as e:
+        logger.critical(f"System reboot command failed ({e}) - exiting process as a fallback")
+        os._exit(1)
+
+
+class _RebootEscalator:
+    """Shared "give up and reboot" bookkeeping for
+    ModbusManager/MQTTManager/WifiManager's connect() retry loops.
+
+    Each manager calls reset() when a connect() attempt begins and check()
+    on every failed attempt. Once a single connect() call has been failing
+    for longer than `reboot_after` seconds, reboot_fn() fires once (default:
+    _default_reboot_fn(), which reboots the whole machine - see its
+    docstring for why a plain process exit isn't enough in the field).
+    reboot_after=None (the default) disables this entirely, matching
+    gateway.watchdog_timeout's "falsy = disabled" convention.
+    """
+
+    def __init__(self, reboot_after=None, reboot_fn=None):
+        self.reboot_after = reboot_after
+        self.reboot_fn = reboot_fn or _default_reboot_fn
+        self._started = None
+        self._fired = False
+
+    def reset(self):
+        self._started = time.time()
+        self._fired = False
+
+    def check(self, description):
+        if not self.reboot_after or self._fired or self._started is None:
+            return
+        stalled_for = time.time() - self._started
+        if stalled_for > self.reboot_after:
+            logger.critical(
+                f"{description} has not connected in {stalled_for:.0f}s "
+                f"(reboot_after={self.reboot_after}s) - rebooting the system"
+            )
+            self._fired = True
+            self.reboot_fn()
 
 
 def _section_hash(section: dict) -> str:
@@ -148,10 +295,91 @@ def get_system_status(gateway_cfg: dict) -> dict:
 
 
 # =========================
+# WIFI MANAGER (NETWORK REACHABILITY)
+# =========================
+class WifiManager:
+    """Monitors host network reachability - not any single WiFi SSID/AP,
+    just "is there a route to the internet" - since edge_node_improved.py
+    otherwise only discovers a dead network indirectly, as repeated MQTT
+    connect failures.
+
+    check_fn is injectable (tests pass a fake instead of touching a real
+    socket); it defaults to a real TCP connect to
+    gateway.wifi_check_host/wifi_check_port (Google DNS, port 53, by
+    default) which - unlike a UDP "connect" (see get_system_status()'s IP
+    lookup, which never actually sends a packet) - performs a real
+    handshake and fails when there's no route out.
+    """
+
+    def __init__(self, cfg, check_fn=None, reboot_fn=None):
+        self.check_host = cfg.get("wifi_check_host", "8.8.8.8")
+        self.check_port = cfg.get("wifi_check_port", 53)
+        self.check_timeout = cfg.get("wifi_check_timeout", 2.0)
+        self._check_fn = check_fn or self._default_check
+        self.connected = False
+        self.lock = threading.RLock()
+        self._reboot = _RebootEscalator(cfg.get("wifi_reboot_timeout"), reboot_fn)
+
+    def _default_check(self):
+        try:
+            socket.create_connection(
+                (self.check_host, self.check_port), timeout=self.check_timeout
+            ).close()
+            return True
+        except OSError:
+            return False
+
+    def is_reachable(self):
+        return self._check_fn()
+
+    def connect(self):
+        attempt = 0
+        self._reboot.reset()
+        while True:
+            if self.is_reachable():
+                with self.lock:
+                    self.connected = True
+                logger.info("WiFi connected")
+                return
+
+            delay = _retry_delay(attempt)
+            logger.error(f"WiFi unreachable - retrying in {delay:.1f}s")
+            self._reboot.check("WiFi")
+            time.sleep(delay)
+            attempt += 1
+
+    def disconnect(self):
+        """Marks the link as down. There's no socket to close at this level
+        (see class docstring) - this exists for symmetry with
+        Modbus/MQTTManager.disconnect() and so EdgeNode.stop() can report a
+        clean state instead of a stale 'connected' one."""
+        with self.lock:
+            self.connected = False
+        logger.info("WiFi disconnected")
+
+    def monitor(self, stop_event, interval=5):
+        """Daemon-thread loop: notices a drop and blocks in connect() (retry
+        + reboot escalation) until reachable again, the same
+        detect-on-use-then-self-heal pattern Modbus/MQTTManager already use
+        via read_holding_registers()/publish() - WiFi has no such "use" to
+        piggyback on, so this polls instead."""
+        while not stop_event.is_set():
+            try:
+                if self.connected and not self.is_reachable():
+                    with self.lock:
+                        self.connected = False
+                    logger.warning("WiFi disconnected")
+                    self.connect()
+            except Exception as e:
+                logger.error(f"WiFi monitor error: {e}")
+            time.sleep(interval)
+
+
+# =========================
 # MQTT MANAGER (RECONNECT SAFE)
 # =========================
 class MQTTManager:
-    def __init__(self, cfg):
+    def __init__(self, cfg, reboot_after=None, reboot_fn=None):
         self.cfg = cfg
         self.connection = None
         # Single lock guards BOTH connect() and publish() so a failed
@@ -159,9 +387,11 @@ class MQTTManager:
         # another thread (e.g. publisher + system_publisher both failing
         # at once).
         self.lock = threading.RLock()
+        self._reboot = _RebootEscalator(reboot_after, reboot_fn)
 
     def connect(self):
         attempt = 0
+        self._reboot.reset()
         while True:
             try:
                 logger.info("Connecting MQTT...")
@@ -191,6 +421,7 @@ class MQTTManager:
             except Exception as e:
                 delay = _retry_delay(attempt)
                 logger.error(f"MQTT connect failed: {e} - retrying in {delay:.1f}s")
+                self._reboot.check("MQTT")
                 time.sleep(delay)
                 attempt += 1
 
@@ -241,15 +472,17 @@ class MQTTManager:
 # MODBUS MANAGER (RETRY SAFE)
 # =========================
 class ModbusManager:
-    def __init__(self, cfg):
+    def __init__(self, cfg, reboot_after=None, reboot_fn=None):
         self.cfg = cfg
         self.client = None
         # Serial pymodbus clients are not thread-safe; every read/connect
         # against self.client must go through this lock.
         self.lock = threading.RLock()
+        self._reboot = _RebootEscalator(reboot_after, reboot_fn)
 
     def connect(self):
         attempt = 0
+        self._reboot.reset()
         while True:
             try:
                 client = ModbusSerialClient(**self.cfg)
@@ -264,6 +497,7 @@ class ModbusManager:
             except Exception as e:
                 delay = _retry_delay(attempt)
                 logger.error(f"Modbus connect error: {e} - retrying in {delay:.1f}s")
+                self._reboot.check("Modbus")
                 time.sleep(delay)
                 attempt += 1
 
@@ -305,18 +539,6 @@ class ModbusManager:
 # =========================
 # SENSOR + DEVICE
 # =========================
-
-# High-register-first ("big-endian word order"), matching pymodbus's own
-# default (Endian.BIG for both byte order and word order). Devices that use
-# the opposite word order will need this flipped - there's no way to detect
-# that automatically from the register values alone.
-def _combine_32bit(registers, signed=False, as_float=False):
-    raw = struct.pack(">HH", registers[0], registers[1])
-    if as_float:
-        return struct.unpack(">f", raw)[0]
-    return struct.unpack(">i" if signed else ">I", raw)[0]
-
-
 class SensorNode:
     def __init__(self, cfg, slave, modbus_mgr):
         self.cfg = cfg
@@ -342,26 +564,12 @@ class SensorNode:
                 return {"status": "BUS_ERROR"}
 
             sensor_type = self.cfg.get("type", "int")
-
-            if sensor_type in ("uint32", "int32", "float32"):
-                if len(res.registers) < 2:
-                    # config_manager.py's build validation rejects this
-                    # combination, but a hand-edited config.json can still
-                    # reach here - fail loudly instead of silently reading
-                    # only the low/high half of the value.
-                    return {
-                        "status": "EXCEPTION",
-                        "err": f"type '{sensor_type}' needs count >= 2, got {len(res.registers)}",
-                    }
-                if sensor_type == "float32":
-                    val = _combine_32bit(res.registers, as_float=True)
-                    val = val * self.cfg.get("scale", 1) + self.cfg.get("offset", 0)
-                else:
-                    val = _combine_32bit(res.registers, signed=(sensor_type == "int32"))
-            else:
-                val = res.registers[0]
-                if sensor_type == "float":
-                    val = val * self.cfg.get("scale", 1) + self.cfg.get("offset", 0)
+            val = decode_sensor(
+                sensor_type,
+                res.registers,
+                scale=self.cfg.get("scale", 1),
+                offset=self.cfg.get("offset", 0),
+            )
 
             return {"val": val, "status": "OK", "alarm": self._evaluate_alarm(val)}
 
@@ -426,6 +634,7 @@ class EdgeNode:
 
         self.mqtt = None
         self.modbus = None
+        self.wifi = None
 
         # Track hashes of the sub-sections that require a reconnect
         # (rather than just rebuilding the device list) when changed.
@@ -441,30 +650,48 @@ class EdgeNode:
         # errors, since per-device failures are already caught and recorded
         # by SensorNode.read()/DeviceNode.poll() without stopping the loop.
         self._last_heartbeat = time.time()
+        # Same _RebootEscalator the communication managers use - watchdog()
+        # calls reset() whenever _last_heartbeat advances and check() every
+        # tick, so _started tracks "time of last heartbeat" and this fires
+        # (once, via the same reboot-loop-guarded _default_reboot_fn) only
+        # once a stall has actually lasted past watchdog_timeout.
+        self._watchdog_reboot = _RebootEscalator()
+        self._watchdog_last_seen_heartbeat = self._last_heartbeat
 
     def init_system(self):
         cfg = self.config_mgr.get()
+        gw = cfg.get("gateway", {})
 
-        self.modbus = ModbusManager(cfg["modbus"])
-        self.mqtt = MQTTManager(cfg["aws"])
+        self.modbus = ModbusManager(cfg["modbus"], reboot_after=gw.get("modbus_reboot_timeout"))
+        self.mqtt = MQTTManager(cfg["aws"], reboot_after=gw.get("aws_reboot_timeout"))
+        self.wifi = WifiManager(gw)
 
-        # Connect Modbus and MQTT concurrently. Both connect() calls
-        # retry forever on failure - previously they ran sequentially,
-        # so a stuck/unreachable Modbus serial port (wrong port,
-        # permission denied, device unplugged) blocked MQTT from ever
-        # connecting, and nothing reached AWS even though AWS itself
-        # was reachable. Now a dead serial bus only blocks sensor
-        # data, not system-health reporting or AWS connectivity.
+        # Connect Modbus, WiFi, and MQTT concurrently. Both Modbus's and
+        # WiFi's connect() calls retry forever on failure - previously
+        # Modbus ran sequentially before MQTT, so a stuck/unreachable
+        # Modbus serial port (wrong port, permission denied, device
+        # unplugged) blocked MQTT from ever connecting, and nothing
+        # reached AWS even though AWS itself was reachable. Now a dead
+        # serial bus only blocks sensor data, not system-health reporting
+        # or AWS connectivity.
         modbus_thread = threading.Thread(
             target=self.modbus.connect, name="ModbusConnect", daemon=True
         )
         modbus_thread.start()
 
-        # Only block startup on MQTT. Modbus keeps retrying forever in
-        # the background - if the serial bus is down/misconfigured,
+        wifi_thread = threading.Thread(
+            target=self.wifi.connect, name="WifiConnect", daemon=True
+        )
+        wifi_thread.start()
+
+        # Only block startup on MQTT. Modbus and WiFi keep retrying forever
+        # in the background - if the serial bus is down/misconfigured,
         # sensor reads will just come back EXCEPTION/BUS_ERROR until it
         # connects, but AWS reporting (including system_publisher's
-        # host-health payload) starts immediately regardless.
+        # host-health payload) starts immediately regardless (and MQTT's
+        # own connect() retries forever too, so a dead network doesn't
+        # block startup here either - it just means this call takes a
+        # while).
         self.mqtt.connect()
 
         self._modbus_hash = _section_hash(cfg["modbus"])
@@ -631,7 +858,7 @@ class EdgeNode:
             time.sleep(5)
 
     def watchdog(self):
-        """Exits the process if the worker thread stops making progress.
+        """Reboots the system if the worker thread stops making progress.
 
         gateway.watchdog_timeout was previously loaded from config and
         never used. This is a last resort, not a substitute for the
@@ -639,24 +866,31 @@ class EdgeNode:
         expected failures (bad reads, bad config values) without missing
         a beat, whereas this only fires when worker() has stopped
         advancing entirely - e.g. blocked inside a library call that
-        never returns. os._exit() skips cleanup deliberately (the process
-        may be in a genuinely stuck state, so a graceful shutdown could
-        hang too) and relies on an external supervisor (systemd
-        Restart=always, a container restart policy, etc.) to bring the
-        process back up - without one, the gateway just stays down.
+        never returns.
+
+        Uses the same _RebootEscalator (and by extension the same
+        reboot-loop-guarded _default_reboot_fn) as ModbusManager/
+        MQTTManager/WifiManager: reset() is called whenever
+        _last_heartbeat actually advances, so _watchdog_reboot._started
+        tracks "time of last heartbeat" the same way it tracks "time a
+        connect() attempt began" for the other three - and check() fires
+        (once per stall, not once per 5s tick) only once that has been
+        stalled longer than watchdog_timeout. There's no external process
+        supervisor in the field to fall back on if this merely exited, so
+        this reboots the whole machine, same reasoning as the other
+        three - a graceful shutdown could hang too if the process is
+        genuinely stuck, which is also why _default_reboot_fn's
+        subprocess.run(["sudo", "reboot"]) doesn't try to clean up first.
         """
         while not self.stop_event.is_set():
             try:
+                if self._last_heartbeat != self._watchdog_last_seen_heartbeat:
+                    self._watchdog_last_seen_heartbeat = self._last_heartbeat
+                    self._watchdog_reboot.reset()
+
                 timeout = self.config_mgr.get().get("gateway", {}).get("watchdog_timeout")
-                if timeout:
-                    stalled_for = time.time() - self._last_heartbeat
-                    if stalled_for > timeout:
-                        logger.critical(
-                            f"Watchdog: worker has not made progress in "
-                            f"{stalled_for:.0f}s (watchdog_timeout={timeout}s) "
-                            f"- exiting for restart by a process supervisor"
-                        )
-                        os._exit(1)
+                self._watchdog_reboot.reboot_after = timeout
+                self._watchdog_reboot.check("Worker")
             except Exception as e:
                 logger.error(f"Watchdog error: {e}")
 
@@ -677,6 +911,9 @@ class EdgeNode:
             threading.Thread(target=self.system_publisher, name="SystemPublisher"),
             threading.Thread(target=self.config_watcher, name="ConfigWatcher"),
             threading.Thread(target=self.watchdog, name="Watchdog"),
+            threading.Thread(
+                target=self.wifi.monitor, args=(self.stop_event,), name="WifiMonitor"
+            ),
         ]
 
         for t in threads:
@@ -700,11 +937,13 @@ class EdgeNode:
             self.mqtt.disconnect()
         if self.modbus is not None:
             self.modbus.disconnect()
+        if self.wifi is not None:
+            self.wifi.disconnect()
 
 
 # =========================
 # ENTRY
 # =========================
 if __name__ == "__main__":
-    node = EdgeNode("config.json")
+    node = EdgeNode("config_data/config.json")
     node.start()

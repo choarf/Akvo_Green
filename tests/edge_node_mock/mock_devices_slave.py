@@ -17,7 +17,7 @@ implemented so the same mock can double as a generic register sandbox.
 
 Usage:
     python3 mock_devices_slave.py --port /tmp/akvo_edge_node_slave \\
-        --config ../../src/Venko_Green/config.json
+        --config ../../src/Venko_Green/config_data/config.json
 
 Pair with a virtual serial link (see tests/akvo_modbus_mock/start_virtual_serial.sh
 or run_edge_node_test.py, which sets one up automatically), and point the
@@ -270,7 +270,8 @@ def main() -> None:
     parser.add_argument(
         "--config",
         default=str(
-            Path(__file__).resolve().parents[2] / "src" / "Venko_Green" / "config.json"
+            Path(__file__).resolve().parents[2]
+            / "src" / "Venko_Green" / "config_data" / "config.json"
         ),
         help="Edge-node config.json to source devices/slaves/sensors from",
     )

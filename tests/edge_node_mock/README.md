@@ -90,7 +90,7 @@ python3 -m pip install pymodbus pyserial psutil awsiotsdk
 ```bash
 cd tests/edge_node_mock
 
-# Run for 30s using src/Venko_Green/config.json
+# Run for 30s using src/Venko_Green/config_data/config.json
 python3 run_edge_node_test.py
 
 # Run for 60s, simulate slaves 3 and 9 as offline (no response)
@@ -162,7 +162,7 @@ tests/akvo_modbus_mock/start_virtual_serial.sh
 cd Akvo_Green
 python3 -u tests/edge_node_mock/mock_devices_slave.py \
   --port /tmp/akvo_modbus_slave \
-  --config src/Venko_Green/config.json \
+  --config src/Venko_Green/config_data/config.json \
   --offline 9   # optional: simulate slave 9 as dead
 ```
 
@@ -177,7 +177,7 @@ cd Akvo_Green
 # 1. Copy config.json, pointing modbus.port at the virtual "master" end
 python3 -c "
 import json
-cfg = json.load(open('src/Venko_Green/config.json'))
+cfg = json.load(open('src/Venko_Green/config_data/config.json'))
 cfg['modbus']['port'] = '/tmp/akvo_modbus_master'
 json.dump(cfg, open('/tmp/test_config.json', 'w'), indent=4)
 "
@@ -212,7 +212,7 @@ full edge node:
 ```bash
 ../akvo_modbus_mock/start_virtual_serial.sh
 python3 mock_devices_slave.py --port /tmp/akvo_modbus_slave \
-    --config ../../src/Venko_Green/config.json
+    --config ../../src/Venko_Green/config_data/config.json
 ```
 
 ## Known limitations (mirrors the real app, not a mock bug)

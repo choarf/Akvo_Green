@@ -1,6 +1,6 @@
 # Edge Node Configuration Reference
 
-`edge_node_improved.py` runs entirely off `src/Venko_Green/config.json`. You
+`edge_node_improved.py` runs entirely off `src/Venko_Green/config_data/config.json`. You
 normally don't hand-edit that file — you edit four CSVs and run
 `config_manager.py build` to regenerate it:
 
@@ -78,9 +78,10 @@ One header row + one data row — the whole serial bus configuration.
 | `stopbits` | int | `1` or `2`. |
 | `bytesize` | int | `5`-`8`. |
 
-Unlike `devices.csv`, `config_manager.py` does **not** validate
-`parity`/`stopbits`/`bytesize` — an invalid value only surfaces later, as a
-`ModbusManager` connect failure at runtime.
+`config/schema.py` (see **Validation** below) checks that all six keys are
+*present*, but not that `parity`/`stopbits`/`bytesize` hold a *valid*
+value — a bad value there only surfaces later, as a `ModbusManager`
+connect failure at runtime.
 
 ```csv
 port,baudrate,timeout,parity,stopbits,bytesize
@@ -212,6 +213,29 @@ and live-reloads: it only reconnects Modbus/MQTT if the `modbus`/`aws`
 section actually changed, and only rebuilds devices that are new, removed,
 or changed (`reload_devices()`), leaving unaffected devices running.
 
+## Validation (`config/schema.py`)
+
+Both `config_manager.py build` and `edge_node_improved.py`'s runtime
+`ConfigManager` validate the fully-assembled config against the same
+`config/schema.py` — so a hand-edited `config.json` that skips
+`config_manager.py` entirely is held to the same rules a bad CSV build
+would be, instead of only surfacing later as a scattered error in
+whichever thread hits the missing/malformed field first:
+
+- `gateway`/`modbus`/`aws` must each be present with all of their required
+  keys (see the tables above) — a missing section or key is rejected
+  immediately, at `EdgeNode` construction or at the next config reload,
+  with a clear message naming what's missing.
+- Every device-level rule described under **devices.csv** above (duplicate
+  sensor names, register overlap, invalid/under-sized `type`, invalid
+  `slave`) applies here too — `config/schema.py` is the single place both
+  the CSV builder and the runtime loader check against.
+- Two devices sharing one `slave` ID is a *warning*, not an error (the
+  normal way to model two sensors on one physical unit).
+- A `config.json` edit that fails validation while the gateway is already
+  running is rejected by `config_watcher` (logged, old config kept in
+  place) rather than crashing or partially applying.
+
 ## Sensor types and scaling
 
 | `type` | Registers used | Runtime behavior |
@@ -222,14 +246,19 @@ or changed (`reload_devices()`), leaving unaffected devices running.
 | `int32` | 2 | `val = <32-bit signed combine>` — raw, `scale`/`offset` ignored |
 | `float32` | 2 | `val = <32-bit IEEE-754 combine> * scale + offset` |
 
+Decoding lives in `domain/sensors.py`'s decoder registry (`DECODERS`), not
+inline in `SensorNode.read()` — adding a 7th type means adding one decoder
+class there, not editing an if/else in the polling code.
+
 The 32-bit types (`uint32`/`int32`/`float32`) combine `registers[0]` and
 `registers[1]` as one big-endian 32-bit word (`registers[0]` = high 16 bits),
 matching pymodbus's own default word order. **A device using the opposite
 word order will read wrong values with no error** — there's no way to detect
 that automatically from the register values alone; swap `registers[0]`/`[1]`
-in `_combine_32bit()` (`edge_node_improved.py`) if so. `count` must be `>= 2`
-for these three types — `config_manager.py build` rejects a smaller `count`,
-and a hand-edited `config.json` that slips through anyway gets an
+in `_combine_32bit()` (`domain/sensors.py`) if so. `count` must be `>= 2`
+for these three types — both `config_manager.py build` and the runtime
+`config/schema.py` check reject a smaller `count` (see **Validation**
+below), and a hand-edited `config.json` that slips through anyway gets an
 `"EXCEPTION"` status at read time rather than a silently truncated value.
 
 ## Known behaviors

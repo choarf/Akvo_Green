@@ -34,8 +34,9 @@ Akvo_Green/
 │   └── Venko_Green/               # Edge gateway application
 │       ├── edge_node_improved.py # Main engine: scheduler/worker/publisher threads
 │       ├── config_manager.py     # CSV <-> config.json build/export tool
-│       ├── config.json           # Generated runtime configuration
-│       ├── devices.csv / modbus.csv / system.csv / aws.csv
+│       ├── config_data/
+│       │   ├── config.json       # Generated runtime configuration
+│       │   └── devices.csv / modbus.csv / system.csv / aws.csv
 │       └── certs/                # AWS IoT Core certificates (mTLS)
 ├── tests/
 │   ├── akvo_modbus_mock/         # Virtual-serial mock Modbus slave + client tests
@@ -165,6 +166,7 @@ python3 -m pytest --cov=edge_node_improved --cov-report=term-missing -q
 
 - [Modbus Client API V3](docs/Modbus_client/AKVO_Modbus_Client_API_V3.md) — full reference for connection handling, supported function codes, error handling, statistics, and thread safety.
 - [Edge Node Configuration Reference](docs/edge_node_config/CONFIGURATION.md) — every column in `devices.csv`/`modbus.csv`/`system.csv`/`aws.csv` and every field in the generated `config.json`, plus non-obvious behaviors (disabled devices, sensor-type scaling, live-reload semantics).
+- [Testing Guide](docs/testing/TESTING.md) — the three test levels (unit/mocked/real-hardware) across all four test suites, a decision table for which to run, and setup for each.
 
 ## License
 

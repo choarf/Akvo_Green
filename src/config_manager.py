@@ -25,18 +25,21 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict, List
 
+from config.schema import validate as validate_config
+
 # ------------------------------------------------------------------
 # Project Paths
 # ------------------------------------------------------------------
 
 BASE_DIR = Path(__file__).resolve().parent
+CONFIG_DIR = BASE_DIR / "config_data"
 
-CONFIG_JSON = BASE_DIR / "config.json"
+CONFIG_JSON = CONFIG_DIR / "config.json"
 
-DEVICES_CSV = BASE_DIR / "devices.csv"
-MODBUS_CSV = BASE_DIR / "modbus.csv"
-SYSTEM_CSV = BASE_DIR / "system.csv"
-AWS_CSV = BASE_DIR / "aws.csv"
+DEVICES_CSV = CONFIG_DIR / "devices.csv"
+MODBUS_CSV = CONFIG_DIR / "modbus.csv"
+SYSTEM_CSV = CONFIG_DIR / "system.csv"
+AWS_CSV = CONFIG_DIR / "aws.csv"
 
 # Columns that MUST be present in devices.csv. "enabled" is optional -
 # if the column is missing every device defaults to enabled.
@@ -53,12 +56,6 @@ DEVICE_COLUMNS = {
     "min",
     "max",
 }
-
-VALID_SENSOR_TYPES = {"int", "float", "uint16", "uint32", "int32", "float32"}
-
-# 32-bit types are read from two consecutive holding registers by
-# SensorNode.read() (edge_node_improved.py) - count must cover both.
-MULTI_REGISTER_TYPES = {"uint32", "int32", "float32"}
 
 # ------------------------------------------------------------------
 # Logging
@@ -165,60 +162,19 @@ class ConfigManager:
             writer.writerow(list(row.values()))
 
     # ------------------------------------------------------------------
-    # Device Validation
+    # Validation
     # ------------------------------------------------------------------
 
-    def validate_devices(self, devices: List[Dict[str, Any]]) -> None:
-        logger.info("Validating devices...")
-        errors: List[str] = []
-        slave_ids: set = set()
+    def validate(self, config: Dict[str, Any]) -> None:
+        """Validate a fully-assembled config dict against config/schema.py -
+        the same schema edge_node_improved.py's runtime ConfigManager
+        validates a hand-edited config.json against, so a config built here
+        and one edited directly are held to identical rules."""
+        logger.info("Validating configuration...")
+        errors, warnings = validate_config(config)
 
-        for device in devices:
-            dev_id = device["id"]
-            slave = device["slave"]
-
-            if not (1 <= slave <= 247):
-                errors.append(f"{dev_id}: Invalid slave ID {slave}")
-
-            if slave in slave_ids:
-                logger.warning(f"{dev_id}: Duplicate slave ID {slave}")
-            slave_ids.add(slave)
-
-            used_registers: set = set()
-            sensor_names: set = set()
-
-            for sensor in device["sensors"]:
-                name = sensor["name"]
-                addr = sensor["addr"]
-                count = sensor["count"]
-
-                if name in sensor_names:
-                    errors.append(f"{dev_id}: Duplicate sensor '{name}'")
-                sensor_names.add(name)
-
-                if not (0 <= addr <= 65535):
-                    errors.append(f"{dev_id}.{name}: Invalid register {addr}")
-
-                if count <= 0:
-                    errors.append(f"{dev_id}.{name}: Count must be > 0")
-
-                regs = set(range(addr, addr + count))
-                overlap = used_registers.intersection(regs)
-                if overlap:
-                    errors.append(
-                        f"{dev_id}.{name}: Register overlap {sorted(overlap)}"
-                    )
-                used_registers.update(regs)
-
-                if sensor["type"] not in VALID_SENSOR_TYPES:
-                    errors.append(
-                        f"{dev_id}.{name}: Unsupported type '{sensor['type']}'"
-                    )
-                elif sensor["type"] in MULTI_REGISTER_TYPES and count < 2:
-                    errors.append(
-                        f"{dev_id}.{name}: type '{sensor['type']}' requires "
-                        f"count >= 2 (got {count})"
-                    )
+        for warning in warnings:
+            logger.warning(warning)
 
         if errors:
             logger.error("Configuration validation failed")
@@ -306,7 +262,6 @@ class ConfigManager:
             if data["enabled"]
         ]
 
-        self.validate_devices(result)
         logger.info("Loaded %d devices", len(result))
         return result
 
@@ -346,6 +301,12 @@ class ConfigManager:
 
         config["meta"]["generated_at"] = datetime.now(timezone.utc).isoformat()
         config["meta"]["hash"] = self.calculate_hash()
+
+        # Validate the fully-assembled config (all sections) once here,
+        # rather than validating devices in isolation partway through the
+        # build - a bad modbus/aws/gateway section is now caught before
+        # dry_run's print or a real write, same as a bad device already was.
+        self.validate(config)
 
         if dry_run:
             print(json.dumps(config, indent=4))

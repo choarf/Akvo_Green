@@ -87,37 +87,72 @@ def test_section_hash_differs_for_different_content():
 # watchdog
 # ---------------------------------------------------------------------------
 
-def test_watchdog_fires_when_heartbeat_is_stale(monkeypatch):
+def make_watchdog_node(heartbeat_age_seconds, watchdog_timeout):
+    """A stale heartbeat means "the worker last made progress this long
+    ago, and hasn't since" - which in the new _RebootEscalator-based
+    watchdog means _watchdog_reboot._started (set by reset() whenever
+    _last_heartbeat actually advances) is itself that old, not just
+    _last_heartbeat. Setting it directly here is the test equivalent of
+    "reset() was called heartbeat_age_seconds ago and heartbeat hasn't
+    moved since" - watchdog_last_seen_heartbeat matching _last_heartbeat
+    means the loop won't call reset() again and clobber it."""
     node = en.EdgeNode.__new__(en.EdgeNode)
     node.stop_event = threading.Event()
-    node._last_heartbeat = time.time() - 999
-    node.config_mgr = FakeConfigMgr({"gateway": {"watchdog_timeout": 1}})
+    node._last_heartbeat = time.time() - heartbeat_age_seconds
+    node._watchdog_last_seen_heartbeat = node._last_heartbeat
+    node._watchdog_reboot = en._RebootEscalator()
+    node._watchdog_reboot._started = time.time() - heartbeat_age_seconds
+    gateway_cfg = {"watchdog_timeout": watchdog_timeout} if watchdog_timeout else {}
+    node.config_mgr = FakeConfigMgr({"gateway": gateway_cfg})
+    return node
 
-    exit_calls = []
 
-    def fake_exit(code):
-        exit_calls.append(code)
-        node.stop_event.set()  # let the loop terminate instead of really exiting
+def test_watchdog_reboots_when_heartbeat_is_stale(monkeypatch):
+    node = make_watchdog_node(heartbeat_age_seconds=999, watchdog_timeout=1)
 
-    monkeypatch.setattr(en.os, "_exit", fake_exit)
+    reboot_calls = []
+
+    def fake_reboot():
+        reboot_calls.append(1)
+        node.stop_event.set()  # let the loop terminate instead of looping forever
+
+    node._watchdog_reboot.reboot_fn = fake_reboot
     monkeypatch.setattr(en.time, "sleep", lambda s: None)  # skip the real 5s poll interval
 
     node.watchdog()
 
-    assert exit_calls == [1]
+    assert reboot_calls == [1]
 
 
 def test_watchdog_stays_inert_when_timeout_unset(monkeypatch):
-    node = en.EdgeNode.__new__(en.EdgeNode)
-    node.stop_event = threading.Event()
-    node._last_heartbeat = time.time() - 999  # very stale, but disabled below
-    node.config_mgr = FakeConfigMgr({"gateway": {}})  # no watchdog_timeout key
+    node = make_watchdog_node(heartbeat_age_seconds=999, watchdog_timeout=None)  # very stale, but disabled
 
-    exit_calls = []
-    monkeypatch.setattr(en.os, "_exit", lambda code: exit_calls.append(code))
+    reboot_calls = []
+    node._watchdog_reboot.reboot_fn = lambda: reboot_calls.append(1)
     # Let the loop run exactly one iteration, then stop it via the sleep call.
     monkeypatch.setattr(en.time, "sleep", lambda s: node.stop_event.set())
 
     node.watchdog()
 
-    assert exit_calls == []
+    assert reboot_calls == []
+
+
+def test_watchdog_does_not_reboot_while_heartbeat_keeps_advancing(monkeypatch):
+    node = make_watchdog_node(heartbeat_age_seconds=0, watchdog_timeout=1)
+    reboot_calls = []
+    node._watchdog_reboot.reboot_fn = lambda: reboot_calls.append(1)
+
+    ticks = {"n": 0}
+
+    def fake_sleep(seconds):
+        ticks["n"] += 1
+        node._last_heartbeat = time.time()  # worker made progress during this tick
+        if ticks["n"] >= 5:
+            node.stop_event.set()
+
+    monkeypatch.setattr(en.time, "sleep", fake_sleep)
+
+    node.watchdog()
+
+    assert reboot_calls == []
+    assert ticks["n"] == 5
