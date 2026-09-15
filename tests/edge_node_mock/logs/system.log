@@ -727,3 +727,186 @@
 2026-09-15 07:32:56,044 | INFO | MainThread | MQTT disconnected
 2026-09-15 07:32:56,044 | INFO | MainThread | Modbus disconnected
 2026-09-15 07:32:56,044 | INFO | MainThread | WiFi disconnected
+2026-09-15 07:55:59,791 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-15 07:55:59,794 | INFO | WifiConnect | WiFi connected
+2026-09-15 07:55:59,794 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-15 07:55:59,795 | INFO | ModbusConnect | Modbus connected
+2026-09-15 07:55:59,797 | INFO | Thread-1 (start) | MQTT connected
+2026-09-15 07:55:59,801 | INFO | ConfigWatcher | Reloading config...
+2026-09-15 07:56:00,042 | WARNING | Worker | [ALERT] LOAD_2.S2 HIGH
+2026-09-15 07:56:00,094 | WARNING | Worker | [ALERT] LOAD_3.S0 HIGH
+2026-09-15 07:56:00,418 | WARNING | Worker | [ALERT] LOAD_6.S0 HIGH
+2026-09-15 07:56:00,418 | WARNING | Worker | [ALERT] LOAD_6.S2 HIGH
+2026-09-15 07:56:00,470 | WARNING | Worker | [ALERT] LOAD_7.S1 HIGH
+2026-09-15 07:56:00,684 | WARNING | Worker | [ALERT] LOAD_9.S0 HIGH
+2026-09-15 07:56:00,684 | WARNING | Worker | [ALERT] LOAD_9.S2 HIGH
+2026-09-15 07:56:00,790 | WARNING | Worker | [ALERT] LOAD_10.S0 HIGH
+2026-09-15 07:56:00,790 | WARNING | Worker | [ALERT] LOAD_10.S1 HIGH
+2026-09-15 07:56:00,801 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure
+2026-09-15 07:56:00,801 | INFO | Publisher | Connecting MQTT...
+2026-09-15 07:56:00,802 | INFO | Publisher | MQTT connected
+2026-09-15 07:56:01,861 | INFO | Worker | [CLEAR] LOAD_10.S1 no longer HIGH (status=EXCEPTION)
+2026-09-15 07:56:03,039 | WARNING | Worker | [ALERT] LOAD_10.S1 HIGH
+2026-09-15 07:56:03,574 | INFO | Worker | [CLEAR] LOAD_6.S2 no longer HIGH (status=BUS_ERROR)
+2026-09-15 07:56:03,737 | WARNING | Worker | [ALERT] LOAD_7.S0 HIGH
+2026-09-15 07:56:04,216 | INFO | Worker | [CLEAR] LOAD_2.S2 no longer HIGH (status=EXCEPTION)
+2026-09-15 07:56:04,647 | WARNING | Worker | [ALERT] LOAD_6.S2 HIGH
+2026-09-15 07:56:05,395 | WARNING | Worker | [ALERT] LOAD_2.S2 HIGH
+2026-09-15 07:56:05,931 | INFO | Worker | [CLEAR] LOAD_7.S1 no longer HIGH (status=EXCEPTION)
+2026-09-15 07:56:06,093 | INFO | Worker | [CLEAR] LOAD_9.S0 no longer HIGH (status=EXCEPTION)
+2026-09-15 07:56:06,199 | INFO | Worker | [CLEAR] LOAD_10.S0 no longer HIGH (status=EXCEPTION)
+2026-09-15 07:56:06,948 | WARNING | Worker | [ALERT] LOAD_7.S1 HIGH
+2026-09-15 07:56:07,163 | WARNING | Worker | [ALERT] LOAD_9.S0 HIGH
+2026-09-15 07:56:07,269 | WARNING | Worker | [ALERT] LOAD_10.S0 HIGH
+2026-09-15 07:56:08,340 | INFO | Worker | [CLEAR] LOAD_9.S0 no longer HIGH
+2026-09-15 07:56:10,268 | INFO | Worker | [CLEAR] LOAD_7.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-15 07:56:10,534 | INFO | Worker | [CLEAR] LOAD_10.S0 no longer HIGH
+2026-09-15 07:56:11,123 | INFO | Worker | [CLEAR] LOAD_6.S2 no longer HIGH (status=BUS_ERROR)
+2026-09-15 07:56:11,286 | WARNING | Worker | [ALERT] LOAD_7.S0 HIGH
+2026-09-15 07:56:12,194 | WARNING | Worker | [ALERT] LOAD_6.S2 HIGH
+2026-09-15 07:56:12,946 | INFO | Worker | [CLEAR] LOAD_3.S0 no longer HIGH (status=EXCEPTION)
+2026-09-15 07:56:14,122 | WARNING | Worker | [ALERT] LOAD_3.S0 HIGH
+2026-09-15 07:56:14,797 | INFO | MainThread | Stopping Edge Node
+2026-09-15 07:56:14,797 | INFO | MainThread | MQTT disconnected
+2026-09-15 07:56:14,797 | INFO | MainThread | Modbus disconnected
+2026-09-15 07:56:14,798 | INFO | MainThread | WiFi disconnected
+2026-09-15 07:56:14,798 | INFO | Worker | [CLEAR] LOAD_9.S2 no longer HIGH (status=EXCEPTION)
+2026-09-15 07:57:04,656 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-15 07:57:04,658 | INFO | WifiConnect | WiFi connected
+2026-09-15 07:57:04,659 | INFO | ModbusConnect | Modbus connected
+2026-09-15 07:57:04,659 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-15 07:57:04,660 | INFO | Thread-1 (start) | MQTT connected
+2026-09-15 07:57:04,665 | INFO | ConfigWatcher | Reloading config...
+2026-09-15 07:57:04,817 | WARNING | Worker | [ALERT] LOAD_1.S1 HIGH
+2026-09-15 07:57:05,138 | WARNING | Worker | [ALERT] LOAD_3.S1 HIGH
+2026-09-15 07:57:05,138 | WARNING | Worker | [ALERT] LOAD_3.S2 HIGH
+2026-09-15 07:57:05,301 | WARNING | Worker | [ALERT] LOAD_4.S1 HIGH
+2026-09-15 07:57:05,353 | WARNING | Worker | [ALERT] LOAD_5.S0 HIGH
+2026-09-15 07:57:05,622 | WARNING | Worker | [ALERT] LOAD_8.S1 HIGH
+2026-09-15 07:57:06,049 | WARNING | Worker | [ALERT] LOAD_3.S0 HIGH
+2026-09-15 07:57:07,005 | INFO | Worker | [CLEAR] LOAD_3.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-15 07:57:07,488 | INFO | Worker | [CLEAR] LOAD_8.S1 no longer HIGH (status=EXCEPTION)
+2026-09-15 07:57:08,068 | WARNING | Worker | [ALERT] LOAD_3.S1 HIGH
+2026-09-15 07:57:08,604 | WARNING | Worker | [ALERT] LOAD_8.S1 HIGH
+2026-09-15 07:57:08,666 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure
+2026-09-15 07:57:08,666 | INFO | Publisher | Connecting MQTT...
+2026-09-15 07:57:08,667 | INFO | Publisher | MQTT connected
+2026-09-15 07:57:08,760 | INFO | Worker | [CLEAR] LOAD_1.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-15 07:57:09,822 | WARNING | Worker | [ALERT] LOAD_1.S1 HIGH
+2026-09-15 07:57:11,669 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure
+2026-09-15 07:57:11,669 | INFO | Publisher | Connecting MQTT...
+2026-09-15 07:57:11,670 | INFO | Publisher | MQTT connected
+2026-09-15 07:57:12,704 | INFO | Worker | [CLEAR] LOAD_1.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-15 07:57:13,819 | WARNING | Worker | [ALERT] LOAD_1.S1 HIGH
+2026-09-15 07:57:14,668 | WARNING | WifiMonitor | WiFi disconnected
+2026-09-15 07:57:14,669 | ERROR | WifiMonitor | WiFi unreachable - retrying in 5.3s
+2026-09-15 07:57:14,671 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure
+2026-09-15 07:57:14,672 | INFO | Publisher | Connecting MQTT...
+2026-09-15 07:57:14,672 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 4.0s
+2026-09-15 07:57:15,099 | INFO | Worker | [CLEAR] LOAD_3.S2 no longer HIGH (status=EXCEPTION)
+2026-09-15 07:57:16,008 | INFO | Worker | [CLEAR] LOAD_3.S1 no longer HIGH (status=EXCEPTION)
+2026-09-15 07:57:16,490 | INFO | Worker | [CLEAR] LOAD_8.S1 no longer HIGH (status=EXCEPTION)
+2026-09-15 07:57:16,801 | INFO | Worker | [CLEAR] LOAD_1.S1 no longer HIGH (status=EXCEPTION)
+2026-09-15 07:57:17,121 | WARNING | Worker | [ALERT] LOAD_3.S1 HIGH
+2026-09-15 07:57:17,122 | WARNING | Worker | [ALERT] LOAD_3.S2 HIGH
+2026-09-15 07:57:17,390 | WARNING | Worker | [ALERT] LOAD_6.S0 HIGH
+2026-09-15 07:57:17,657 | WARNING | Worker | [ALERT] LOAD_8.S1 HIGH
+2026-09-15 07:57:17,674 | ERROR | SystemPublisher | MQTT publish failed: simulated AWS/network failure
+2026-09-15 07:57:17,674 | INFO | SystemPublisher | Connecting MQTT...
+2026-09-15 07:57:17,674 | ERROR | SystemPublisher | MQTT connect failed: simulated AWS/network failure - retrying in 4.0s
+2026-09-15 07:57:17,767 | WARNING | Worker | [ALERT] LOAD_1.S1 HIGH
+2026-09-15 07:57:18,087 | INFO | Worker | [CLEAR] LOAD_3.S1 no longer HIGH (status=EXCEPTION)
+2026-09-15 07:57:18,193 | INFO | Worker | [CLEAR] LOAD_4.S1 no longer HIGH (status=EXCEPTION)
+2026-09-15 07:57:18,697 | INFO | Publisher | Connecting MQTT...
+2026-09-15 07:57:18,697 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 10.8s
+2026-09-15 07:57:19,153 | WARNING | Worker | [ALERT] LOAD_3.S1 HIGH
+2026-09-15 07:57:19,311 | WARNING | Worker | [ALERT] LOAD_4.S1 HIGH
+2026-09-15 07:57:19,664 | INFO | MainThread | Stopping Edge Node
+2026-09-15 07:57:19,665 | INFO | MainThread | MQTT disconnected
+2026-09-15 07:57:19,665 | INFO | MainThread | Modbus disconnected
+2026-09-15 07:57:19,665 | INFO | MainThread | WiFi disconnected
+2026-09-15 07:57:19,666 | INFO | Worker | [CLEAR] LOAD_8.S1 no longer HIGH (status=EXCEPTION)
+2026-09-15 07:57:19,955 | ERROR | WifiMonitor | WiFi unreachable - retrying in 8.7s
+2026-09-15 07:57:28,530 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-15 07:57:28,530 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-15 07:57:28,531 | INFO | ModbusConnect | Modbus connected
+2026-09-15 07:57:28,531 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-15 07:57:28,532 | INFO | Thread-1 (start) | MQTT connected
+2026-09-15 07:57:28,534 | INFO | ConfigWatcher | Reloading config...
+2026-09-15 07:57:28,535 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-15 07:57:28,545 | INFO | WifiConnect | WiFi connected
+2026-09-15 07:57:58,531 | INFO | MainThread | Stopping Edge Node
+2026-09-15 07:57:58,531 | INFO | MainThread | MQTT disconnected
+2026-09-15 07:57:58,532 | INFO | MainThread | Modbus disconnected
+2026-09-15 07:57:58,532 | INFO | MainThread | WiFi disconnected
+2026-09-15 08:00:54,556 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-15 08:00:54,557 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-15 08:00:54,558 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-15 08:00:54,559 | INFO | Thread-1 (start) | MQTT connected
+2026-09-15 08:00:54,561 | INFO | ModbusConnect | Modbus connected
+2026-09-15 08:00:54,562 | INFO | ConfigWatcher | Reloading config...
+2026-09-15 08:00:54,563 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-15 08:00:54,574 | INFO | WifiConnect | WiFi connected
+2026-09-15 08:01:14,592 | WARNING | Worker | [ALERT] DEV_1.Temp HIGH
+2026-09-15 08:01:24,557 | INFO | MainThread | Stopping Edge Node
+2026-09-15 08:01:24,558 | INFO | MainThread | MQTT disconnected
+2026-09-15 08:01:24,558 | INFO | MainThread | Modbus disconnected
+2026-09-15 08:01:24,558 | INFO | MainThread | WiFi disconnected
+2026-09-15 08:15:32,628 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-15 08:15:32,628 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-15 08:15:32,629 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-15 08:15:32,630 | INFO | Thread-1 (start) | MQTT connected
+2026-09-15 08:15:32,629 | INFO | ModbusConnect | Modbus connected
+2026-09-15 08:15:32,632 | INFO | ConfigWatcher | Reloading config...
+2026-09-15 08:15:32,633 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-15 08:15:32,643 | INFO | WifiConnect | WiFi connected
+2026-09-15 08:15:42,629 | INFO | MainThread | Stopping Edge Node
+2026-09-15 08:15:42,629 | INFO | MainThread | MQTT disconnected
+2026-09-15 08:15:42,630 | INFO | MainThread | Modbus disconnected
+2026-09-15 08:15:42,630 | INFO | MainThread | WiFi disconnected
+2026-09-15 08:15:51,577 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-15 08:15:51,580 | INFO | WifiConnect | WiFi connected
+2026-09-15 08:15:51,581 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-15 08:15:51,581 | INFO | Thread-1 (start) | MQTT connected
+2026-09-15 08:15:51,584 | INFO | ModbusConnect | Modbus connected
+2026-09-15 08:15:51,585 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure
+2026-09-15 08:15:51,587 | INFO | Publisher | Connecting MQTT...
+2026-09-15 08:15:51,588 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 5.0s
+2026-09-15 08:15:51,588 | INFO | ConfigWatcher | Reloading config...
+2026-09-15 08:15:51,673 | WARNING | Worker | [ALERT] LOAD_1.S0 HIGH
+2026-09-15 08:15:51,673 | WARNING | Worker | [ALERT] LOAD_1.S1 HIGH
+2026-09-15 08:15:52,367 | WARNING | Worker | [ALERT] LOAD_8.S0 HIGH
+2026-09-15 08:15:53,584 | INFO | Worker | [CLEAR] LOAD_1.S0 no longer HIGH (status=EXCEPTION)
+2026-09-15 08:15:53,584 | INFO | Worker | [CLEAR] LOAD_1.S1 no longer HIGH (status=EXCEPTION)
+2026-09-15 08:15:54,676 | WARNING | Worker | [ALERT] LOAD_1.S0 HIGH
+2026-09-15 08:15:56,557 | INFO | Publisher | Connecting MQTT...
+2026-09-15 08:15:56,557 | INFO | Publisher | MQTT connected
+2026-09-15 08:15:58,558 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure
+2026-09-15 08:15:58,559 | INFO | Publisher | Connecting MQTT...
+2026-09-15 08:15:58,559 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 6.2s
+2026-09-15 08:16:02,666 | INFO | Worker | [CLEAR] LOAD_1.S0 no longer HIGH (status=EXCEPTION)
+2026-09-15 08:16:03,610 | WARNING | Worker | [ALERT] LOAD_1.S0 HIGH
+2026-09-15 08:16:04,202 | INFO | Worker | [CLEAR] LOAD_8.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-15 08:16:04,591 | ERROR | SystemPublisher | MQTT publish failed: simulated AWS/network failure
+2026-09-15 08:16:04,591 | INFO | SystemPublisher | Connecting MQTT...
+2026-09-15 08:16:04,592 | ERROR | SystemPublisher | MQTT connect failed: simulated AWS/network failure - retrying in 3.8s
+2026-09-15 08:16:04,723 | INFO | Publisher | Connecting MQTT...
+2026-09-15 08:16:04,724 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 8.2s
+2026-09-15 08:16:05,303 | WARNING | Worker | [ALERT] LOAD_8.S0 HIGH
+2026-09-15 08:16:05,769 | WARNING | Worker | [ALERT] LOAD_2.S1 HIGH
+2026-09-15 08:16:06,356 | INFO | Worker | [CLEAR] LOAD_8.S0 no longer HIGH (status=EXCEPTION)
+2026-09-15 08:16:06,584 | INFO | MainThread | Stopping Edge Node
+2026-09-15 08:16:06,584 | INFO | MainThread | MQTT disconnected
+2026-09-15 08:16:06,585 | INFO | MainThread | Modbus disconnected
+2026-09-15 08:16:06,585 | INFO | MainThread | WiFi disconnected
+2026-09-15 08:17:31,529 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-15 08:17:31,529 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-15 08:17:31,531 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-15 08:17:31,531 | INFO | Thread-1 (start) | MQTT connected
+2026-09-15 08:17:31,532 | INFO | ModbusConnect | Modbus connected
+2026-09-15 08:17:31,535 | INFO | ConfigWatcher | Reloading config...
+2026-09-15 08:17:31,536 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-15 08:17:31,545 | INFO | WifiConnect | WiFi connected
+2026-09-15 08:17:51,656 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-15 08:17:51,709 | WARNING | Worker | [ALERT] DEV_5.Presion2 HIGH
+2026-09-15 08:17:51,977 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
