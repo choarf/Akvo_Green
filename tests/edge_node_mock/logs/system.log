@@ -910,3 +910,7 @@
 2026-09-15 08:17:51,656 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
 2026-09-15 08:17:51,709 | WARNING | Worker | [ALERT] DEV_5.Presion2 HIGH
 2026-09-15 08:17:51,977 | WARNING | Worker | [ALERT] DEV_10.Presion2 HIGH
+2026-09-15 08:18:01,530 | INFO | MainThread | Stopping Edge Node
+2026-09-15 08:18:01,530 | INFO | MainThread | MQTT disconnected
+2026-09-15 08:18:01,531 | INFO | MainThread | Modbus disconnected
+2026-09-15 08:18:01,531 | INFO | MainThread | WiFi disconnected
