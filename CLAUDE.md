@@ -32,7 +32,7 @@ python3 config_manager.py export           # config.json -> the four CSVs
   ```
 - `tests/akvo_modbus_mock/` and `tests/test_modbus_client/akvo_modbus_api_test_environment/` — exercise the standalone Modbus client (see Known gaps below) via a virtual-serial mock slave (`socat` + `mock_slave.py`); the latter also has a pytest suite (`./run_tests.sh`) and a real-hardware test plan.
 
-See `docs/testing/TESTING.md` for the full unit/mocked/real-hardware breakdown and a decision table for which suite to run for a given change.
+See `docs/testing/TESTING.md` for the full unit/mocked/stress/real-hardware breakdown and a decision table for which suite to run for a given change, `docs/testing/TEST_STRATEGY.md` for the risk-based reasoning behind it, and `docs/testing/TEST_PLAN.md` for the concrete case-by-case coverage (including `tests/edge_node_mock/stress_test.py`, run via `./run_tests.sh stress`).
 
 No lint/format tooling (flake8/black/ruff/mypy) is configured in this repo.
 

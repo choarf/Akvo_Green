@@ -1,8 +1,10 @@
 # Testing Akvo Green
 
-Akvo Green has four independent test suites, spanning three levels — unit, mocked/virtual integration, and real hardware. There is no single top-level test command; which suite(s) to run depends on what you changed. This document explains the levels, maps them to the suites, and gives the setup for each. Each suite also has its own, more detailed doc — linked below — for day-to-day use.
+Akvo Green has five independent test suites, spanning four levels — unit, mocked/virtual integration, stress/chaos, and real hardware. There is no single top-level test command; which suite(s) to run depends on what you changed. This document explains the levels, maps them to the suites, and gives the setup for each. Each suite also has its own, more detailed doc — linked below — for day-to-day use.
 
-## The three levels
+For the *why* behind this (risk-based prioritization, exit criteria, cadence) see [`TEST_STRATEGY.md`](TEST_STRATEGY.md); for the concrete case-by-case breakdown of the edge node's own suites (including the stress/chaos suite below) see [`TEST_PLAN.md`](TEST_PLAN.md).
+
+## The four levels
 
 ```text
 UNIT                    MOCKED / VIRTUAL INTEGRATION            REAL HARDWARE
@@ -16,6 +18,7 @@ no network                needed; AWS optional                    a real Modbus 
 
 - **Unit** — tests one function/class's logic in isolation, with fake collaborators standing in for `ModbusManager`/`MQTTManager`/serial connections. Fastest, runs anywhere, no setup beyond Python packages.
 - **Mocked/virtual integration** — runs the *real* production code (the actual `EdgeNode` or the actual `ModbusClient`) against a simulated Modbus bus, using `socat` to create a virtual serial port pair and a small Python script pretending to be a Modbus slave on the other end. Exercises real serial framing, real thread/connection logic, real config parsing — just not real hardware.
+- **Stress/chaos** (edge node only, `stress_test.py`) — sits between the two above and real hardware: still no real hardware/AWS, but combines high device load, concurrent multi-layer fault injection, and sustained duration in ways a single mocked-integration run doesn't. See [`TEST_STRATEGY.md`](TEST_STRATEGY.md) §3 for why this is its own level rather than "more integration tests."
 - **Real hardware** — the actual thing: a USB-RS485 adapter wired to a physical Modbus device, and (optionally) a real AWS IoT Core connection. The only level that validates wiring, real register maps, and physical failure/recovery behavior.
 
 ## Which suite do I run?
@@ -27,6 +30,7 @@ no network                needed; AWS optional                    a real Modbus 
 | `config_manager.py` (CSV ↔ `config.json`) | **§2** `tests/edge_node_mock/` — it builds/loads real `config.json` |
 | The standalone Modbus client library (`modbus_client.py` — see the note in [Known repo state](#known-repo-state) below) | **§3** `tests/akvo_modbus_mock/` or **§4** `tests/test_modbus_client/.../` (mocked integration) |
 | Anything, before deploying to a real gateway/sensor | **§4** `real_hardware_tests/` (real hardware) |
+| Nothing in the edge node, but you want to check it holds up under load, concurrent failures, and reboot-escalation pressure | `tests/edge_node_mock/stress_test.py` (mocked, minutes) — see [`TEST_PLAN.md`](TEST_PLAN.md) §5 |
 | Nothing, but you want a long-run reliability check before production sign-off | `run_soak_test.py` under `real_hardware_tests/` (real hardware, hours) |
 
 ## 1. `tests/test_edge_node/` — unit tests of the edge node
@@ -58,6 +62,8 @@ python3 run_edge_node_test.py --no-fake-modbus                 # real serial por
 ```
 
 Full configuration reference, the production-AWS caution for `fake_mqtt: false`, and a manual (multi-terminal) walkthrough: [`tests/edge_node_mock/README.md`](../../tests/edge_node_mock/README.md).
+
+The same directory also has `stress_test.py` — a fourth level (stress/chaos, not one of the three above): high device count, concurrent WiFi/MQTT/Modbus fault injection, malformed live config edits, and reboot-escalation under the loop guard, all at once, for a sustained duration. See [`TEST_PLAN.md`](TEST_PLAN.md) §5 for what it covers and its exit criteria; run it via `./run_tests.sh stress`.
 
 ## 3. `tests/akvo_modbus_mock/` — Modbus client quick mock
 
