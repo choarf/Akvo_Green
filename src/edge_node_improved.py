@@ -27,10 +27,22 @@ from domain.sensors import decode as decode_sensor
 # LOGGER
 # =========================
 def build_logger():
+    """Level defaults to INFO; set AKVO_LOG_LEVEL (DEBUG/INFO/WARNING/
+    ERROR/CRITICAL) before starting the process for more (or less) detail
+    - e.g. `AKVO_LOG_LEVEL=DEBUG python3 edge_node_improved.py`. At DEBUG,
+    SensorNode.read() logs every register read's raw registers, decoded
+    value, and alarm result, and the scheduler logs its queue depth each
+    cycle - both silent at INFO."""
     os.makedirs("logs", exist_ok=True)
 
     logger = logging.getLogger("EdgeNode")
-    logger.setLevel(logging.INFO)
+
+    level_name = os.environ.get("AKVO_LOG_LEVEL", "INFO").upper()
+    level = logging.getLevelName(level_name)
+    if not isinstance(level, int):
+        level = logging.INFO
+        level_name = "INFO (invalid AKVO_LOG_LEVEL ignored)"
+    logger.setLevel(level)
 
     fmt = logging.Formatter(
         "%(asctime)s | %(levelname)s | %(threadName)s | %(message)s"
@@ -44,6 +56,8 @@ def build_logger():
 
     logger.addHandler(fh)
     logger.addHandler(ch)
+
+    logger.info(f"Log level: {level_name} (set AKVO_LOG_LEVEL to change, e.g. AKVO_LOG_LEVEL=DEBUG)")
 
     return logger
 
@@ -572,12 +586,15 @@ class SensorNode:
         return "NORMAL"
 
     def read(self):
+        name = self.cfg.get("name")
+        addr = self.cfg.get("addr")
         try:
             res = self.modbus_mgr.read_holding_registers(
                 address=self.cfg["addr"], count=self.cfg["count"], device_id=self.slave
             )
 
             if res.isError():
+                logger.debug(f"Sensor {name} (slave={self.slave}, addr={addr}): BUS_ERROR")
                 return {"status": "BUS_ERROR"}
 
             sensor_type = self.cfg.get("type", "int")
@@ -588,9 +605,20 @@ class SensorNode:
                 offset=self.cfg.get("offset", 0),
             )
 
-            return {"val": val, "status": "OK", "alarm": self._evaluate_alarm(val)}
+            alarm = self._evaluate_alarm(val)
+            logger.debug(
+                f"Sensor {name} (slave={self.slave}, addr={addr}, type={sensor_type}): "
+                f"registers={res.registers} -> val={val} alarm={alarm}"
+            )
+            return {"val": val, "status": "OK", "alarm": alarm}
 
         except Exception as e:
+            # Silent at INFO - s.read()'s caller (DeviceNode.poll()) already
+            # has its own guard for genuinely unexpected errors, so this is
+            # the expected path for a bad register/config combo (e.g. a
+            # multi-register type whose count didn't survive a hand-edited
+            # config.json) - visible on demand rather than by default.
+            logger.debug(f"Sensor {name} (slave={self.slave}, addr={addr}): EXCEPTION {e}")
             return {"status": "EXCEPTION", "err": str(e)}
 
 
@@ -773,6 +801,10 @@ class EdgeNode:
                         self.queue.put(d, timeout=1)
                     except queue.Full:
                         logger.warning("Queue full, dropping task")
+                logger.debug(
+                    f"Scheduler: queued {len(self.devices)} device(s), "
+                    f"qsize={self.queue.qsize()}, next in {interval}s"
+                )
             except Exception as e:
                 # Without this, a bad/missing config key here (e.g. during
                 # a hand-edited config.json) kills the scheduler thread

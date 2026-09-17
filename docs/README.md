@@ -91,6 +91,16 @@ python3 main_modbus.py
 
    Editing `devices.csv`, `modbus.csv`, `system.csv`, or `aws.csv` and re-running `config_manager.py build` (or writing `config.json` directly) triggers a live reload — no restart required.
 
+### Debug logging
+
+Logging defaults to `INFO`. Set `AKVO_LOG_LEVEL` before starting the process for more (or less) detail:
+
+```bash
+AKVO_LOG_LEVEL=DEBUG python3 edge_node_improved.py
+```
+
+At `DEBUG`, every sensor read logs its raw registers, decoded value, and alarm result (`Sensor Temp (slave=1, addr=0, type=float): registers=[560] -> val=56.0 alarm=HIGH`), and the scheduler logs its queue depth every cycle — both silent at `INFO`. Accepts any standard level name (`DEBUG`/`INFO`/`WARNING`/`ERROR`/`CRITICAL`); an invalid value falls back to `INFO` with a note in the startup log line.
+
 ### Exporting config back to CSV
 
 ```bash
