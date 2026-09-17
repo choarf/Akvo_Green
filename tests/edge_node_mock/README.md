@@ -8,6 +8,17 @@ MQTT can each independently be faked or left real — selected via
 against a mock Modbus bus while still publishing to a real AWS IoT Core
 endpoint, or against real hardware while faking MQTT.
 
+This directory also has `stress_test.py`, a separate high-load/chaos suite —
+see [Stress / chaos testing](#stress--chaos-testing) below. For how this
+fits into the project's other three test suites (unit, this one, real
+hardware) and which to run for a given change, see
+[`docs/testing/TESTING.md`](../../docs/testing/TESTING.md); for this
+suite's and the stress suite's exit criteria, see
+[`docs/testing/TEST_PLAN.md`](../../docs/testing/TEST_PLAN.md). The
+repo-root [`run_tests.sh`](../../run_tests.sh) wraps both
+`run_edge_node_test.py` and `stress_test.py` with a dated Markdown report —
+see [Running via `run_tests.sh`](#running-via-run_testssh) below.
+
 ```text
 config.json (devices/slaves/sensors)
         |
@@ -42,6 +53,19 @@ mock_devices_slave.py        run_edge_node_test.py
   link and the mock slave when `fake_modbus` is on, patches
   `edge_node_improved`'s MQTT builder when `fake_mqtt` is on, then runs the
   real `EdgeNode` against a copy of your config.json.
+- `start_virtual_serial.sh` — creates the `/tmp/akvo_modbus_master` <->
+  `/tmp/akvo_modbus_slave` virtual serial pair via `socat` (identical to
+  [`tests/akvo_modbus_mock/start_virtual_serial.sh`](../akvo_modbus_mock/start_virtual_serial.sh),
+  kept here too so Option B below doesn't need to `cd` out of this
+  directory). `run_edge_node_test.py` calls the equivalent of this
+  automatically; only needed for the manual walkthrough. Tear down with
+  [`../akvo_modbus_mock/stop_virtual_serial.sh`](../akvo_modbus_mock/stop_virtual_serial.sh)
+  — there's no separate copy of the stop script here.
+- `stress_test.py` — a separate, higher-intensity suite built on top of
+  `run_edge_node_test.py`: many synthetic devices, aggressive polling,
+  concurrent WiFi/MQTT/Modbus chaos injection, malformed live config edits,
+  and reboot-escalation under load. See
+  [Stress / chaos testing](#stress--chaos-testing) below.
 
 ## Configuration
 
@@ -152,7 +176,7 @@ caution about `fake_mqtt: false` first).
 
 ```bash
 cd Akvo_Green
-tests/akvo_modbus_mock/start_virtual_serial.sh
+tests/edge_node_mock/start_virtual_serial.sh
 ```
 
 **Terminal 2 — mock slave**, serving every device/slave defined in
@@ -196,7 +220,8 @@ en.EdgeNode('/tmp/test_config.json').start()
 
 Ctrl+C to stop the edge node, then run
 `tests/akvo_modbus_mock/stop_virtual_serial.sh` to tear down the serial
-link.
+link (no separate copy of the stop script lives here — see the `Files`
+entry for `start_virtual_serial.sh` above).
 
 Note: step 2's inline script writes `logs/system.log` relative to wherever
 you run it from — run it from a scratch directory (or delete `logs/`
@@ -215,13 +240,100 @@ python3 mock_devices_slave.py --port /tmp/akvo_modbus_slave \
     --config ../../src/Venko_Green/config_data/config.json
 ```
 
+## Stress / chaos testing
+
+`stress_test.py` is a separate, heavier suite in this same directory,
+built on top of `run_edge_node_test.py`'s harness. Where the options above
+exercise the edge node under normal-ish conditions, this combines four
+things at once, all still against the mocked harness (never real hardware
+or AWS):
+
+- **High load** — `--devices` synthetic devices (mixed sensor types) polled
+  every 1s, instead of the ~9 devices / 20s interval in a typical
+  `config.json`.
+- **Chaos/fault injection** — WiFi reachability flaps randomly; MQTT fails
+  both because of that and independently at random; ~15% of Modbus reads
+  are swapped for injected failures (dropped bus, `BUS_ERROR`, truncated
+  register count).
+- **Malformed config** — periodically writes an invalid `config.json`
+  (missing key / bad sensor type / out-of-range slave id), then restores
+  it, exercising `ConfigManager.reload()`'s validate-and-keep-last-good
+  path.
+- **Reboot escalation under load** — `gateway.*_reboot_timeout`/
+  `watchdog_timeout` are all set short (`--reboot-after`) so the real
+  `_RebootEscalator`/loop-guard code actually fires, with
+  `subprocess.run`/`os._exit` intercepted so it never reboots or exits
+  this machine.
+
+```bash
+cd tests/edge_node_mock
+python3 stress_test.py                                # 240s, 40 devices
+python3 stress_test.py --duration 30 --devices 10      # a quick smoke run
+python3 stress_test.py --devices 100 --reboot-after 5  # heavier load, faster reboot escalation
+```
+
+Needs `psutil` (already a repo dependency — see `docs/README.md`) for the
+memory/thread reporting below. Sample output from a short run:
+
+```text
+===== STRESS TEST: 5 devices, poll_interval=1s, duration=5s =====
+Axes: high load + WiFi/MQTT/Modbus chaos + malformed config + reboot escalation (intercepted)
+
+  t=    5s  threads= 12  wifi=UP  published=5  failed=1  reboot_attempts=0
+
+===== RESULTS =====
+
+Duration: 6s, 5 devices
+Threads:  min=7 max=12 end=12
+RSS MB:   start=37.9 end=38.3 max=38.3 growth=+0.4
+Log records by level: {'INFO': 12, 'WARNING': 2, 'ERROR': 1}
+MQTT: published=5 publish_failed=1
+Modbus chaos injected: dropped_bus=4 bus_error=3 truncated=0
+Config chaos writes: 0
+Reboot escalation: attempts_intercepted=0 process_exits_intercepted=0
+
+Final device snapshot count: 5
+Sensors currently in EXCEPTION/BUS_ERROR status at stop: 1
+```
+
+A clean exit code alone doesn't confirm bounded memory/thread growth —
+check the `Threads`/`RSS MB` numbers against
+[`docs/testing/TEST_PLAN.md`](../../docs/testing/TEST_PLAN.md) §5's exit
+criteria, especially on a longer (`--duration 3600`+) pre-release soak.
+
+## Running via `run_tests.sh`
+
+The repo-root [`run_tests.sh`](../../run_tests.sh) wraps both this
+directory's harness and the stress suite, adding a duration-gated refusal
+to run against real AWS IoT Core by accident, plus a dated Markdown
+report under `reports/` (gitignored) summarizing pass/fail, duration, and
+a one-line detail per suite:
+
+```bash
+cd ../..     # repo root
+./run_tests.sh integration                    # same as run_edge_node_test.py --duration 30
+./run_tests.sh integration --duration 60
+./run_tests.sh stress --duration 120 --devices 60
+./run_tests.sh all                            # unit, then integration
+./run_tests.sh plan                           # docs/testing/TEST_PLAN.md §7's pre-release checklist
+```
+
+`integration`/`all` refuse to run when `harness_config.json` has
+`fake_mqtt: false` (see the [Configuration](#configuration) caution
+above) unless you pass `--allow-real-mqtt`; `stress` is unaffected since
+it always fakes MQTT itself regardless of `harness_config.json`. Run
+`./run_tests.sh --help` for the full option list.
+
 ## Known limitations (mirrors the real app, not a mock bug)
 
-- Registers are plain unsigned 16-bit values. A sensor whose `min` is
-  negative (e.g. `Temp` with `min: -10`) can never actually report a `LOW`
-  alarm from a real register, since `SensorNode.read()` doesn't sign-extend
-  register values either — the mock reproduces this rather than working
-  around it.
+- Single-register sensor types (`int`, `uint16`, `float`) read a plain
+  unsigned 16-bit register. A sensor whose `min` is negative (e.g. `Temp`
+  with `min: -10`) can never actually report a `LOW` alarm from one of
+  these, since `SensorNode.read()`/`domain/sensors.py` don't sign-extend a
+  single register either — the mock reproduces this rather than working
+  around it. This does **not** apply to `int32`/`float32`, which combine
+  two registers into a proper signed 32-bit value (see
+  [`docs/edge_node_config/CONFIGURATION.md`](../../docs/edge_node_config/CONFIGURATION.md#sensor-types-and-scaling)).
 - Only FC03 (Read Holding Registers) is simulated with live data, since
   that's the only function `ModbusManager` in `edge_node_improved.py` uses.
   FC06/FC16 are implemented as plain register writes for reuse with other

@@ -391,6 +391,7 @@ class MQTTManager:
 
     def connect(self):
         attempt = 0
+        start = time.time()
         self._reboot.reset()
         while True:
             try:
@@ -415,7 +416,11 @@ class MQTTManager:
                 connection.connect().result()
                 with self.lock:
                     self.connection = connection
-                logger.info("MQTT connected")
+                elapsed = time.time() - start
+                if attempt:
+                    logger.info(f"MQTT connected (after {attempt} retries, {elapsed:.1f}s)")
+                else:
+                    logger.info("MQTT connected")
                 return
 
             except Exception as e:
@@ -482,14 +487,26 @@ class ModbusManager:
 
     def connect(self):
         attempt = 0
+        start = time.time()
         self._reboot.reset()
         while True:
             try:
+                # Logged before the attempt (not just on failure/success) so
+                # a slow/hung ModbusSerialClient(...).connect() call - e.g.
+                # a busy or misbehaving serial port - still leaves a log
+                # line marking exactly when this attempt began, instead of
+                # a silent gap with nothing to anchor "how long has this
+                # been stuck" to.
+                logger.info(f"Connecting Modbus ({self.cfg.get('port')})...")
                 client = ModbusSerialClient(**self.cfg)
                 if client.connect():
                     with self.lock:
                         self.client = client
-                    logger.info("Modbus connected")
+                    elapsed = time.time() - start
+                    if attempt:
+                        logger.info(f"Modbus connected (after {attempt} retries, {elapsed:.1f}s)")
+                    else:
+                        logger.info("Modbus connected")
                     return
                 else:
                     raise Exception("Connection failed")
@@ -832,25 +849,43 @@ class EdgeNode:
                 mtime = os.path.getmtime(self.config_mgr.path)
 
                 if mtime != last_mtime:
+                    reload_start = time.time()
                     logger.info("Reloading config...")
                     cfg = self.config_mgr.reload()
 
                     # Reconnect Modbus only if its section actually changed.
                     new_modbus_hash = _section_hash(cfg["modbus"])
                     if new_modbus_hash != self._modbus_hash:
-                        logger.info("Modbus config changed, reconnecting...")
+                        # update_config() blocks this thread (retries
+                        # forever - see ModbusManager.connect()) until the
+                        # new settings connect, so no further config
+                        # changes are picked up and reload_devices() below
+                        # is delayed until it returns. Called out explicitly
+                        # here since that stall otherwise looks identical to
+                        # a hang, with only ModbusManager's own per-attempt
+                        # logs to go on.
+                        logger.info(
+                            "Modbus config changed, reconnecting "
+                            "(config watcher blocks until this succeeds)..."
+                        )
                         self.modbus.update_config(cfg["modbus"])
                         self._modbus_hash = new_modbus_hash
 
                     # Reconnect MQTT only if its section actually changed.
                     new_aws_hash = _section_hash(cfg["aws"])
                     if new_aws_hash != self._aws_hash:
-                        logger.info("AWS/MQTT config changed, reconnecting...")
+                        logger.info(
+                            "AWS/MQTT config changed, reconnecting "
+                            "(config watcher blocks until this succeeds)..."
+                        )
                         self.mqtt.update_config(cfg["aws"])
                         self._aws_hash = new_aws_hash
 
                     self.reload_devices(cfg)
                     last_mtime = mtime
+                    logger.info(
+                        f"Config reload finished in {time.time() - reload_start:.1f}s"
+                    )
 
             except Exception as e:
                 logger.error(f"Watcher error: {e}")
