@@ -1,10 +1,5 @@
 device_id,slave,sensor_name,addr,count,scale,offset,unit,type,min,max,enabled
-DEV_1,1,Temp,0,1,0.1,0,C,float,-10,50,1
-DEV_3,3,Temp,0,1,0.1,0,C,float,-10,50,1
-DEV_4,4,Presion1,4,1,1,0,Mpa,float,0,450,1
-DEV_5,5,Presion2,4,1,1,0,Mpa,float,0,450,1
-DEV_6,3,Hum,1,1,0.1,0,%,float,0,100,1
-DEV_7,7,Temp,0,1,0.1,0,C,float,-10,50,1
-DEV_8,8,Temp,0,1,0.1,0,C,float,-10,50,1
-DEV_9,9,Presion1,4,1,1,0,Mpa,float,0,450,1
-DEV_10,10,Presion2,4,1,1,0,Mpa,float,0,450,1
+DEV_1,4,Presion2,4,1,1,0,Mpa,float,0,450,1
+DEV_10,5,Presion2,4,1,1,0,Mpa,float,0,450,1
+
+

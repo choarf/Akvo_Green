@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-09-12T01:05:33.780811+00:00",
-        "hash": "22643c07f9d2a0f848ebc7903c2c72c0"
+        "generated_at": "2026-09-17T22:34:37.788791+00:00",
+        "hash": "896828b9a163ec7f7fe018849cfaccc8"
     },
     "gateway": {
         "gateway_id": "AKVO_GW_101",
@@ -31,61 +31,7 @@
     "devices": [
         {
             "id": "DEV_1",
-            "slave": 1,
-            "enabled": true,
-            "sensors": [
-                {
-                    "name": "Temp",
-                    "addr": 0,
-                    "count": 1,
-                    "scale": 0.1,
-                    "offset": 0.0,
-                    "unit": "C",
-                    "type": "float",
-                    "min": -10.0,
-                    "max": 50.0
-                }
-            ]
-        },
-        {
-            "id": "DEV_3",
-            "slave": 3,
-            "enabled": true,
-            "sensors": [
-                {
-                    "name": "Temp",
-                    "addr": 0,
-                    "count": 1,
-                    "scale": 0.1,
-                    "offset": 0.0,
-                    "unit": "C",
-                    "type": "float",
-                    "min": -10.0,
-                    "max": 50.0
-                }
-            ]
-        },
-        {
-            "id": "DEV_4",
             "slave": 4,
-            "enabled": true,
-            "sensors": [
-                {
-                    "name": "Presion1",
-                    "addr": 4,
-                    "count": 1,
-                    "scale": 1.0,
-                    "offset": 0.0,
-                    "unit": "Mpa",
-                    "type": "float",
-                    "min": 0.0,
-                    "max": 450.0
-                }
-            ]
-        },
-        {
-            "id": "DEV_5",
-            "slave": 5,
             "enabled": true,
             "sensors": [
                 {
@@ -102,80 +48,8 @@
             ]
         },
         {
-            "id": "DEV_6",
-            "slave": 3,
-            "enabled": true,
-            "sensors": [
-                {
-                    "name": "Hum",
-                    "addr": 1,
-                    "count": 1,
-                    "scale": 0.1,
-                    "offset": 0.0,
-                    "unit": "%",
-                    "type": "float",
-                    "min": 0.0,
-                    "max": 100.0
-                }
-            ]
-        },
-        {
-            "id": "DEV_7",
-            "slave": 7,
-            "enabled": true,
-            "sensors": [
-                {
-                    "name": "Temp",
-                    "addr": 0,
-                    "count": 1,
-                    "scale": 0.1,
-                    "offset": 0.0,
-                    "unit": "C",
-                    "type": "float",
-                    "min": -10.0,
-                    "max": 50.0
-                }
-            ]
-        },
-        {
-            "id": "DEV_8",
-            "slave": 8,
-            "enabled": true,
-            "sensors": [
-                {
-                    "name": "Temp",
-                    "addr": 0,
-                    "count": 1,
-                    "scale": 0.1,
-                    "offset": 0.0,
-                    "unit": "C",
-                    "type": "float",
-                    "min": -10.0,
-                    "max": 50.0
-                }
-            ]
-        },
-        {
-            "id": "DEV_9",
-            "slave": 9,
-            "enabled": true,
-            "sensors": [
-                {
-                    "name": "Presion1",
-                    "addr": 4,
-                    "count": 1,
-                    "scale": 1.0,
-                    "offset": 0.0,
-                    "unit": "Mpa",
-                    "type": "float",
-                    "min": 0.0,
-                    "max": 450.0
-                }
-            ]
-        },
-        {
             "id": "DEV_10",
-            "slave": 10,
+            "slave": 5,
             "enabled": true,
             "sensors": [
                 {
