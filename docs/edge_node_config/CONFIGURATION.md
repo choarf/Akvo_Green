@@ -1,8 +1,10 @@
 # Edge Node Configuration Reference
 
-`edge_node_improved.py` runs entirely off `src/Venko_Green/config_data/config.json`. You
-normally don't hand-edit that file — you edit four CSVs and run
-`config_manager.py build` to regenerate it:
+`edge_node_improved.py` runs entirely off `config_data/config.json`, centralized
+at the repo root (not nested under `src/`) so the real gateway
+and every test suite read/build the same file. You normally don't
+hand-edit that file — you edit four CSVs and run `config_manager.py build`
+to regenerate it:
 
 ```text
 devices.csv   modbus.csv   system.csv   aws.csv
@@ -127,9 +129,9 @@ ones `edge_node_improved.py` actually reads.
 
 `ca`/`cert`/`key` are conventionally relative paths (`./certs/...`).
 `ConfigManager.load()` resolves them against `edge_node_improved.py`'s own
-directory (`src/Venko_Green/`) — not the process's working directory, and
-not `config.json`'s own location (`config_data/`) — so they work
-regardless of where the process is launched from. An already-absolute
+directory (`src/`) — not the process's working directory, and
+not `config.json`'s own location (the repo root's `config_data/`) — so
+they work regardless of where the process is launched from. An already-absolute
 path is left untouched.
 
 ```csv

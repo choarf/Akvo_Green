@@ -57,7 +57,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import run_edge_node_test as ret  # noqa: E402
 
-sys.path.insert(0, str(ret.VENKO_GREEN_DIR))
+sys.path.insert(0, str(ret.SRC_DIR))
 import edge_node_improved as en  # noqa: E402
 import psutil  # noqa: E402
 
@@ -272,7 +272,7 @@ def main():
     time.sleep(0.5)
 
     test_config = work_dir / "config.json"
-    ret.build_test_config(source_config, test_config, fake_modbus=True, cert_base=ret.VENKO_GREEN_DIR)
+    ret.build_test_config(source_config, test_config, fake_modbus=True, cert_base=ret.SRC_DIR)
 
     cfg = json.loads(test_config.read_text())
     cfg["gateway"]["poll_interval"] = 1

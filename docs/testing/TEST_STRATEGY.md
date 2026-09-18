@@ -177,6 +177,5 @@ chase an integration failure while unit tests are red — fix those first.
   and the runtime loader) is stress-tested live; malformed *CSVs* feeding
   `config_manager.py build` aren't part of the stress test.
 - See `CLAUDE.md`'s "Known gaps in this repo" for repo-wide items (the
-  `src/`/`src/Venko_Green/` duplication, the exposed WiFi password in
-  `certs/wifi_lib.py`, etc.) that affect testability but aren't test gaps
-  per se.
+  exposed WiFi password in `certs/wifi_lib.py`, etc.) that affect
+  testability but aren't test gaps per se.

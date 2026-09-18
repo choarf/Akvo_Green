@@ -32,7 +32,7 @@
 set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_JSON="$HERE/src/Venko_Green/config_data/config.json"
+CONFIG_JSON="$HERE/config_data/config.json"
 SYSTEMD_SERVICE="akvo-green"
 
 DRY_RUN=0

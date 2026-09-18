@@ -114,7 +114,7 @@ python3 -m pip install pymodbus pyserial psutil awsiotsdk
 ```bash
 cd tests/edge_node_mock
 
-# Run for 30s using src/Venko_Green/config_data/config.json
+# Run for 30s using config_data/config.json
 python3 run_edge_node_test.py
 
 # Run for 60s, simulate slaves 3 and 9 as offline (no response)
@@ -186,7 +186,7 @@ tests/edge_node_mock/start_virtual_serial.sh
 cd Akvo_Green
 python3 -u tests/edge_node_mock/mock_devices_slave.py \
   --port /tmp/akvo_modbus_slave \
-  --config src/Venko_Green/config_data/config.json \
+  --config config_data/config.json \
   --offline 9   # optional: simulate slave 9 as dead
 ```
 
@@ -201,7 +201,7 @@ cd Akvo_Green
 # 1. Copy config.json, pointing modbus.port at the virtual "master" end
 python3 -c "
 import json
-cfg = json.load(open('src/Venko_Green/config_data/config.json'))
+cfg = json.load(open('config_data/config.json'))
 cfg['modbus']['port'] = '/tmp/akvo_modbus_master'
 json.dump(cfg, open('/tmp/test_config.json', 'w'), indent=4)
 "
@@ -209,7 +209,7 @@ json.dump(cfg, open('/tmp/test_config.json', 'w'), indent=4)
 # 2. Launch the unmodified EdgeNode, with MQTT faked (no AWS needed)
 python3 -u -c "
 import sys
-sys.path.insert(0, 'src/Venko_Green')
+sys.path.insert(0, 'src')
 sys.path.insert(0, 'tests/edge_node_mock')
 import edge_node_improved as en
 from fake_mqtt import make_fake_mtls_from_path
@@ -237,7 +237,7 @@ full edge node:
 ```bash
 ../akvo_modbus_mock/start_virtual_serial.sh
 python3 mock_devices_slave.py --port /tmp/akvo_modbus_slave \
-    --config ../../src/Venko_Green/config_data/config.json
+    --config ../../config_data/config.json
 ```
 
 ## Stress / chaos testing

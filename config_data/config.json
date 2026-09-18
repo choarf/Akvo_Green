@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-09-18T15:07:31.625075+00:00",
-        "hash": "5cb051f2100e1bfa3b4ac92e90632a65"
+        "generated_at": "2026-09-18T17:21:24.869713+00:00",
+        "hash": "75db157dbc2e0cd0c40a231b94c09570"
     },
     "gateway": {
         "gateway_id": "AKVO_GW_101",
@@ -30,13 +30,13 @@
     },
     "devices": [
         {
-            "id": "DEV_1",
+            "id": "DEV_4",
             "slave": 4,
             "enabled": true,
             "sensors": [
                 {
                     "name": "Presion1",
-                    "addr": 4,
+                    "addr": 8,
                     "count": 1,
                     "scale": 1.0,
                     "offset": 0.0,
@@ -48,13 +48,13 @@
             ]
         },
         {
-            "id": "DEV_10",
+            "id": "DEV_5",
             "slave": 5,
             "enabled": true,
             "sensors": [
                 {
                     "name": "Presion2",
-                    "addr": 4,
+                    "addr": 8,
                     "count": 1,
                     "scale": 1.0,
                     "offset": 0.0,

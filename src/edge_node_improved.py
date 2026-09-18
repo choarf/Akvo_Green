@@ -33,6 +33,10 @@ from domain.sensors import decode as decode_sensor
 # WorkingDirectory=) doesn't fail with a confusing "No such file or
 # directory" on a path that looked fine relative to the intended directory.
 BASE_DIR = Path(__file__).resolve().parent
+# config_data/ is centralized at the repo root (see config_manager.py's own
+# REPO_ROOT) so the real gateway and every test suite read/write the exact
+# same config.json - src/ is one level down from there.
+REPO_ROOT = BASE_DIR.parent
 
 
 # =========================
@@ -1049,5 +1053,5 @@ class EdgeNode:
 # ENTRY
 # =========================
 if __name__ == "__main__":
-    node = EdgeNode("config_data/config.json")
+    node = EdgeNode(str(REPO_ROOT / "config_data" / "config.json"))
     node.start()

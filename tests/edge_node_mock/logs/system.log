@@ -3603,3 +3603,993 @@
 2026-09-18 10:37:45,964 | DEBUG | Worker | Sensor S0 (slave=34, addr=0): EXCEPTION 'NoneType' object has no attribute 'inWaiting'
 2026-09-18 10:37:45,965 | INFO | Worker | [CLEAR] LOAD_34.S0 no longer HIGH (status=EXCEPTION)
 2026-09-18 10:37:46,925 | WARNING | Scheduler | Queue full, dropping task
+2026-09-18 12:21:59,348 | INFO | MainThread | Log level: INFO (set AKVO_LOG_LEVEL to change, e.g. AKVO_LOG_LEVEL=DEBUG)
+2026-09-18 12:21:59,363 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-18 12:21:59,363 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-18 12:21:59,364 | INFO | ModbusConnect | Connecting Modbus (/tmp/akvo_edge_node_master)...
+2026-09-18 12:21:59,364 | INFO | ModbusConnect | Modbus connected
+2026-09-18 12:21:59,365 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-18 12:21:59,365 | INFO | Thread-1 (start) | MQTT connected
+2026-09-18 12:21:59,366 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 12:21:59,367 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-18 12:21:59,367 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-18 12:21:59,394 | INFO | WifiConnect | WiFi connected
+2026-09-18 12:22:04,364 | INFO | MainThread | Stopping Edge Node
+2026-09-18 12:22:04,364 | INFO | MainThread | MQTT disconnected
+2026-09-18 12:22:04,365 | INFO | MainThread | Modbus disconnected
+2026-09-18 12:22:04,365 | INFO | MainThread | WiFi disconnected
+2026-09-18 12:22:10,345 | INFO | MainThread | Log level: INFO (set AKVO_LOG_LEVEL to change, e.g. AKVO_LOG_LEVEL=DEBUG)
+2026-09-18 12:22:10,346 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-18 12:22:10,346 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-18 12:22:10,347 | INFO | ModbusConnect | Connecting Modbus (/tmp/akvo_edge_node_master)...
+2026-09-18 12:22:10,347 | INFO | ModbusConnect | Modbus connected
+2026-09-18 12:22:10,347 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-18 12:22:10,348 | INFO | Thread-1 (start) | MQTT connected
+2026-09-18 12:22:10,350 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 12:22:10,351 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-18 12:22:10,351 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-18 12:22:10,371 | INFO | WifiConnect | WiFi connected
+2026-09-18 12:22:15,347 | INFO | MainThread | Stopping Edge Node
+2026-09-18 12:22:15,347 | INFO | MainThread | MQTT disconnected
+2026-09-18 12:22:15,348 | INFO | MainThread | Modbus disconnected
+2026-09-18 12:22:15,348 | INFO | MainThread | WiFi disconnected
+2026-09-18 12:22:15,565 | INFO | MainThread | Log level: INFO (set AKVO_LOG_LEVEL to change, e.g. AKVO_LOG_LEVEL=DEBUG)
+2026-09-18 12:22:16,172 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-18 12:22:16,173 | INFO | ModbusConnect | Connecting Modbus (/tmp/akvo_edge_node_master)...
+2026-09-18 12:22:16,173 | INFO | WifiConnect | WiFi connected
+2026-09-18 12:22:16,174 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-18 12:22:16,174 | INFO | Thread-1 (start) | MQTT connected
+2026-09-18 12:22:16,175 | INFO | ModbusConnect | Modbus connected
+2026-09-18 12:22:16,176 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 12:22:16,177 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-18 12:22:17,178 | ERROR | SystemPublisher | MQTT publish failed: simulated AWS/network failure
+2026-09-18 12:22:17,178 | INFO | SystemPublisher | Connecting MQTT...
+2026-09-18 12:22:17,179 | INFO | SystemPublisher | MQTT connected
+2026-09-18 12:22:17,352 | WARNING | Worker | [ALERT] LOAD_2.S1 HIGH
+2026-09-18 12:22:17,352 | WARNING | Worker | [ALERT] LOAD_2.S2 HIGH
+2026-09-18 12:22:17,514 | WARNING | Worker | [ALERT] LOAD_3.S2 HIGH
+2026-09-18 12:22:17,567 | WARNING | Worker | [ALERT] LOAD_4.S0 HIGH
+2026-09-18 12:22:17,620 | WARNING | Worker | [ALERT] LOAD_5.S0 HIGH
+2026-09-18 12:22:19,176 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure
+2026-09-18 12:22:19,177 | INFO | Publisher | Connecting MQTT...
+2026-09-18 12:22:19,177 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 5.7s
+2026-09-18 12:22:19,477 | INFO | Worker | [CLEAR] LOAD_3.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 12:22:20,513 | WARNING | Worker | [ALERT] LOAD_3.S2 HIGH
+2026-09-18 12:22:21,175 | INFO | MainThread | Stopping Edge Node
+2026-09-18 12:22:21,176 | INFO | MainThread | MQTT disconnected
+2026-09-18 12:22:21,176 | INFO | MainThread | Modbus disconnected
+2026-09-18 12:22:21,176 | INFO | MainThread | WiFi disconnected
+2026-09-18 12:45:40,896 | INFO | MainThread | Log level: INFO (set AKVO_LOG_LEVEL to change, e.g. AKVO_LOG_LEVEL=DEBUG)
+2026-09-18 12:45:40,897 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-18 12:45:40,897 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-18 12:45:40,898 | INFO | ModbusConnect | Connecting Modbus (/tmp/akvo_edge_node_master)...
+2026-09-18 12:45:40,898 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-18 12:45:40,898 | INFO | ModbusConnect | Modbus connected
+2026-09-18 12:45:40,928 | INFO | WifiConnect | WiFi connected
+2026-09-18 12:45:41,347 | INFO | Thread-1 (start) | MQTT connected
+2026-09-18 12:45:41,351 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 12:45:41,353 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-18 12:45:41,355 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-18 12:45:41,462 | WARNING | Worker | [ALERT] DEV_3.Temp HIGH
+2026-09-18 12:45:45,898 | INFO | MainThread | Stopping Edge Node
+2026-09-18 12:45:45,899 | INFO | MainThread | MQTT disconnected
+2026-09-18 12:45:45,900 | INFO | MainThread | Modbus disconnected
+2026-09-18 12:45:45,900 | INFO | MainThread | WiFi disconnected
+2026-09-18 13:15:46,788 | INFO | MainThread | Log level: INFO (set AKVO_LOG_LEVEL to change, e.g. AKVO_LOG_LEVEL=DEBUG)
+2026-09-18 13:15:46,789 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-18 13:15:46,789 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-18 13:15:46,790 | INFO | ModbusConnect | Connecting Modbus (/tmp/akvo_edge_node_master)...
+2026-09-18 13:15:46,791 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-18 13:15:46,791 | INFO | Thread-1 (start) | MQTT connected
+2026-09-18 13:15:46,792 | INFO | ModbusConnect | Modbus connected
+2026-09-18 13:15:46,795 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 13:15:46,796 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 3
+2026-09-18 13:15:46,796 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-18 13:15:46,807 | INFO | WifiConnect | WiFi connected
+2026-09-18 13:16:06,986 | WARNING | Worker | [ALERT] DEV_5.Presion2 HIGH
+2026-09-18 13:16:07,202 | WARNING | Worker | [ALERT] DEV_9.Presion1 HIGH
+2026-09-18 13:16:27,170 | WARNING | Worker | [ALERT] DEV_8.Temp HIGH
+2026-09-18 13:16:46,790 | INFO | MainThread | Stopping Edge Node
+2026-09-18 13:16:46,790 | INFO | MainThread | MQTT disconnected
+2026-09-18 13:16:46,790 | INFO | MainThread | Modbus disconnected
+2026-09-18 13:16:46,790 | INFO | MainThread | WiFi disconnected
+2026-09-18 13:16:46,994 | INFO | MainThread | Log level: INFO (set AKVO_LOG_LEVEL to change, e.g. AKVO_LOG_LEVEL=DEBUG)
+2026-09-18 13:16:47,606 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-18 13:16:47,606 | INFO | ModbusConnect | Connecting Modbus (/tmp/akvo_edge_node_master)...
+2026-09-18 13:16:47,606 | INFO | WifiConnect | WiFi connected
+2026-09-18 13:16:47,607 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-18 13:16:47,607 | INFO | Thread-1 (start) | MQTT connected
+2026-09-18 13:16:47,609 | INFO | ModbusConnect | Modbus connected
+2026-09-18 13:16:47,610 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 13:16:47,611 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-18 13:16:48,809 | WARNING | Worker | [ALERT] LOAD_2.S0 HIGH
+2026-09-18 13:16:48,967 | WARNING | Worker | [ALERT] LOAD_4.S0 HIGH
+2026-09-18 13:16:49,130 | WARNING | Worker | [ALERT] LOAD_5.S0 HIGH
+2026-09-18 13:16:49,293 | WARNING | Worker | [ALERT] LOAD_8.S0 HIGH
+2026-09-18 13:16:49,346 | WARNING | Worker | [ALERT] LOAD_9.S0 HIGH
+2026-09-18 13:16:49,504 | WARNING | Worker | [ALERT] LOAD_10.S2 HIGH
+2026-09-18 13:16:49,882 | WARNING | Worker | [ALERT] LOAD_13.S0 HIGH
+2026-09-18 13:16:50,150 | WARNING | Worker | [ALERT] LOAD_15.S1 HIGH
+2026-09-18 13:16:50,150 | WARNING | Worker | [ALERT] LOAD_15.S2 HIGH
+2026-09-18 13:16:50,255 | WARNING | Worker | [ALERT] LOAD_16.S0 HIGH
+2026-09-18 13:16:50,577 | WARNING | Worker | [ALERT] LOAD_18.S1 HIGH
+2026-09-18 13:16:51,006 | WARNING | Worker | [ALERT] LOAD_22.S0 HIGH
+2026-09-18 13:16:51,217 | WARNING | Worker | [ALERT] LOAD_24.S0 HIGH
+2026-09-18 13:16:51,431 | WARNING | Worker | [ALERT] LOAD_26.S1 HIGH
+2026-09-18 13:16:51,647 | WARNING | Worker | [ALERT] LOAD_29.S0 HIGH
+2026-09-18 13:16:51,861 | WARNING | Worker | [ALERT] LOAD_32.S0 HIGH
+2026-09-18 13:16:51,914 | WARNING | Worker | [ALERT] LOAD_33.S0 HIGH
+2026-09-18 13:16:52,020 | WARNING | Worker | [ALERT] LOAD_34.S1 HIGH
+2026-09-18 13:16:52,182 | WARNING | Worker | [ALERT] LOAD_35.S2 HIGH
+2026-09-18 13:16:52,397 | WARNING | Worker | [ALERT] LOAD_37.S0 HIGH
+2026-09-18 13:16:52,503 | WARNING | Worker | [ALERT] LOAD_38.S0 HIGH
+2026-09-18 13:16:52,610 | WARNING | WifiMonitor | WiFi disconnected
+2026-09-18 13:16:52,611 | ERROR | WifiMonitor | WiFi unreachable - retrying in 4.5s
+2026-09-18 13:16:52,612 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure
+2026-09-18 13:16:52,612 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:16:52,613 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 5.0s
+2026-09-18 13:16:52,614 | WARNING | Worker | [ALERT] LOAD_40.S0 HIGH
+2026-09-18 13:16:52,662 | WARNING | Worker | [ALERT] LOAD_1.S0 HIGH
+2026-09-18 13:16:54,057 | INFO | Worker | [CLEAR] LOAD_15.S2 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:16:54,271 | WARNING | Worker | [ALERT] LOAD_17.S2 HIGH
+2026-09-18 13:16:54,613 | ERROR | SystemPublisher | MQTT publish failed: simulated AWS/network failure
+2026-09-18 13:16:54,614 | INFO | SystemPublisher | Connecting MQTT...
+2026-09-18 13:16:54,614 | ERROR | SystemPublisher | MQTT connect failed: simulated AWS/network failure - retrying in 3.8s
+2026-09-18 13:16:54,645 | WARNING | Worker | [ALERT] LOAD_20.S0 HIGH
+2026-09-18 13:16:54,860 | WARNING | Worker | [ALERT] LOAD_22.S1 HIGH
+2026-09-18 13:16:55,236 | INFO | Worker | [CLEAR] LOAD_26.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:16:55,556 | WARNING | Worker | [ALERT] LOAD_29.S1 HIGH
+2026-09-18 13:16:55,719 | WARNING | Worker | [ALERT] LOAD_31.S0 HIGH
+2026-09-18 13:16:56,202 | INFO | Worker | [CLEAR] LOAD_37.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:16:56,948 | WARNING | Worker | [ALERT] LOAD_6.S0 HIGH
+2026-09-18 13:16:57,142 | ERROR | WifiMonitor | WiFi unreachable - retrying in 7.2s
+2026-09-18 13:16:57,326 | WARNING | Worker | [ALERT] LOAD_10.S1 HIGH
+2026-09-18 13:16:57,607 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:16:57,607 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 11.5s
+2026-09-18 13:16:57,913 | WARNING | Worker | [ALERT] LOAD_15.S2 HIGH
+2026-09-18 13:16:58,384 | INFO | SystemPublisher | Connecting MQTT...
+2026-09-18 13:16:58,384 | ERROR | SystemPublisher | MQTT connect failed: simulated AWS/network failure - retrying in 12.2s
+2026-09-18 13:16:58,611 | WARNING | Worker | [ALERT] LOAD_20.S1 HIGH
+2026-09-18 13:16:59,575 | INFO | Worker | [CLEAR] LOAD_29.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:16:59,839 | INFO | Worker | [CLEAR] LOAD_32.S0 no longer HIGH
+2026-09-18 13:16:59,840 | INFO | Worker | [CLEAR] LOAD_33.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:16:59,949 | WARNING | Worker | [ALERT] LOAD_34.S0 HIGH
+2026-09-18 13:17:00,322 | WARNING | Worker | [ALERT] LOAD_37.S0 HIGH
+2026-09-18 13:17:00,431 | WARNING | Worker | [ALERT] LOAD_38.S2 HIGH
+2026-09-18 13:17:00,803 | INFO | Worker | [CLEAR] LOAD_4.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:17:00,965 | WARNING | Worker | [ALERT] LOAD_5.S2 HIGH
+2026-09-18 13:17:01,176 | WARNING | Worker | [ALERT] LOAD_8.S1 HIGH
+2026-09-18 13:17:01,715 | INFO | Worker | [CLEAR] LOAD_13.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:01,715 | WARNING | Worker | [ALERT] LOAD_13.S2 HIGH
+2026-09-18 13:17:02,088 | INFO | Worker | [CLEAR] LOAD_16.S0 no longer HIGH
+2026-09-18 13:17:02,624 | INFO | Worker | [CLEAR] LOAD_20.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:17:02,782 | INFO | Worker | [CLEAR] LOAD_22.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:03,211 | WARNING | Worker | [ALERT] LOAD_27.S1 HIGH
+2026-09-18 13:17:03,374 | WARNING | Worker | [ALERT] LOAD_29.S1 HIGH
+2026-09-18 13:17:03,695 | WARNING | Worker | [ALERT] LOAD_33.S0 HIGH
+2026-09-18 13:17:04,121 | WARNING | Worker | [ALERT] LOAD_36.S2 HIGH
+2026-09-18 13:17:04,283 | INFO | Worker | [CLEAR] LOAD_38.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:04,364 | ERROR | WifiMonitor | WiFi unreachable - retrying in 22.1s
+2026-09-18 13:17:04,365 | CRITICAL | WifiMonitor | WiFi has not connected in 12s (reboot_after=8.0s) - rebooting the system
+2026-09-18 13:17:04,365 | CRITICAL | WifiMonitor | Rebooting the system now (sudo reboot) - reboot 1/3 allowed in the last 3600s
+2026-09-18 13:17:04,658 | WARNING | Worker | [ALERT] LOAD_4.S0 HIGH
+2026-09-18 13:17:04,978 | INFO | Worker | [CLEAR] LOAD_8.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:17:04,978 | INFO | Worker | [CLEAR] LOAD_9.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:17:05,514 | WARNING | Worker | [ALERT] LOAD_13.S0 HIGH
+2026-09-18 13:17:06,478 | WARNING | Worker | [ALERT] LOAD_20.S0 HIGH
+2026-09-18 13:17:07,064 | WARNING | Worker | [ALERT] LOAD_26.S1 HIGH
+2026-09-18 13:17:07,116 | INFO | Worker | [CLEAR] LOAD_27.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:17:07,331 | INFO | Worker | [CLEAR] LOAD_29.S0 no longer HIGH
+2026-09-18 13:17:07,545 | INFO | Worker | [CLEAR] LOAD_31.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:07,655 | INFO | Worker | [CLEAR] LOAD_33.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:08,132 | INFO | Worker | [CLEAR] LOAD_37.S0 no longer HIGH
+2026-09-18 13:17:08,295 | WARNING | Worker | [ALERT] LOAD_38.S0 HIGH
+2026-09-18 13:17:08,882 | INFO | Worker | [CLEAR] LOAD_5.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:08,883 | INFO | Worker | [CLEAR] LOAD_5.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:09,093 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:17:09,093 | INFO | Publisher | MQTT connected (after 2 retries, 16.5s)
+2026-09-18 13:17:09,098 | INFO | Worker | [CLEAR] LOAD_8.S0 no longer HIGH
+2026-09-18 13:17:09,098 | WARNING | Worker | [ALERT] LOAD_8.S1 HIGH
+2026-09-18 13:17:09,150 | WARNING | Worker | [ALERT] LOAD_9.S0 HIGH
+2026-09-18 13:17:09,259 | INFO | Worker | [CLEAR] LOAD_10.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:09,846 | INFO | Worker | [CLEAR] LOAD_15.S2 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:17:09,952 | WARNING | Worker | [ALERT] LOAD_16.S0 HIGH
+2026-09-18 13:17:10,114 | INFO | Worker | [CLEAR] LOAD_17.S2 no longer HIGH
+2026-09-18 13:17:10,536 | INFO | SystemPublisher | Connecting MQTT...
+2026-09-18 13:17:10,536 | ERROR | SystemPublisher | MQTT connect failed: simulated AWS/network failure - retrying in 15.9s
+2026-09-18 13:17:10,537 | CRITICAL | SystemPublisher | MQTT has not connected in 16s (reboot_after=8.0s) - rebooting the system
+2026-09-18 13:17:10,538 | CRITICAL | SystemPublisher | Rebooting the system now (sudo reboot) - reboot 2/3 allowed in the last 3600s
+2026-09-18 13:17:11,094 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure
+2026-09-18 13:17:11,094 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:17:11,095 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 4.4s
+2026-09-18 13:17:11,285 | WARNING | Worker | [ALERT] LOAD_27.S0 HIGH
+2026-09-18 13:17:11,286 | WARNING | Worker | [ALERT] LOAD_27.S1 HIGH
+2026-09-18 13:17:11,769 | WARNING | Worker | [ALERT] LOAD_32.S0 HIGH
+2026-09-18 13:17:12,252 | WARNING | Worker | [ALERT] LOAD_37.S0 HIGH
+2026-09-18 13:17:12,410 | INFO | Worker | [CLEAR] LOAD_38.S2 no longer HIGH
+2026-09-18 13:17:12,612 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 13:17:12,614 | ERROR | ConfigWatcher | Watcher error: Invalid config: LOAD_1: Invalid slave ID 9999
+2026-09-18 13:17:12,734 | WARNING | Worker | [ALERT] LOAD_3.S0 HIGH
+2026-09-18 13:17:12,839 | INFO | Worker | [CLEAR] LOAD_4.S0 no longer HIGH
+2026-09-18 13:17:13,002 | WARNING | Worker | [ALERT] LOAD_5.S0 HIGH
+2026-09-18 13:17:13,002 | WARNING | Worker | [ALERT] LOAD_5.S2 HIGH
+2026-09-18 13:17:13,266 | INFO | Worker | [CLEAR] LOAD_9.S0 no longer HIGH
+2026-09-18 13:17:13,428 | WARNING | Worker | [ALERT] LOAD_10.S2 HIGH
+2026-09-18 13:17:14,018 | WARNING | Worker | [ALERT] LOAD_15.S2 HIGH
+2026-09-18 13:17:14,659 | WARNING | Worker | [ALERT] LOAD_21.S0 HIGH
+2026-09-18 13:17:15,195 | INFO | Worker | [CLEAR] LOAD_27.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:15,508 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:17:15,508 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 7.7s
+2026-09-18 13:17:15,569 | WARNING | Worker | [ALERT] LOAD_31.S0 HIGH
+2026-09-18 13:17:15,680 | WARNING | Worker | [ALERT] LOAD_33.S0 HIGH
+2026-09-18 13:17:16,589 | INFO | Worker | [CLEAR] LOAD_2.S0 no longer HIGH
+2026-09-18 13:17:16,962 | INFO | Worker | [CLEAR] LOAD_6.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:17,015 | WARNING | Worker | [ALERT] LOAD_7.S0 HIGH
+2026-09-18 13:17:17,615 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 13:17:17,619 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-18 13:17:18,679 | INFO | Worker | [CLEAR] LOAD_21.S0 no longer HIGH
+2026-09-18 13:17:19,533 | INFO | Worker | [CLEAR] LOAD_29.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:17:20,386 | INFO | Worker | [CLEAR] LOAD_38.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:17:20,497 | INFO | Worker | [CLEAR] LOAD_40.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:20,708 | INFO | Worker | [CLEAR] LOAD_3.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:20,818 | WARNING | Worker | [ALERT] LOAD_4.S0 HIGH
+2026-09-18 13:17:21,029 | WARNING | Worker | [ALERT] LOAD_6.S0 HIGH
+2026-09-18 13:17:21,192 | INFO | Worker | [CLEAR] LOAD_8.S1 no longer HIGH
+2026-09-18 13:17:21,245 | WARNING | Worker | [ALERT] LOAD_9.S0 HIGH
+2026-09-18 13:17:21,885 | INFO | Worker | [CLEAR] LOAD_15.S1 no longer HIGH
+2026-09-18 13:17:21,885 | INFO | Worker | [CLEAR] LOAD_15.S2 no longer HIGH
+2026-09-18 13:17:22,153 | WARNING | Worker | [ALERT] LOAD_17.S2 HIGH
+2026-09-18 13:17:22,742 | INFO | Worker | [CLEAR] LOAD_22.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:17:23,213 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:17:23,214 | INFO | Publisher | MQTT connected (after 2 retries, 12.1s)
+2026-09-18 13:17:23,226 | WARNING | Worker | [ALERT] LOAD_27.S0 HIGH
+2026-09-18 13:17:23,278 | WARNING | Worker | [ALERT] LOAD_28.S0 HIGH
+2026-09-18 13:17:23,384 | WARNING | Worker | [ALERT] LOAD_29.S1 HIGH
+2026-09-18 13:17:24,136 | INFO | Worker | [CLEAR] LOAD_37.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:24,403 | WARNING | Worker | [ALERT] LOAD_40.S0 HIGH
+2026-09-18 13:17:24,671 | WARNING | Worker | [ALERT] LOAD_3.S0 HIGH
+2026-09-18 13:17:24,776 | WARNING | Worker | [ALERT] LOAD_4.S1 HIGH
+2026-09-18 13:17:25,045 | INFO | Worker | [CLEAR] LOAD_7.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:25,150 | INFO | Worker | [CLEAR] LOAD_9.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:17:25,528 | WARNING | Worker | [ALERT] LOAD_12.S0 HIGH
+2026-09-18 13:17:26,116 | INFO | Worker | [CLEAR] LOAD_17.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:26,169 | INFO | Worker | [CLEAR] LOAD_18.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:26,275 | INFO | Worker | [CLEAR] LOAD_20.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:17:26,275 | INFO | Worker | [CLEAR] LOAD_20.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:17:26,408 | INFO | SystemPublisher | Connecting MQTT...
+2026-09-18 13:17:26,409 | ERROR | SystemPublisher | MQTT connect failed: simulated AWS/network failure - retrying in 45.2s
+2026-09-18 13:17:26,409 | CRITICAL | SystemPublisher | MQTT has not connected in 15s (reboot_after=8.0s) - rebooting the system
+2026-09-18 13:17:26,410 | CRITICAL | SystemPublisher | Rebooting the system now (sudo reboot) - reboot 3/3 allowed in the last 3600s
+2026-09-18 13:17:26,439 | ERROR | WifiMonitor | WiFi unreachable - retrying in 32.7s
+2026-09-18 13:17:26,491 | WARNING | Worker | [ALERT] LOAD_22.S0 HIGH
+2026-09-18 13:17:26,649 | INFO | Worker | [CLEAR] LOAD_24.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:27,133 | INFO | Worker | [CLEAR] LOAD_29.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:27,216 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure
+2026-09-18 13:17:27,217 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:17:27,217 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 5.5s
+2026-09-18 13:17:27,239 | INFO | Worker | [CLEAR] LOAD_31.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:27,613 | WARNING | Worker | [ALERT] LOAD_35.S0 HIGH
+2026-09-18 13:17:27,829 | WARNING | Worker | [ALERT] LOAD_37.S0 HIGH
+2026-09-18 13:17:28,631 | INFO | Worker | [CLEAR] LOAD_6.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:28,684 | WARNING | Worker | [ALERT] LOAD_7.S0 HIGH
+2026-09-18 13:17:28,737 | WARNING | Worker | [ALERT] LOAD_8.S1 HIGH
+2026-09-18 13:17:28,794 | WARNING | Worker | [ALERT] LOAD_9.S0 HIGH
+2026-09-18 13:17:28,900 | INFO | Worker | [CLEAR] LOAD_10.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:29,273 | INFO | Worker | [CLEAR] LOAD_13.S2 no longer HIGH
+2026-09-18 13:17:29,651 | WARNING | Worker | [ALERT] LOAD_16.S1 HIGH
+2026-09-18 13:17:29,918 | WARNING | Worker | [ALERT] LOAD_18.S1 HIGH
+2026-09-18 13:17:30,024 | WARNING | Worker | [ALERT] LOAD_19.S2 HIGH
+2026-09-18 13:17:30,130 | WARNING | Worker | [ALERT] LOAD_20.S0 HIGH
+2026-09-18 13:17:30,130 | WARNING | Worker | [ALERT] LOAD_20.S1 HIGH
+2026-09-18 13:17:30,293 | INFO | Worker | [CLEAR] LOAD_22.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:17:30,452 | WARNING | Worker | [ALERT] LOAD_24.S0 HIGH
+2026-09-18 13:17:31,202 | WARNING | Worker | [ALERT] LOAD_31.S0 HIGH
+2026-09-18 13:17:31,259 | INFO | Worker | [CLEAR] LOAD_32.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:31,312 | INFO | Worker | [CLEAR] LOAD_33.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:31,576 | INFO | Worker | [CLEAR] LOAD_35.S2 no longer HIGH
+2026-09-18 13:17:31,953 | WARNING | Worker | [ALERT] LOAD_38.S0 HIGH
+2026-09-18 13:17:32,274 | WARNING | Worker | [ALERT] LOAD_2.S2 HIGH
+2026-09-18 13:17:32,380 | INFO | Worker | [CLEAR] LOAD_4.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:17:32,380 | INFO | Worker | [CLEAR] LOAD_4.S1 no longer HIGH
+2026-09-18 13:17:32,542 | WARNING | Worker | [ALERT] LOAD_5.S1 HIGH
+2026-09-18 13:17:32,595 | WARNING | Worker | [ALERT] LOAD_6.S0 HIGH
+2026-09-18 13:17:32,742 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:17:32,743 | INFO | Publisher | MQTT connected (after 1 retries, 5.5s)
+2026-09-18 13:17:32,973 | WARNING | Worker | [ALERT] LOAD_10.S2 HIGH
+2026-09-18 13:17:33,666 | INFO | Worker | [CLEAR] LOAD_16.S1 no longer HIGH
+2026-09-18 13:17:33,828 | WARNING | Worker | [ALERT] LOAD_17.S2 HIGH
+2026-09-18 13:17:34,148 | WARNING | Worker | [ALERT] LOAD_19.S1 HIGH
+2026-09-18 13:17:34,416 | WARNING | Worker | [ALERT] LOAD_22.S0 HIGH
+2026-09-18 13:17:34,523 | WARNING | Worker | [ALERT] LOAD_23.S2 HIGH
+2026-09-18 13:17:34,900 | INFO | Worker | [CLEAR] LOAD_27.S0 no longer HIGH
+2026-09-18 13:17:35,380 | WARNING | Worker | [ALERT] LOAD_32.S0 HIGH
+2026-09-18 13:17:35,433 | WARNING | Worker | [ALERT] LOAD_33.S0 HIGH
+2026-09-18 13:17:35,702 | WARNING | Worker | [ALERT] LOAD_35.S1 HIGH
+2026-09-18 13:17:35,865 | INFO | Worker | [CLEAR] LOAD_37.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:36,505 | WARNING | Worker | [ALERT] LOAD_4.S0 HIGH
+2026-09-18 13:17:36,668 | INFO | Worker | [CLEAR] LOAD_5.S2 no longer HIGH
+2026-09-18 13:17:36,775 | INFO | Worker | [CLEAR] LOAD_7.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:37,621 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 13:17:37,622 | ERROR | ConfigWatcher | Watcher error: Invalid config: LOAD_1.S0: Unsupported type 'not_a_real_type'
+2026-09-18 13:17:37,737 | WARNING | Worker | [ALERT] LOAD_15.S1 HIGH
+2026-09-18 13:17:38,006 | WARNING | Worker | [ALERT] LOAD_17.S0 HIGH
+2026-09-18 13:17:38,747 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure
+2026-09-18 13:17:38,747 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:17:38,748 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 5.6s
+2026-09-18 13:17:38,810 | WARNING | Worker | [ALERT] LOAD_23.S0 HIGH
+2026-09-18 13:17:39,130 | INFO | Worker | [CLEAR] LOAD_27.S1 no longer HIGH
+2026-09-18 13:17:40,148 | WARNING | Worker | [ALERT] LOAD_37.S0 HIGH
+2026-09-18 13:17:40,895 | INFO | Worker | [CLEAR] LOAD_6.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:40,947 | WARNING | Worker | [ALERT] LOAD_7.S0 HIGH
+2026-09-18 13:17:41,965 | INFO | Worker | [CLEAR] LOAD_16.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:42,501 | INFO | Worker | [CLEAR] LOAD_20.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:17:42,555 | WARNING | Worker | [ALERT] LOAD_21.S0 HIGH
+2026-09-18 13:17:42,623 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 13:17:42,626 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-18 13:17:42,823 | INFO | Worker | [CLEAR] LOAD_23.S0 no longer HIGH
+2026-09-18 13:17:42,824 | WARNING | Worker | [ALERT] LOAD_23.S1 HIGH
+2026-09-18 13:17:42,824 | INFO | Worker | [CLEAR] LOAD_23.S2 no longer HIGH
+2026-09-18 13:17:43,571 | INFO | Worker | [CLEAR] LOAD_31.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:43,949 | INFO | Worker | [CLEAR] LOAD_35.S0 no longer HIGH
+2026-09-18 13:17:44,271 | INFO | Worker | [CLEAR] LOAD_38.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:44,377 | INFO | Worker | [CLEAR] LOAD_40.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:44,383 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:17:44,384 | INFO | Publisher | MQTT connected (after 1 retries, 5.6s)
+2026-09-18 13:17:45,231 | INFO | Worker | [CLEAR] LOAD_10.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:45,385 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure
+2026-09-18 13:17:45,385 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:17:45,385 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 4.5s
+2026-09-18 13:17:45,605 | WARNING | Worker | [ALERT] LOAD_13.S1 HIGH
+2026-09-18 13:17:45,605 | WARNING | Worker | [ALERT] LOAD_13.S2 HIGH
+2026-09-18 13:17:45,874 | INFO | Worker | [CLEAR] LOAD_15.S1 no longer HIGH
+2026-09-18 13:17:45,979 | WARNING | Worker | [ALERT] LOAD_16.S0 HIGH
+2026-09-18 13:17:46,409 | INFO | Worker | [CLEAR] LOAD_19.S1 no longer HIGH
+2026-09-18 13:17:46,515 | INFO | Worker | [CLEAR] LOAD_21.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:46,836 | WARNING | Worker | [ALERT] LOAD_23.S0 HIGH
+2026-09-18 13:17:48,339 | WARNING | Worker | [ALERT] LOAD_40.S0 HIGH
+2026-09-18 13:17:48,392 | INFO | Worker | [CLEAR] LOAD_1.S0 no longer HIGH
+2026-09-18 13:17:48,607 | INFO | Worker | [CLEAR] LOAD_4.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:48,608 | WARNING | Worker | [ALERT] LOAD_4.S1 HIGH
+2026-09-18 13:17:48,819 | WARNING | Worker | [ALERT] LOAD_6.S0 HIGH
+2026-09-18 13:17:48,981 | WARNING | Worker | [ALERT] LOAD_8.S0 HIGH
+2026-09-18 13:17:49,196 | WARNING | Worker | [ALERT] LOAD_10.S2 HIGH
+2026-09-18 13:17:49,900 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:17:49,900 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 11.9s
+2026-09-18 13:17:50,481 | INFO | Worker | [CLEAR] LOAD_20.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:50,965 | WARNING | Worker | [ALERT] LOAD_25.S0 HIGH
+2026-09-18 13:17:51,764 | INFO | Worker | [CLEAR] LOAD_34.S0 no longer HIGH
+2026-09-18 13:17:51,980 | INFO | Worker | [CLEAR] LOAD_36.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:51,981 | INFO | Worker | [CLEAR] LOAD_37.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:52,139 | WARNING | Worker | [ALERT] LOAD_38.S0 HIGH
+2026-09-18 13:17:52,250 | INFO | Worker | [CLEAR] LOAD_40.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:52,571 | INFO | Worker | [CLEAR] LOAD_4.S1 no longer HIGH
+2026-09-18 13:17:52,729 | INFO | Worker | [CLEAR] LOAD_5.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:53,748 | INFO | Worker | [CLEAR] LOAD_16.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:17:54,284 | WARNING | Worker | [ALERT] LOAD_20.S1 HIGH
+2026-09-18 13:17:54,606 | INFO | Worker | [CLEAR] LOAD_24.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:54,979 | INFO | Worker | [CLEAR] LOAD_28.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:17:55,089 | WARNING | Worker | [ALERT] LOAD_29.S1 HIGH
+2026-09-18 13:17:55,464 | WARNING | Worker | [ALERT] LOAD_34.S0 HIGH
+2026-09-18 13:17:55,464 | INFO | Worker | [CLEAR] LOAD_34.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:55,622 | WARNING | Worker | [ALERT] LOAD_35.S0 HIGH
+2026-09-18 13:17:55,785 | WARNING | Worker | [ALERT] LOAD_36.S2 HIGH
+2026-09-18 13:17:55,839 | WARNING | Worker | [ALERT] LOAD_37.S0 HIGH
+2026-09-18 13:17:56,050 | WARNING | Worker | [ALERT] LOAD_40.S0 HIGH
+2026-09-18 13:17:56,318 | WARNING | Worker | [ALERT] LOAD_4.S0 HIGH
+2026-09-18 13:17:56,480 | WARNING | Worker | [ALERT] LOAD_5.S0 HIGH
+2026-09-18 13:17:56,481 | INFO | Worker | [CLEAR] LOAD_5.S1 no longer HIGH
+2026-09-18 13:17:56,909 | INFO | Worker | [CLEAR] LOAD_10.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:57,014 | WARNING | Worker | [ALERT] LOAD_11.S1 HIGH
+2026-09-18 13:17:57,068 | INFO | Worker | [CLEAR] LOAD_12.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:57,442 | WARNING | Worker | [ALERT] LOAD_16.S1 HIGH
+2026-09-18 13:17:57,552 | INFO | Worker | [CLEAR] LOAD_17.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:17:57,657 | INFO | Worker | [CLEAR] LOAD_18.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:17:58,299 | WARNING | Worker | [ALERT] LOAD_24.S0 HIGH
+2026-09-18 13:17:58,405 | INFO | Worker | [CLEAR] LOAD_25.S0 no longer HIGH
+2026-09-18 13:17:58,784 | INFO | Worker | [CLEAR] LOAD_29.S1 no longer HIGH
+2026-09-18 13:17:59,048 | INFO | Worker | [CLEAR] LOAD_33.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:17:59,158 | WARNING | Worker | [ALERT] LOAD_34.S1 HIGH
+2026-09-18 13:17:59,170 | INFO | WifiMonitor | WiFi connected
+2026-09-18 13:17:59,799 | INFO | Worker | [CLEAR] LOAD_40.S0 no longer HIGH
+2026-09-18 13:18:00,281 | INFO | Worker | [CLEAR] LOAD_5.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:00,334 | INFO | Worker | [CLEAR] LOAD_6.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:00,440 | INFO | Worker | [CLEAR] LOAD_8.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:00,603 | INFO | Worker | [CLEAR] LOAD_10.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:00,603 | WARNING | Worker | [ALERT] LOAD_10.S2 HIGH
+2026-09-18 13:18:00,818 | WARNING | Worker | [ALERT] LOAD_12.S0 HIGH
+2026-09-18 13:18:01,353 | WARNING | Worker | [ALERT] LOAD_16.S0 HIGH
+2026-09-18 13:18:01,511 | WARNING | Worker | [ALERT] LOAD_17.S2 HIGH
+2026-09-18 13:18:01,674 | WARNING | Worker | [ALERT] LOAD_18.S1 HIGH
+2026-09-18 13:18:01,758 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:18:01,758 | INFO | Publisher | MQTT connected (after 2 retries, 16.4s)
+2026-09-18 13:18:02,263 | INFO | Worker | [CLEAR] LOAD_23.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:02,628 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 13:18:02,630 | ERROR | ConfigWatcher | Watcher error: Invalid config: 'modbus' section is missing required key(s): ['port']
+2026-09-18 13:18:02,960 | WARNING | Worker | [ALERT] LOAD_31.S2 HIGH
+2026-09-18 13:18:03,065 | WARNING | Worker | [ALERT] LOAD_33.S0 HIGH
+2026-09-18 13:18:03,175 | INFO | Worker | [CLEAR] LOAD_34.S0 no longer HIGH
+2026-09-18 13:18:03,444 | INFO | Worker | [CLEAR] LOAD_36.S2 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:03,923 | INFO | Worker | [CLEAR] LOAD_3.S0 no longer HIGH
+2026-09-18 13:18:04,353 | WARNING | Worker | [ALERT] LOAD_8.S0 HIGH
+2026-09-18 13:18:04,511 | INFO | Worker | [CLEAR] LOAD_10.S2 no longer HIGH
+2026-09-18 13:18:06,065 | INFO | Worker | [CLEAR] LOAD_22.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:07,137 | WARNING | Worker | [ALERT] LOAD_34.S0 HIGH
+2026-09-18 13:18:07,295 | INFO | Worker | [CLEAR] LOAD_35.S1 no longer HIGH
+2026-09-18 13:18:07,458 | WARNING | Worker | [ALERT] LOAD_36.S2 HIGH
+2026-09-18 13:18:07,630 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 13:18:07,633 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-18 13:18:07,669 | WARNING | Worker | [ALERT] LOAD_39.S0 HIGH
+2026-09-18 13:18:07,762 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure
+2026-09-18 13:18:07,763 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:18:07,763 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 5.3s
+2026-09-18 13:18:08,261 | WARNING | Worker | [ALERT] LOAD_5.S0 HIGH
+2026-09-18 13:18:08,635 | WARNING | Worker | [ALERT] LOAD_10.S1 HIGH
+2026-09-18 13:18:08,955 | INFO | Worker | [CLEAR] LOAD_13.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:09,171 | WARNING | WifiMonitor | WiFi disconnected
+2026-09-18 13:18:09,171 | ERROR | WifiMonitor | WiFi unreachable - retrying in 6.2s
+2026-09-18 13:18:09,224 | WARNING | Worker | [ALERT] LOAD_15.S1 HIGH
+2026-09-18 13:18:09,329 | INFO | Worker | [CLEAR] LOAD_16.S1 no longer HIGH
+2026-09-18 13:18:09,652 | INFO | Worker | [CLEAR] LOAD_18.S1 no longer HIGH
+2026-09-18 13:18:09,916 | INFO | Worker | [CLEAR] LOAD_20.S1 no longer HIGH
+2026-09-18 13:18:10,237 | WARNING | Worker | [ALERT] LOAD_23.S1 HIGH
+2026-09-18 13:18:10,663 | WARNING | Worker | [ALERT] LOAD_29.S1 HIGH
+2026-09-18 13:18:10,877 | INFO | Worker | [CLEAR] LOAD_31.S2 no longer HIGH
+2026-09-18 13:18:11,092 | INFO | Worker | [CLEAR] LOAD_34.S0 no longer HIGH
+2026-09-18 13:18:11,197 | INFO | Worker | [CLEAR] LOAD_35.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:11,589 | INFO | SystemPublisher | Connecting MQTT...
+2026-09-18 13:18:11,590 | ERROR | SystemPublisher | MQTT connect failed: simulated AWS/network failure - retrying in 63.1s
+2026-09-18 13:18:11,999 | WARNING | Worker | [ALERT] LOAD_4.S1 HIGH
+2026-09-18 13:18:12,375 | INFO | Worker | [CLEAR] LOAD_8.S0 no longer HIGH
+2026-09-18 13:18:12,908 | WARNING | Worker | [ALERT] LOAD_13.S0 HIGH
+2026-09-18 13:18:12,909 | INFO | Worker | [CLEAR] LOAD_13.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:12,909 | INFO | Worker | [CLEAR] LOAD_13.S2 no longer HIGH
+2026-09-18 13:18:13,047 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:18:13,047 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 12.9s
+2026-09-18 13:18:13,068 | INFO | Worker | [CLEAR] LOAD_15.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:13,762 | WARNING | Worker | [ALERT] LOAD_20.S1 HIGH
+2026-09-18 13:18:14,242 | WARNING | Worker | [ALERT] LOAD_25.S0 HIGH
+2026-09-18 13:18:14,887 | INFO | Worker | [CLEAR] LOAD_32.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:15,043 | WARNING | Worker | [ALERT] LOAD_34.S0 HIGH
+2026-09-18 13:18:15,207 | WARNING | Worker | [ALERT] LOAD_35.S0 HIGH
+2026-09-18 13:18:15,330 | INFO | WifiMonitor | WiFi connected
+2026-09-18 13:18:15,524 | INFO | Worker | [CLEAR] LOAD_39.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:15,684 | INFO | Worker | [CLEAR] LOAD_2.S2 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:16,060 | WARNING | Worker | [ALERT] LOAD_6.S0 HIGH
+2026-09-18 13:18:16,218 | INFO | Worker | [CLEAR] LOAD_8.S1 no longer HIGH
+2026-09-18 13:18:16,541 | WARNING | Worker | [ALERT] LOAD_11.S0 HIGH
+2026-09-18 13:18:16,752 | WARNING | Worker | [ALERT] LOAD_13.S1 HIGH
+2026-09-18 13:18:17,020 | WARNING | Worker | [ALERT] LOAD_15.S1 HIGH
+2026-09-18 13:18:17,662 | INFO | Worker | [CLEAR] LOAD_20.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:17,824 | WARNING | Worker | [ALERT] LOAD_22.S0 HIGH
+2026-09-18 13:18:18,784 | WARNING | Worker | [ALERT] LOAD_32.S0 HIGH
+2026-09-18 13:18:18,894 | INFO | Worker | [CLEAR] LOAD_34.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:19,215 | WARNING | Worker | [ALERT] LOAD_36.S0 HIGH
+2026-09-18 13:18:19,483 | WARNING | Worker | [ALERT] LOAD_39.S0 HIGH
+2026-09-18 13:18:19,749 | WARNING | Worker | [ALERT] LOAD_2.S2 HIGH
+2026-09-18 13:18:19,911 | INFO | Worker | [CLEAR] LOAD_4.S0 no longer HIGH
+2026-09-18 13:18:19,911 | INFO | Worker | [CLEAR] LOAD_4.S1 no longer HIGH
+2026-09-18 13:18:20,764 | WARNING | Worker | [ALERT] LOAD_13.S2 HIGH
+2026-09-18 13:18:21,247 | INFO | Worker | [CLEAR] LOAD_17.S2 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:21,408 | WARNING | Worker | [ALERT] LOAD_18.S2 HIGH
+2026-09-18 13:18:21,996 | INFO | Worker | [CLEAR] LOAD_24.S0 no longer HIGH
+2026-09-18 13:18:22,795 | WARNING | Worker | [ALERT] LOAD_34.S0 HIGH
+2026-09-18 13:18:22,795 | INFO | Worker | [CLEAR] LOAD_34.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:23,120 | INFO | Worker | [CLEAR] LOAD_37.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:23,815 | INFO | Worker | [CLEAR] LOAD_5.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:23,816 | INFO | Worker | [CLEAR] LOAD_6.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:24,243 | INFO | Worker | [CLEAR] LOAD_11.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:24,883 | WARNING | Worker | [ALERT] LOAD_16.S1 HIGH
+2026-09-18 13:18:25,046 | WARNING | Worker | [ALERT] LOAD_17.S2 HIGH
+2026-09-18 13:18:25,311 | INFO | Worker | [CLEAR] LOAD_19.S2 no longer HIGH
+2026-09-18 13:18:25,421 | WARNING | Worker | [ALERT] LOAD_20.S0 HIGH
+2026-09-18 13:18:25,474 | WARNING | Worker | [ALERT] LOAD_21.S0 HIGH
+2026-09-18 13:18:25,922 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:18:25,922 | INFO | Publisher | MQTT connected (after 2 retries, 18.2s)
+2026-09-18 13:18:25,955 | INFO | Worker | [CLEAR] LOAD_26.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:26,703 | INFO | Worker | [CLEAR] LOAD_34.S0 no longer HIGH
+2026-09-18 13:18:27,078 | WARNING | Worker | [ALERT] LOAD_37.S0 HIGH
+2026-09-18 13:18:27,398 | WARNING | Worker | [ALERT] LOAD_1.S0 HIGH
+2026-09-18 13:18:27,880 | WARNING | Worker | [ALERT] LOAD_5.S0 HIGH
+2026-09-18 13:18:27,933 | WARNING | Worker | [ALERT] LOAD_6.S0 HIGH
+2026-09-18 13:18:28,363 | WARNING | Worker | [ALERT] LOAD_11.S0 HIGH
+2026-09-18 13:18:28,924 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure
+2026-09-18 13:18:28,925 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:18:28,925 | INFO | Publisher | MQTT connected
+2026-09-18 13:18:29,162 | INFO | Worker | [CLEAR] LOAD_17.S2 no longer HIGH
+2026-09-18 13:18:29,485 | WARNING | Worker | [ALERT] LOAD_19.S0 HIGH
+2026-09-18 13:18:29,538 | INFO | Worker | [CLEAR] LOAD_20.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:29,590 | INFO | Worker | [CLEAR] LOAD_21.S0 no longer HIGH
+2026-09-18 13:18:29,913 | INFO | Worker | [CLEAR] LOAD_23.S1 no longer HIGH
+2026-09-18 13:18:30,180 | WARNING | Worker | [ALERT] LOAD_26.S1 HIGH
+2026-09-18 13:18:31,091 | INFO | Worker | [CLEAR] LOAD_36.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:31,408 | INFO | Worker | [CLEAR] LOAD_1.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:31,518 | WARNING | Worker | [ALERT] LOAD_2.S0 HIGH
+2026-09-18 13:18:31,519 | INFO | Worker | [CLEAR] LOAD_2.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:32,266 | WARNING | Worker | [ALERT] LOAD_10.S2 HIGH
+2026-09-18 13:18:32,634 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 13:18:32,635 | ERROR | ConfigWatcher | Watcher error: Invalid config: LOAD_1: Invalid slave ID 9999
+2026-09-18 13:18:32,907 | INFO | Worker | [CLEAR] LOAD_15.S1 no longer HIGH
+2026-09-18 13:18:33,226 | INFO | Worker | [CLEAR] LOAD_18.S2 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:33,389 | WARNING | Worker | [ALERT] LOAD_19.S2 HIGH
+2026-09-18 13:18:33,495 | WARNING | Worker | [ALERT] LOAD_20.S0 HIGH
+2026-09-18 13:18:33,658 | INFO | Worker | [CLEAR] LOAD_22.S0 no longer HIGH
+2026-09-18 13:18:33,764 | INFO | Worker | [CLEAR] LOAD_23.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:33,764 | WARNING | Worker | [ALERT] LOAD_23.S1 HIGH
+2026-09-18 13:18:34,942 | WARNING | Worker | [ALERT] LOAD_36.S2 HIGH
+2026-09-18 13:18:35,101 | INFO | Worker | [CLEAR] LOAD_38.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:35,371 | WARNING | Worker | [ALERT] LOAD_2.S2 HIGH
+2026-09-18 13:18:35,692 | INFO | Worker | [CLEAR] LOAD_6.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:36,012 | INFO | Worker | [CLEAR] LOAD_10.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:36,170 | INFO | Worker | [CLEAR] LOAD_12.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:36,276 | INFO | Worker | [CLEAR] LOAD_13.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:36,277 | INFO | Worker | [CLEAR] LOAD_13.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:36,545 | WARNING | Worker | [ALERT] LOAD_15.S1 HIGH
+2026-09-18 13:18:36,651 | INFO | Worker | [CLEAR] LOAD_16.S1 no longer HIGH
+2026-09-18 13:18:36,976 | WARNING | Worker | [ALERT] LOAD_18.S2 HIGH
+2026-09-18 13:18:37,240 | WARNING | Worker | [ALERT] LOAD_20.S1 HIGH
+2026-09-18 13:18:37,403 | WARNING | Worker | [ALERT] LOAD_22.S1 HIGH
+2026-09-18 13:18:37,565 | WARNING | Worker | [ALERT] LOAD_23.S0 HIGH
+2026-09-18 13:18:37,565 | INFO | Worker | [CLEAR] LOAD_23.S1 no longer HIGH
+2026-09-18 13:18:37,635 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 13:18:37,636 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-18 13:18:37,669 | INFO | Worker | [CLEAR] LOAD_25.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:38,952 | WARNING | Worker | [ALERT] LOAD_40.S0 HIGH
+2026-09-18 13:18:39,111 | INFO | Worker | [CLEAR] LOAD_2.S2 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:39,432 | WARNING | Worker | [ALERT] LOAD_6.S0 HIGH
+2026-09-18 13:18:39,647 | INFO | Worker | [CLEAR] LOAD_9.S0 no longer HIGH
+2026-09-18 13:18:39,810 | WARNING | Worker | [ALERT] LOAD_10.S2 HIGH
+2026-09-18 13:18:39,863 | INFO | Worker | [CLEAR] LOAD_11.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:39,968 | WARNING | Worker | [ALERT] LOAD_12.S0 HIGH
+2026-09-18 13:18:40,127 | WARNING | Worker | [ALERT] LOAD_13.S0 HIGH
+2026-09-18 13:18:40,127 | WARNING | Worker | [ALERT] LOAD_13.S2 HIGH
+2026-09-18 13:18:40,823 | INFO | Worker | [CLEAR] LOAD_18.S2 no longer HIGH
+2026-09-18 13:18:41,357 | INFO | Worker | [CLEAR] LOAD_23.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:41,467 | WARNING | Worker | [ALERT] LOAD_25.S0 HIGH
+2026-09-18 13:18:42,052 | WARNING | Worker | [ALERT] LOAD_31.S0 HIGH
+2026-09-18 13:18:42,535 | INFO | Worker | [CLEAR] LOAD_36.S2 no longer HIGH
+2026-09-18 13:18:42,588 | INFO | Worker | [CLEAR] LOAD_37.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:42,750 | WARNING | Worker | [ALERT] LOAD_38.S0 HIGH
+2026-09-18 13:18:43,071 | INFO | Worker | [CLEAR] LOAD_2.S0 no longer HIGH
+2026-09-18 13:18:43,071 | WARNING | Worker | [ALERT] LOAD_2.S1 HIGH
+2026-09-18 13:18:43,071 | WARNING | Worker | [ALERT] LOAD_2.S2 HIGH
+2026-09-18 13:18:43,124 | WARNING | Worker | [ALERT] LOAD_3.S0 HIGH
+2026-09-18 13:18:43,874 | WARNING | Worker | [ALERT] LOAD_11.S1 HIGH
+2026-09-18 13:18:44,355 | INFO | Worker | [CLEAR] LOAD_15.S1 no longer HIGH
+2026-09-18 13:18:45,370 | WARNING | Worker | [ALERT] LOAD_23.S1 HIGH
+2026-09-18 13:18:46,120 | INFO | Worker | [CLEAR] LOAD_32.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:46,599 | WARNING | Worker | [ALERT] LOAD_37.S0 HIGH
+2026-09-18 13:18:47,028 | WARNING | Worker | [ALERT] LOAD_2.S0 HIGH
+2026-09-18 13:18:47,243 | INFO | Worker | [CLEAR] LOAD_5.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:47,510 | WARNING | Worker | [ALERT] LOAD_9.S0 HIGH
+2026-09-18 13:18:47,724 | INFO | Worker | [CLEAR] LOAD_11.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:47,830 | INFO | Worker | [CLEAR] LOAD_12.S0 no longer HIGH
+2026-09-18 13:18:47,937 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure
+2026-09-18 13:18:47,937 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:18:47,937 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 6.1s
+2026-09-18 13:18:48,313 | WARNING | Worker | [ALERT] LOAD_16.S1 HIGH
+2026-09-18 13:18:48,847 | INFO | Worker | [CLEAR] LOAD_20.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:49,221 | WARNING | Worker | [ALERT] LOAD_23.S0 HIGH
+2026-09-18 13:18:49,221 | INFO | Worker | [CLEAR] LOAD_23.S1 no longer HIGH
+2026-09-18 13:18:50,074 | WARNING | Worker | [ALERT] LOAD_32.S0 HIGH
+2026-09-18 13:18:50,720 | INFO | Worker | [CLEAR] LOAD_39.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:50,984 | INFO | Worker | [CLEAR] LOAD_2.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:51,254 | INFO | Worker | [CLEAR] LOAD_7.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:51,359 | INFO | Worker | [CLEAR] LOAD_9.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:51,627 | WARNING | Worker | [ALERT] LOAD_11.S1 HIGH
+2026-09-18 13:18:51,843 | INFO | Worker | [CLEAR] LOAD_13.S2 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:52,377 | INFO | Worker | [CLEAR] LOAD_17.S0 no longer HIGH
+2026-09-18 13:18:52,534 | WARNING | Worker | [ALERT] LOAD_18.S1 HIGH
+2026-09-18 13:18:52,804 | WARNING | Worker | [ALERT] LOAD_20.S1 HIGH
+2026-09-18 13:18:54,079 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:18:54,079 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 12.7s
+2026-09-18 13:18:54,353 | INFO | Worker | [CLEAR] LOAD_36.S0 no longer HIGH
+2026-09-18 13:18:55,153 | WARNING | Worker | [ALERT] LOAD_5.S1 HIGH
+2026-09-18 13:18:55,263 | WARNING | Worker | [ALERT] LOAD_7.S0 HIGH
+2026-09-18 13:18:55,332 | WARNING | WifiMonitor | WiFi disconnected
+2026-09-18 13:18:55,332 | ERROR | WifiMonitor | WiFi unreachable - retrying in 3.6s
+2026-09-18 13:18:55,423 | WARNING | Worker | [ALERT] LOAD_9.S0 HIGH
+2026-09-18 13:18:55,581 | INFO | Worker | [CLEAR] LOAD_10.S1 no longer HIGH
+2026-09-18 13:18:55,903 | WARNING | Worker | [ALERT] LOAD_13.S2 HIGH
+2026-09-18 13:18:56,171 | INFO | Worker | [CLEAR] LOAD_16.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:56,329 | WARNING | Worker | [ALERT] LOAD_17.S0 HIGH
+2026-09-18 13:18:56,758 | INFO | Worker | [CLEAR] LOAD_20.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:57,133 | WARNING | Worker | [ALERT] LOAD_23.S2 HIGH
+2026-09-18 13:18:57,291 | INFO | Worker | [CLEAR] LOAD_25.S0 no longer HIGH
+2026-09-18 13:18:57,637 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 13:18:57,637 | ERROR | ConfigWatcher | Watcher error: Invalid config: 'modbus' section is missing required key(s): ['port']
+2026-09-18 13:18:57,665 | INFO | Worker | [CLEAR] LOAD_29.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:57,773 | INFO | Worker | [CLEAR] LOAD_31.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:57,988 | WARNING | Worker | [ALERT] LOAD_34.S1 HIGH
+2026-09-18 13:18:58,308 | INFO | Worker | [CLEAR] LOAD_37.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:18:58,415 | INFO | Worker | [CLEAR] LOAD_38.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:58,466 | WARNING | Worker | [ALERT] LOAD_39.S0 HIGH
+2026-09-18 13:18:58,901 | ERROR | WifiMonitor | WiFi unreachable - retrying in 9.1s
+2026-09-18 13:18:59,322 | INFO | Worker | [CLEAR] LOAD_9.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:59,428 | INFO | Worker | [CLEAR] LOAD_10.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:59,538 | INFO | Worker | [CLEAR] LOAD_11.S1 no longer HIGH
+2026-09-18 13:18:59,644 | WARNING | Worker | [ALERT] LOAD_12.S0 HIGH
+2026-09-18 13:18:59,749 | INFO | Worker | [CLEAR] LOAD_13.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:18:59,963 | WARNING | Worker | [ALERT] LOAD_15.S1 HIGH
+2026-09-18 13:19:00,073 | WARNING | Worker | [ALERT] LOAD_16.S1 HIGH
+2026-09-18 13:19:00,498 | WARNING | Worker | [ALERT] LOAD_19.S1 HIGH
+2026-09-18 13:19:00,499 | INFO | Worker | [CLEAR] LOAD_20.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:01,248 | WARNING | Worker | [ALERT] LOAD_27.S0 HIGH
+2026-09-18 13:19:01,621 | WARNING | Worker | [ALERT] LOAD_31.S0 HIGH
+2026-09-18 13:19:01,673 | INFO | Worker | [CLEAR] LOAD_32.S0 no longer HIGH
+2026-09-18 13:19:01,993 | WARNING | Worker | [ALERT] LOAD_35.S1 HIGH
+2026-09-18 13:19:02,209 | WARNING | Worker | [ALERT] LOAD_37.S0 HIGH
+2026-09-18 13:19:02,527 | INFO | Worker | [CLEAR] LOAD_2.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:02,638 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 13:19:02,639 | ERROR | ConfigWatcher | Watcher error: Invalid config: 'modbus' section is missing required key(s): ['port']
+2026-09-18 13:19:02,793 | INFO | Worker | [CLEAR] LOAD_5.S1 no longer HIGH
+2026-09-18 13:19:02,901 | INFO | Worker | [CLEAR] LOAD_7.S0 no longer HIGH
+2026-09-18 13:19:03,062 | WARNING | Worker | [ALERT] LOAD_9.S0 HIGH
+2026-09-18 13:19:03,274 | WARNING | Worker | [ALERT] LOAD_11.S1 HIGH
+2026-09-18 13:19:03,542 | WARNING | Worker | [ALERT] LOAD_13.S0 HIGH
+2026-09-18 13:19:03,913 | INFO | Worker | [CLEAR] LOAD_16.S1 no longer HIGH
+2026-09-18 13:19:04,342 | INFO | Worker | [CLEAR] LOAD_19.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:04,395 | WARNING | Worker | [ALERT] LOAD_20.S1 HIGH
+2026-09-18 13:19:04,448 | WARNING | Worker | [ALERT] LOAD_21.S0 HIGH
+2026-09-18 13:19:04,823 | WARNING | Worker | [ALERT] LOAD_24.S0 HIGH
+2026-09-18 13:19:05,891 | INFO | Worker | [CLEAR] LOAD_35.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:06,534 | WARNING | Worker | [ALERT] LOAD_2.S1 HIGH
+2026-09-18 13:19:06,822 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:19:06,823 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 23.8s
+2026-09-18 13:19:06,823 | CRITICAL | Publisher | MQTT has not connected in 19s (reboot_after=8.0s) - rebooting the system
+2026-09-18 13:19:06,824 | CRITICAL | Publisher | Refusing to reboot: 3 reboots already happened in the last 3600s (limit 3) - a reboot isn't fixing this, so giving up on rebooting and letting connect() keep retrying on its own instead
+2026-09-18 13:19:07,335 | INFO | Worker | [CLEAR] LOAD_11.S1 no longer HIGH
+2026-09-18 13:19:07,604 | INFO | Worker | [CLEAR] LOAD_13.S1 no longer HIGH
+2026-09-18 13:19:07,639 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 13:19:07,640 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-18 13:19:07,870 | INFO | Worker | [CLEAR] LOAD_16.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:07,871 | WARNING | Worker | [ALERT] LOAD_16.S1 HIGH
+2026-09-18 13:19:07,966 | ERROR | WifiMonitor | WiFi unreachable - retrying in 18.3s
+2026-09-18 13:19:07,967 | CRITICAL | WifiMonitor | WiFi has not connected in 13s (reboot_after=8.0s) - rebooting the system
+2026-09-18 13:19:07,967 | CRITICAL | WifiMonitor | Refusing to reboot: 3 reboots already happened in the last 3600s (limit 3) - a reboot isn't fixing this, so giving up on rebooting and letting connect() keep retrying on its own instead
+2026-09-18 13:19:07,977 | INFO | Worker | [CLEAR] LOAD_17.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:08,140 | INFO | Worker | [CLEAR] LOAD_18.S1 no longer HIGH
+2026-09-18 13:19:08,300 | WARNING | Worker | [ALERT] LOAD_19.S0 HIGH
+2026-09-18 13:19:08,351 | WARNING | Worker | [ALERT] LOAD_20.S0 HIGH
+2026-09-18 13:19:08,351 | INFO | Worker | [CLEAR] LOAD_20.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:08,725 | WARNING | Worker | [ALERT] LOAD_23.S1 HIGH
+2026-09-18 13:19:08,726 | INFO | Worker | [CLEAR] LOAD_24.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:08,886 | INFO | Worker | [CLEAR] LOAD_26.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:09,101 | WARNING | Worker | [ALERT] LOAD_28.S0 HIGH
+2026-09-18 13:19:09,688 | INFO | Worker | [CLEAR] LOAD_35.S1 no longer HIGH
+2026-09-18 13:19:10,276 | INFO | Worker | [CLEAR] LOAD_2.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:10,435 | WARNING | Worker | [ALERT] LOAD_4.S0 HIGH
+2026-09-18 13:19:10,810 | INFO | Worker | [CLEAR] LOAD_9.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:11,024 | WARNING | Worker | [ALERT] LOAD_11.S1 HIGH
+2026-09-18 13:19:11,504 | WARNING | Worker | [ALERT] LOAD_16.S0 HIGH
+2026-09-18 13:19:11,505 | INFO | Worker | [CLEAR] LOAD_16.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:11,667 | WARNING | Worker | [ALERT] LOAD_17.S0 HIGH
+2026-09-18 13:19:11,988 | INFO | Worker | [CLEAR] LOAD_19.S1 no longer HIGH
+2026-09-18 13:19:12,039 | INFO | Worker | [CLEAR] LOAD_20.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:12,040 | WARNING | Worker | [ALERT] LOAD_20.S1 HIGH
+2026-09-18 13:19:12,630 | WARNING | Worker | [ALERT] LOAD_26.S1 HIGH
+2026-09-18 13:19:13,431 | WARNING | Worker | [ALERT] LOAD_35.S0 HIGH
+2026-09-18 13:19:13,805 | WARNING | Worker | [ALERT] LOAD_38.S0 HIGH
+2026-09-18 13:19:13,859 | INFO | Worker | [CLEAR] LOAD_39.S0 no longer HIGH
+2026-09-18 13:19:13,859 | INFO | Worker | [CLEAR] LOAD_40.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:14,074 | WARNING | Worker | [ALERT] LOAD_2.S0 HIGH
+2026-09-18 13:19:14,075 | WARNING | Worker | [ALERT] LOAD_2.S1 HIGH
+2026-09-18 13:19:14,554 | WARNING | Worker | [ALERT] LOAD_8.S0 HIGH
+2026-09-18 13:19:14,554 | WARNING | Worker | [ALERT] LOAD_8.S1 HIGH
+2026-09-18 13:19:14,657 | INFO | SystemPublisher | Connecting MQTT...
+2026-09-18 13:19:14,657 | INFO | SystemPublisher | MQTT connected (after 5 retries, 140.0s)
+2026-09-18 13:19:14,770 | INFO | Worker | [CLEAR] LOAD_11.S0 no longer HIGH
+2026-09-18 13:19:14,771 | INFO | Worker | [CLEAR] LOAD_11.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:15,412 | WARNING | Worker | [ALERT] LOAD_16.S1 HIGH
+2026-09-18 13:19:15,517 | INFO | Worker | [CLEAR] LOAD_17.S0 no longer HIGH
+2026-09-18 13:19:15,783 | INFO | Worker | [CLEAR] LOAD_19.S0 no longer HIGH
+2026-09-18 13:19:15,783 | INFO | Worker | [CLEAR] LOAD_19.S2 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:15,840 | WARNING | Worker | [ALERT] LOAD_20.S0 HIGH
+2026-09-18 13:19:15,840 | INFO | Worker | [CLEAR] LOAD_20.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:16,372 | WARNING | Worker | [ALERT] LOAD_25.S0 HIGH
+2026-09-18 13:19:16,589 | INFO | Worker | [CLEAR] LOAD_27.S0 no longer HIGH
+2026-09-18 13:19:17,229 | INFO | Worker | [CLEAR] LOAD_35.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:17,230 | WARNING | Worker | [ALERT] LOAD_35.S1 HIGH
+2026-09-18 13:19:17,603 | WARNING | Worker | [ALERT] LOAD_39.S0 HIGH
+2026-09-18 13:19:17,656 | WARNING | Worker | [ALERT] LOAD_40.S0 HIGH
+2026-09-18 13:19:17,710 | WARNING | Worker | [ALERT] LOAD_1.S0 HIGH
+2026-09-18 13:19:18,406 | WARNING | Worker | [ALERT] LOAD_9.S0 HIGH
+2026-09-18 13:19:18,564 | WARNING | Worker | [ALERT] LOAD_10.S2 HIGH
+2026-09-18 13:19:18,888 | INFO | Worker | [CLEAR] LOAD_13.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:19,744 | WARNING | Worker | [ALERT] LOAD_19.S2 HIGH
+2026-09-18 13:19:19,850 | WARNING | Worker | [ALERT] LOAD_20.S1 HIGH
+2026-09-18 13:19:20,659 | ERROR | SystemPublisher | MQTT publish failed: simulated AWS/network failure
+2026-09-18 13:19:20,659 | INFO | SystemPublisher | Connecting MQTT...
+2026-09-18 13:19:20,659 | ERROR | SystemPublisher | MQTT connect failed: simulated AWS/network failure - retrying in 5.4s
+2026-09-18 13:19:21,348 | WARNING | Worker | [ALERT] LOAD_35.S0 HIGH
+2026-09-18 13:19:21,348 | INFO | Worker | [CLEAR] LOAD_35.S1 no longer HIGH
+2026-09-18 13:19:21,775 | INFO | Worker | [CLEAR] LOAD_1.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:22,094 | INFO | Worker | [CLEAR] LOAD_4.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:22,257 | WARNING | Worker | [ALERT] LOAD_5.S1 HIGH
+2026-09-18 13:19:22,258 | INFO | Worker | [CLEAR] LOAD_6.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:22,949 | WARNING | Worker | [ALERT] LOAD_13.S0 HIGH
+2026-09-18 13:19:23,273 | INFO | Worker | [CLEAR] LOAD_16.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:23,858 | INFO | Worker | [CLEAR] LOAD_21.S0 no longer HIGH
+2026-09-18 13:19:23,964 | WARNING | Worker | [ALERT] LOAD_22.S0 HIGH
+2026-09-18 13:19:24,073 | INFO | Worker | [CLEAR] LOAD_23.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:24,181 | WARNING | Worker | [ALERT] LOAD_25.S1 HIGH
+2026-09-18 13:19:24,391 | WARNING | Worker | [ALERT] LOAD_27.S0 HIGH
+2026-09-18 13:19:24,874 | INFO | Worker | [CLEAR] LOAD_33.S0 no longer HIGH
+2026-09-18 13:19:25,088 | WARNING | Worker | [ALERT] LOAD_35.S2 HIGH
+2026-09-18 13:19:25,516 | INFO | Worker | [CLEAR] LOAD_39.S0 no longer HIGH
+2026-09-18 13:19:25,621 | WARNING | Worker | [ALERT] LOAD_1.S0 HIGH
+2026-09-18 13:19:25,783 | INFO | Worker | [CLEAR] LOAD_2.S1 no longer HIGH
+2026-09-18 13:19:26,078 | INFO | SystemPublisher | Connecting MQTT...
+2026-09-18 13:19:26,078 | ERROR | SystemPublisher | MQTT connect failed: simulated AWS/network failure - retrying in 8.7s
+2026-09-18 13:19:26,101 | INFO | Worker | [CLEAR] LOAD_5.S1 no longer HIGH
+2026-09-18 13:19:26,158 | WARNING | Worker | [ALERT] LOAD_6.S0 HIGH
+2026-09-18 13:19:26,302 | ERROR | WifiMonitor | WiFi unreachable - retrying in 39.0s
+2026-09-18 13:19:27,641 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 13:19:27,643 | ERROR | ConfigWatcher | Watcher error: Invalid config: LOAD_1.S0: Unsupported type 'not_a_real_type'
+2026-09-18 13:19:27,922 | INFO | Worker | [CLEAR] LOAD_22.S0 no longer HIGH
+2026-09-18 13:19:28,027 | INFO | Worker | [CLEAR] LOAD_23.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:28,776 | WARNING | Worker | [ALERT] LOAD_31.S2 HIGH
+2026-09-18 13:19:28,989 | WARNING | Worker | [ALERT] LOAD_34.S0 HIGH
+2026-09-18 13:19:29,098 | INFO | Worker | [CLEAR] LOAD_35.S0 no longer HIGH
+2026-09-18 13:19:29,417 | INFO | Worker | [CLEAR] LOAD_38.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:29,526 | INFO | Worker | [CLEAR] LOAD_40.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:29,740 | INFO | Worker | [CLEAR] LOAD_2.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:29,740 | WARNING | Worker | [ALERT] LOAD_2.S1 HIGH
+2026-09-18 13:19:29,900 | WARNING | Worker | [ALERT] LOAD_4.S0 HIGH
+2026-09-18 13:19:30,058 | WARNING | Worker | [ALERT] LOAD_5.S1 HIGH
+2026-09-18 13:19:30,273 | INFO | Worker | [CLEAR] LOAD_8.S0 no longer HIGH
+2026-09-18 13:19:30,635 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:19:30,635 | INFO | Publisher | MQTT connected (after 3 retries, 42.7s)
+2026-09-18 13:19:30,646 | INFO | Worker | [CLEAR] LOAD_12.S0 no longer HIGH
+2026-09-18 13:19:31,556 | INFO | Worker | [CLEAR] LOAD_20.S0 no longer HIGH
+2026-09-18 13:19:31,768 | WARNING | Worker | [ALERT] LOAD_22.S0 HIGH
+2026-09-18 13:19:32,141 | INFO | Worker | [CLEAR] LOAD_26.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:32,198 | INFO | Worker | [CLEAR] LOAD_27.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:32,625 | INFO | Worker | [CLEAR] LOAD_31.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:32,636 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure
+2026-09-18 13:19:32,636 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:19:32,636 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 6.2s
+2026-09-18 13:19:32,643 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 13:19:32,644 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-18 13:19:32,944 | INFO | Worker | [CLEAR] LOAD_35.S2 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:33,104 | INFO | Worker | [CLEAR] LOAD_37.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:33,267 | WARNING | Worker | [ALERT] LOAD_38.S0 HIGH
+2026-09-18 13:19:33,320 | WARNING | Worker | [ALERT] LOAD_40.S0 HIGH
+2026-09-18 13:19:33,691 | INFO | Worker | [CLEAR] LOAD_4.S0 no longer HIGH
+2026-09-18 13:19:33,801 | INFO | Worker | [CLEAR] LOAD_5.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:34,013 | INFO | Worker | [CLEAR] LOAD_9.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:34,779 | INFO | SystemPublisher | Connecting MQTT...
+2026-09-18 13:19:34,779 | ERROR | SystemPublisher | MQTT connect failed: simulated AWS/network failure - retrying in 22.0s
+2026-09-18 13:19:34,816 | WARNING | Worker | [ALERT] LOAD_16.S0 HIGH
+2026-09-18 13:19:35,138 | WARNING | Worker | [ALERT] LOAD_18.S0 HIGH
+2026-09-18 13:19:35,296 | INFO | Worker | [CLEAR] LOAD_20.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:35,511 | INFO | Worker | [CLEAR] LOAD_22.S0 no longer HIGH
+2026-09-18 13:19:35,830 | INFO | Worker | [CLEAR] LOAD_25.S0 no longer HIGH
+2026-09-18 13:19:35,938 | WARNING | Worker | [ALERT] LOAD_26.S1 HIGH
+2026-09-18 13:19:36,045 | WARNING | Worker | [ALERT] LOAD_27.S0 HIGH
+2026-09-18 13:19:36,634 | INFO | Worker | [CLEAR] LOAD_34.S0 no longer HIGH
+2026-09-18 13:19:36,795 | WARNING | Worker | [ALERT] LOAD_35.S2 HIGH
+2026-09-18 13:19:37,006 | WARNING | Worker | [ALERT] LOAD_37.S0 HIGH
+2026-09-18 13:19:37,488 | WARNING | Worker | [ALERT] LOAD_2.S0 HIGH
+2026-09-18 13:19:37,809 | WARNING | Worker | [ALERT] LOAD_5.S1 HIGH
+2026-09-18 13:19:38,076 | WARNING | Worker | [ALERT] LOAD_9.S0 HIGH
+2026-09-18 13:19:38,129 | INFO | Worker | [CLEAR] LOAD_10.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:38,235 | WARNING | Worker | [ALERT] LOAD_11.S1 HIGH
+2026-09-18 13:19:38,717 | INFO | Worker | [CLEAR] LOAD_15.S1 no longer HIGH
+2026-09-18 13:19:38,718 | WARNING | Worker | [ALERT] LOAD_15.S2 HIGH
+2026-09-18 13:19:38,811 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:19:38,812 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 11.4s
+2026-09-18 13:19:39,305 | WARNING | Worker | [ALERT] LOAD_20.S1 HIGH
+2026-09-18 13:19:40,001 | INFO | Worker | [CLEAR] LOAD_27.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:40,321 | WARNING | Worker | [ALERT] LOAD_31.S0 HIGH
+2026-09-18 13:19:40,480 | INFO | Worker | [CLEAR] LOAD_34.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:41,282 | INFO | Worker | [CLEAR] LOAD_3.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:41,498 | INFO | Worker | [CLEAR] LOAD_5.S1 no longer HIGH
+2026-09-18 13:19:41,924 | WARNING | Worker | [ALERT] LOAD_10.S2 HIGH
+2026-09-18 13:19:41,977 | INFO | Worker | [CLEAR] LOAD_11.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:42,193 | INFO | Worker | [CLEAR] LOAD_13.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:42,299 | WARNING | Worker | [ALERT] LOAD_14.S1 HIGH
+2026-09-18 13:19:42,514 | INFO | Worker | [CLEAR] LOAD_16.S1 no longer HIGH
+2026-09-18 13:19:42,937 | INFO | Worker | [CLEAR] LOAD_19.S2 no longer HIGH
+2026-09-18 13:19:43,580 | INFO | Worker | [CLEAR] LOAD_26.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:43,690 | WARNING | Worker | [ALERT] LOAD_27.S0 HIGH
+2026-09-18 13:19:44,277 | WARNING | Worker | [ALERT] LOAD_34.S1 HIGH
+2026-09-18 13:19:44,759 | INFO | Worker | [CLEAR] LOAD_38.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:44,760 | INFO | Worker | [CLEAR] LOAD_40.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:45,024 | WARNING | Worker | [ALERT] LOAD_3.S0 HIGH
+2026-09-18 13:19:45,613 | INFO | Worker | [CLEAR] LOAD_10.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:45,718 | WARNING | Worker | [ALERT] LOAD_11.S1 HIGH
+2026-09-18 13:19:45,934 | WARNING | Worker | [ALERT] LOAD_13.S0 HIGH
+2026-09-18 13:19:46,256 | WARNING | Worker | [ALERT] LOAD_16.S1 HIGH
+2026-09-18 13:19:46,414 | WARNING | Worker | [ALERT] LOAD_17.S0 HIGH
+2026-09-18 13:19:46,525 | INFO | Worker | [CLEAR] LOAD_18.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:46,788 | WARNING | Worker | [ALERT] LOAD_20.S0 HIGH
+2026-09-18 13:19:47,483 | INFO | Worker | [CLEAR] LOAD_28.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:47,914 | WARNING | Worker | [ALERT] LOAD_33.S0 HIGH
+2026-09-18 13:19:48,657 | WARNING | Worker | [ALERT] LOAD_40.S0 HIGH
+2026-09-18 13:19:49,248 | INFO | Worker | [CLEAR] LOAD_8.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:49,249 | INFO | Worker | [CLEAR] LOAD_9.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:49,405 | WARNING | Worker | [ALERT] LOAD_10.S2 HIGH
+2026-09-18 13:19:49,514 | WARNING | Worker | [ALERT] LOAD_11.S0 HIGH
+2026-09-18 13:19:50,205 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:19:50,205 | INFO | Publisher | MQTT connected (after 2 retries, 17.6s)
+2026-09-18 13:19:50,262 | INFO | Worker | [CLEAR] LOAD_17.S0 no longer HIGH
+2026-09-18 13:19:50,634 | INFO | Worker | [CLEAR] LOAD_20.S0 no longer HIGH
+2026-09-18 13:19:51,206 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure
+2026-09-18 13:19:51,207 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:19:51,207 | INFO | Publisher | MQTT connected
+2026-09-18 13:19:51,493 | WARNING | Worker | [ALERT] LOAD_28.S0 HIGH
+2026-09-18 13:19:51,704 | INFO | Worker | [CLEAR] LOAD_31.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:52,455 | WARNING | Worker | [ALERT] LOAD_38.S2 HIGH
+2026-09-18 13:19:52,776 | INFO | Worker | [CLEAR] LOAD_2.S2 no longer HIGH
+2026-09-18 13:19:52,777 | INFO | Worker | [CLEAR] LOAD_3.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:53,042 | WARNING | Worker | [ALERT] LOAD_5.S1 HIGH
+2026-09-18 13:19:53,151 | WARNING | Worker | [ALERT] LOAD_9.S0 HIGH
+2026-09-18 13:19:53,209 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure
+2026-09-18 13:19:53,209 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:19:53,210 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 3.8s
+2026-09-18 13:19:53,526 | WARNING | Worker | [ALERT] LOAD_12.S0 HIGH
+2026-09-18 13:19:53,953 | INFO | Worker | [CLEAR] LOAD_16.S1 no longer HIGH
+2026-09-18 13:19:54,378 | WARNING | Worker | [ALERT] LOAD_19.S0 HIGH
+2026-09-18 13:19:56,250 | INFO | Worker | [CLEAR] LOAD_40.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:56,518 | WARNING | Worker | [ALERT] LOAD_3.S0 HIGH
+2026-09-18 13:19:56,751 | INFO | SystemPublisher | Connecting MQTT...
+2026-09-18 13:19:56,752 | ERROR | SystemPublisher | MQTT connect failed: simulated AWS/network failure - retrying in 42.4s
+2026-09-18 13:19:56,947 | WARNING | Worker | [ALERT] LOAD_8.S0 HIGH
+2026-09-18 13:19:56,948 | WARNING | Worker | [ALERT] LOAD_8.S1 HIGH
+2026-09-18 13:19:57,020 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:19:57,020 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 12.8s
+2026-09-18 13:19:57,534 | INFO | Worker | [CLEAR] LOAD_13.S0 no longer HIGH
+2026-09-18 13:19:57,640 | WARNING | Worker | [ALERT] LOAD_14.S0 HIGH
+2026-09-18 13:19:57,646 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 13:19:57,648 | ERROR | ConfigWatcher | Watcher error: Invalid config: 'modbus' section is missing required key(s): ['port']
+2026-09-18 13:19:57,803 | INFO | Worker | [CLEAR] LOAD_15.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:58,817 | WARNING | Worker | [ALERT] LOAD_23.S0 HIGH
+2026-09-18 13:19:59,085 | INFO | Worker | [CLEAR] LOAD_27.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:19:59,194 | INFO | Worker | [CLEAR] LOAD_28.S0 no longer HIGH
+2026-09-18 13:19:59,515 | WARNING | Worker | [ALERT] LOAD_31.S0 HIGH
+2026-09-18 13:19:59,833 | INFO | Worker | [CLEAR] LOAD_35.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:19:59,996 | WARNING | Worker | [ALERT] LOAD_36.S2 HIGH
+2026-09-18 13:20:00,102 | INFO | Worker | [CLEAR] LOAD_38.S2 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:20:00,207 | WARNING | Worker | [ALERT] LOAD_40.S0 HIGH
+2026-09-18 13:20:01,067 | INFO | Worker | [CLEAR] LOAD_10.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:20:01,119 | INFO | Worker | [CLEAR] LOAD_11.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:20:01,651 | WARNING | Worker | [ALERT] LOAD_15.S2 HIGH
+2026-09-18 13:20:01,918 | WARNING | Worker | [ALERT] LOAD_17.S2 HIGH
+2026-09-18 13:20:02,613 | INFO | Worker | [CLEAR] LOAD_23.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:20:02,614 | WARNING | Worker | [ALERT] LOAD_23.S1 HIGH
+2026-09-18 13:20:02,648 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 13:20:02,652 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-18 13:20:03,309 | INFO | Worker | [CLEAR] LOAD_31.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:20:03,683 | WARNING | Worker | [ALERT] LOAD_35.S2 HIGH
+2026-09-18 13:20:04,061 | WARNING | Worker | [ALERT] LOAD_38.S2 HIGH
+2026-09-18 13:20:04,327 | INFO | Worker | [CLEAR] LOAD_3.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:20:04,541 | INFO | Worker | [CLEAR] LOAD_5.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:20:04,965 | WARNING | Worker | [ALERT] LOAD_10.S2 HIGH
+2026-09-18 13:20:05,074 | WARNING | Worker | [ALERT] LOAD_11.S1 HIGH
+2026-09-18 13:20:05,341 | INFO | Worker | [CLEAR] LOAD_14.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:20:05,343 | INFO | WifiMonitor | WiFi connected
+2026-09-18 13:20:05,929 | WARNING | Worker | [ALERT] LOAD_18.S0 HIGH
+2026-09-18 13:20:07,375 | INFO | Worker | [CLEAR] LOAD_33.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:20:07,590 | WARNING | Worker | [ALERT] LOAD_35.S0 HIGH
+2026-09-18 13:20:07,590 | INFO | Worker | [CLEAR] LOAD_35.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:20:07,696 | INFO | Worker | [CLEAR] LOAD_37.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:20:08,179 | WARNING | Worker | [ALERT] LOAD_3.S0 HIGH
+2026-09-18 13:20:08,443 | INFO | Worker | [CLEAR] LOAD_6.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:20:08,712 | INFO | Worker | [CLEAR] LOAD_10.S2 no longer HIGH
+2026-09-18 13:20:09,032 | INFO | Worker | [CLEAR] LOAD_13.S2 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:20:09,136 | WARNING | Worker | [ALERT] LOAD_14.S0 HIGH
+2026-09-18 13:20:09,298 | WARNING | Worker | [ALERT] LOAD_15.S1 HIGH
+2026-09-18 13:20:09,351 | INFO | Worker | [CLEAR] LOAD_16.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:20:09,456 | INFO | Worker | [CLEAR] LOAD_17.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:20:09,847 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:20:09,847 | ERROR | Publisher | MQTT connect failed: simulated AWS/network failure - retrying in 22.6s
+2026-09-18 13:20:09,847 | CRITICAL | Publisher | MQTT has not connected in 17s (reboot_after=8.0s) - rebooting the system
+2026-09-18 13:20:09,848 | CRITICAL | Publisher | Refusing to reboot: 3 reboots already happened in the last 3600s (limit 3) - a reboot isn't fixing this, so giving up on rebooting and letting connect() keep retrying on its own instead
+2026-09-18 13:20:10,344 | WARNING | WifiMonitor | WiFi disconnected
+2026-09-18 13:20:10,344 | ERROR | WifiMonitor | WiFi unreachable - retrying in 4.7s
+2026-09-18 13:20:10,952 | WARNING | Worker | [ALERT] LOAD_31.S0 HIGH
+2026-09-18 13:20:11,061 | WARNING | Worker | [ALERT] LOAD_33.S0 HIGH
+2026-09-18 13:20:11,167 | INFO | Worker | [CLEAR] LOAD_34.S1 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:20:11,326 | WARNING | Worker | [ALERT] LOAD_35.S2 HIGH
+2026-09-18 13:20:11,489 | INFO | Worker | [CLEAR] LOAD_36.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:20:11,542 | WARNING | Worker | [ALERT] LOAD_37.S0 HIGH
+2026-09-18 13:20:11,811 | INFO | Worker | [CLEAR] LOAD_40.S0 no longer HIGH
+2026-09-18 13:20:11,864 | INFO | Worker | [CLEAR] LOAD_1.S0 no longer HIGH
+2026-09-18 13:20:12,021 | INFO | Worker | [CLEAR] LOAD_2.S1 no longer HIGH
+2026-09-18 13:20:12,289 | WARNING | Worker | [ALERT] LOAD_5.S0 HIGH
+2026-09-18 13:20:12,342 | WARNING | Worker | [ALERT] LOAD_6.S0 HIGH
+2026-09-18 13:20:12,719 | INFO | Worker | [CLEAR] LOAD_11.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:20:12,983 | WARNING | Worker | [ALERT] LOAD_13.S2 HIGH
+2026-09-18 13:20:13,361 | WARNING | Worker | [ALERT] LOAD_16.S0 HIGH
+2026-09-18 13:20:13,361 | WARNING | Worker | [ALERT] LOAD_16.S1 HIGH
+2026-09-18 13:20:15,021 | INFO | WifiMonitor | WiFi connected
+2026-09-18 13:20:15,123 | INFO | Worker | [CLEAR] LOAD_33.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:20:15,233 | WARNING | Worker | [ALERT] LOAD_34.S0 HIGH
+2026-09-18 13:20:15,339 | INFO | Worker | [CLEAR] LOAD_35.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:20:15,497 | WARNING | Worker | [ALERT] LOAD_36.S2 HIGH
+2026-09-18 13:20:16,034 | WARNING | Worker | [ALERT] LOAD_2.S2 HIGH
+2026-09-18 13:20:16,462 | WARNING | Worker | [ALERT] LOAD_7.S0 HIGH
+2026-09-18 13:20:16,782 | WARNING | Worker | [ALERT] LOAD_10.S2 HIGH
+2026-09-18 13:20:16,888 | WARNING | Worker | [ALERT] LOAD_11.S0 HIGH
+2026-09-18 13:20:17,851 | WARNING | Worker | [ALERT] LOAD_18.S1 HIGH
+2026-09-18 13:20:18,010 | INFO | Worker | [CLEAR] LOAD_19.S0 no longer HIGH
+2026-09-18 13:20:18,174 | WARNING | Worker | [ALERT] LOAD_21.S0 HIGH
+2026-09-18 13:20:18,496 | INFO | Worker | [CLEAR] LOAD_23.S1 no longer HIGH
+2026-09-18 13:20:19,082 | WARNING | Worker | [ALERT] LOAD_29.S1 HIGH
+2026-09-18 13:20:19,831 | WARNING | Worker | [ALERT] LOAD_38.S0 HIGH
+2026-09-18 13:20:19,831 | INFO | Worker | [CLEAR] LOAD_38.S2 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:20:20,151 | INFO | Worker | [CLEAR] LOAD_3.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:20:20,794 | INFO | Worker | [CLEAR] LOAD_10.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:20:21,167 | INFO | Worker | [CLEAR] LOAD_14.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:20:21,704 | INFO | Worker | [CLEAR] LOAD_18.S0 no longer HIGH
+2026-09-18 13:20:21,971 | INFO | Worker | [CLEAR] LOAD_21.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:20:22,653 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 13:20:22,655 | ERROR | ConfigWatcher | Watcher error: Invalid config: LOAD_1.S0: Unsupported type 'not_a_real_type'
+2026-09-18 13:20:23,147 | WARNING | Worker | [ALERT] LOAD_33.S0 HIGH
+2026-09-18 13:20:23,305 | WARNING | Worker | [ALERT] LOAD_35.S0 HIGH
+2026-09-18 13:20:23,306 | INFO | Worker | [CLEAR] LOAD_35.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:20:23,683 | WARNING | Worker | [ALERT] LOAD_38.S2 HIGH
+2026-09-18 13:20:24,003 | INFO | Worker | [CLEAR] LOAD_2.S2 no longer HIGH
+2026-09-18 13:20:24,057 | WARNING | Worker | [ALERT] LOAD_3.S0 HIGH
+2026-09-18 13:20:24,378 | INFO | Worker | [CLEAR] LOAD_7.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:20:24,481 | INFO | Worker | [CLEAR] LOAD_9.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:20:24,536 | WARNING | Worker | [ALERT] LOAD_10.S1 HIGH
+2026-09-18 13:20:24,855 | INFO | Worker | [CLEAR] LOAD_13.S2 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:20:24,965 | WARNING | Worker | [ALERT] LOAD_14.S0 HIGH
+2026-09-18 13:20:24,966 | INFO | Worker | [CLEAR] LOAD_14.S1 no longer HIGH
+2026-09-18 13:20:25,818 | INFO | Worker | [CLEAR] LOAD_20.S1 no longer HIGH
+2026-09-18 13:20:25,875 | WARNING | Worker | [ALERT] LOAD_21.S0 HIGH
+2026-09-18 13:20:26,249 | WARNING | Worker | [ALERT] LOAD_24.S0 HIGH
+2026-09-18 13:20:26,733 | WARNING | Worker | [ALERT] LOAD_29.S0 HIGH
+2026-09-18 13:20:27,264 | WARNING | Worker | [ALERT] LOAD_35.S2 HIGH
+2026-09-18 13:20:27,655 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 13:20:27,658 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-18 13:20:28,387 | WARNING | Worker | [ALERT] LOAD_7.S0 HIGH
+2026-09-18 13:20:28,708 | WARNING | Worker | [ALERT] LOAD_10.S2 HIGH
+2026-09-18 13:20:29,083 | WARNING | Worker | [ALERT] LOAD_13.S2 HIGH
+2026-09-18 13:20:29,992 | INFO | Worker | [CLEAR] LOAD_21.S0 no longer HIGH
+2026-09-18 13:20:31,008 | INFO | Worker | [CLEAR] LOAD_31.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:20:31,009 | INFO | Worker | [CLEAR] LOAD_31.S2 no longer HIGH
+2026-09-18 13:20:31,062 | INFO | Worker | [CLEAR] LOAD_33.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:20:31,434 | INFO | Worker | [CLEAR] LOAD_37.S0 no longer HIGH (status=EXCEPTION)
+2026-09-18 13:20:31,543 | INFO | Worker | [CLEAR] LOAD_38.S0 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:20:32,429 | INFO | Publisher | Connecting MQTT...
+2026-09-18 13:20:32,429 | INFO | Publisher | MQTT connected (after 3 retries, 39.2s)
+2026-09-18 13:20:32,772 | INFO | Worker | [CLEAR] LOAD_12.S0 no longer HIGH
+2026-09-18 13:20:33,148 | INFO | Worker | [CLEAR] LOAD_15.S1 no longer HIGH (status=BUS_ERROR)
+2026-09-18 13:20:33,575 | INFO | Worker | [CLEAR] LOAD_18.S1 no longer HIGH
+2026-09-18 14:37:22,099 | INFO | MainThread | Log level: INFO (set AKVO_LOG_LEVEL to change, e.g. AKVO_LOG_LEVEL=DEBUG)
+2026-09-18 14:37:22,100 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-18 14:37:22,101 | INFO | ModbusConnect | Connecting Modbus (/tmp/akvo_edge_node_master)...
+2026-09-18 14:37:22,101 | INFO | ModbusConnect | Modbus connected
+2026-09-18 14:37:22,101 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-18 14:37:22,101 | INFO | Thread-1 (start) | MQTT connected
+2026-09-18 14:37:22,104 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 14:37:22,104 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-18 14:37:22,132 | INFO | WifiConnect | WiFi connected
+2026-09-18 14:37:27,100 | INFO | MainThread | Stopping Edge Node
+2026-09-18 14:37:27,101 | INFO | MainThread | MQTT disconnected
+2026-09-18 14:37:27,101 | INFO | MainThread | Modbus disconnected
+2026-09-18 14:37:27,101 | INFO | MainThread | WiFi disconnected
+2026-09-18 14:37:28,004 | INFO | MainThread | Log level: INFO (set AKVO_LOG_LEVEL to change, e.g. AKVO_LOG_LEVEL=DEBUG)
+2026-09-18 14:37:28,005 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-18 14:37:28,006 | INFO | ModbusConnect | Connecting Modbus (/tmp/akvo_edge_node_master)...
+2026-09-18 14:37:28,006 | INFO | ModbusConnect | Modbus connected
+2026-09-18 14:37:28,006 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-18 14:37:28,007 | INFO | Thread-1 (start) | MQTT connected
+2026-09-18 14:37:28,009 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 14:37:28,010 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-18 14:37:28,036 | INFO | WifiConnect | WiFi connected
+2026-09-18 14:37:31,005 | INFO | MainThread | Stopping Edge Node
+2026-09-18 14:37:31,006 | INFO | MainThread | MQTT disconnected
+2026-09-18 14:37:31,006 | INFO | MainThread | Modbus disconnected
+2026-09-18 14:37:31,006 | INFO | MainThread | WiFi disconnected
+2026-09-18 14:48:00,659 | INFO | MainThread | Log level: INFO (set AKVO_LOG_LEVEL to change, e.g. AKVO_LOG_LEVEL=DEBUG)
+2026-09-18 14:48:00,660 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-18 14:48:00,660 | INFO | ModbusConnect | Connecting Modbus (/tmp/akvo_edge_node_master)...
+2026-09-18 14:48:00,661 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-18 14:48:00,662 | INFO | Thread-1 (start) | MQTT connected
+2026-09-18 14:48:00,662 | INFO | ModbusConnect | Modbus connected
+2026-09-18 14:48:00,664 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 14:48:00,665 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-18 14:48:00,675 | INFO | WifiConnect | WiFi connected

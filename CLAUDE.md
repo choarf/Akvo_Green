@@ -10,14 +10,14 @@ Akvo Green (aka Venko Green) is an industrial IoT edge gateway: it polls Modbus 
 
 Repo dependencies (`pymodbus`, `pyserial`, `psutil`, `awsiotsdk`) are on the system `python3`/`pip3` in this dev environment, not in a project-local venv — use `python3`/`pip3` directly rather than assuming a venv is active.
 
-**Build/export the runtime config** (from `src/Venko_Green/`):
+**Build/export the runtime config** (from `src/`):
 ```bash
 python3 config_manager.py build            # devices.csv/modbus.csv/system.csv/aws.csv -> config.json
 python3 config_manager.py build --dry-run  # validate + print, don't write
 python3 config_manager.py export           # config.json -> the four CSVs
 ```
 
-**Run the gateway** (from `src/Venko_Green/`): `python3 edge_node_improved.py`. Editing the CSVs (via `build`) or `config.json` directly triggers a live reload — no restart needed.
+**Run the gateway** (from `src/`): `python3 edge_node_improved.py`. Editing the CSVs (via `build`) or `config.json` directly triggers a live reload — no restart needed. Both commands above always read/write `config_data/` at the **repo root**, regardless of what directory they're run from (see Architecture's Config pipeline note).
 
 **Testing** — four independent suites, no single top-level test command:
 
@@ -38,7 +38,7 @@ No lint/format tooling (flake8/black/ruff/mypy) is configured in this repo.
 
 ## Architecture
 
-**`edge_node_improved.py`** (in both `src/Venko_Green/` and duplicated at `src/` — see Known gaps) is the engine, built from small composable classes:
+**`edge_node_improved.py`** (in `src/`) is the engine, built from small composable classes:
 
 - `ConfigManager` — thread-safe holder for the loaded `config.json`; `load()`/`reload()` validate against `config/schema.py` and raise on failure, so a bad hand-edited `config.json` is rejected immediately (at construction, or at the next `config_watcher` tick, keeping the last-good config) instead of surfacing later as a scattered error in whichever thread hits the missing field first.
 - `ModbusManager` — one `ModbusSerialClient`, RLock-guarded (pymodbus serial clients aren't thread-safe); `connect()` retries forever with exponential backoff (5s→60s cap, jittered).
@@ -48,11 +48,11 @@ No lint/format tooling (flake8/black/ruff/mypy) is configured in this repo.
 - `SensorNode`/`DeviceNode` — one sensor/device each; `SensorNode.read()` delegates register decoding to `domain/sensors.py`'s decoder registry (see below); `DeviceNode` tracks alarm state per sensor so `[ALERT]`/`[CLEAR]` log lines fire only on transition, not every poll cycle.
 - `EdgeNode` — owns everything above and runs seven daemon threads: `scheduler` (queues devices for polling on `poll_interval`), `worker` (single consumer draining the queue — single-threaded because the serial bus is inherently sequential anyway; also the sole heartbeat source for `watchdog`), `publisher` (device snapshots → `aws.topic_pub`), `system_publisher` (CPU/RAM/disk/IP → `aws.topic_system`), `config_watcher` (polls `config.json`'s mtime every 5s and live-reloads), `watchdog` (via its own `_RebootEscalator` instance, `reset()` on every heartbeat advance and `check()` every 5s tick — reboots, same as the three communication managers, if `worker` stalls past `gateway.watchdog_timeout`), and `WifiMonitor` (runs `WifiManager.monitor()`).
 
-**`config/schema.py`** (also duplicated `src/Venko_Green/` + `src/`) is the single source of truth for what a valid `config.json` looks like — `validate(config) -> (errors, warnings)`, checked by *both* `config_manager.py`'s CSV build (`ConfigManager.validate()`) and `edge_node_improved.py`'s runtime `ConfigManager.load()`/`reload()`. Before this existed, only the build side validated anything; a hand-edited `config.json` that skipped `config_manager.py` had zero validation.
+**`config/schema.py`** is the single source of truth for what a valid `config.json` looks like — `validate(config) -> (errors, warnings)`, checked by *both* `config_manager.py`'s CSV build (`ConfigManager.validate()`) and `edge_node_improved.py`'s runtime `ConfigManager.load()`/`reload()`. Before this existed, only the build side validated anything; a hand-edited `config.json` that skipped `config_manager.py` had zero validation.
 
-**`domain/sensors.py`** (same duplication) holds the sensor-type decoder registry (`DECODERS: dict[str, SensorDecoder]`) and `decode(sensor_type, registers, scale, offset)`. Adding a new sensor type means adding one `SensorDecoder` subclass and registering it here, not editing an if/else in `SensorNode.read()`. `config/schema.py`'s `VALID_SENSOR_TYPES`/`MULTI_REGISTER_TYPES` are derived from this registry (`set(DECODERS)` / decoders with `register_count >= 2`), not hardcoded separately.
+**`domain/sensors.py`** holds the sensor-type decoder registry (`DECODERS: dict[str, SensorDecoder]`) and `decode(sensor_type, registers, scale, offset)`. Adding a new sensor type means adding one `SensorDecoder` subclass and registering it here, not editing an if/else in `SensorNode.read()`. `config/schema.py`'s `VALID_SENSOR_TYPES`/`MULTI_REGISTER_TYPES` are derived from this registry (`set(DECODERS)` / decoders with `register_count >= 2`), not hardcoded separately.
 
-**Config pipeline**: `config_manager.py` builds `config.json` from four CSVs — `devices.csv` (rows grouped by `device_id` into one device with multiple sensors), `modbus.csv`, `system.csv`, `aws.csv` — then validates the fully-assembled config via `config/schema.py` before writing (or before printing, for `--dry-run`). `config.json` can also be hand-edited directly; it's validated the same way either way. Live-reload in `edge_node_improved.py` is selective: it only reconnects Modbus/MQTT if that specific config section's hash actually changed, and only rebuilds devices whose config differs (unchanged devices keep their `DeviceNode` instance, and thus their cache/alarm history).
+**Config pipeline**: `config_manager.py` builds `config.json` from four CSVs — `devices.csv` (rows grouped by `device_id` into one device with multiple sensors), `modbus.csv`, `system.csv`, `aws.csv` — then validates the fully-assembled config via `config/schema.py` before writing (or before printing, for `--dry-run`). `config.json` and the four CSVs live in `config_data/` at the **repo root** (`config_manager.py`'s `REPO_ROOT`/`CONFIG_DIR`) — not nested under `src/` — specifically so the real gateway and every test suite (`tests/edge_node_mock/run_edge_node_test.py`/`stress_test.py`/`mock_devices_slave.py`, which all default to reading it too) read and build from the exact same file. `config.json` can also be hand-edited directly; it's validated the same way either way. `edge_node_improved.py` resolves both this path and `aws.{ca,cert,key}` against stable anchors (`REPO_ROOT`/`BASE_DIR`, both `Path(__file__).resolve().parent`-derived) rather than the process's working directory, so a manual run from the wrong directory doesn't break either. Live-reload in `edge_node_improved.py` is selective: it only reconnects Modbus/MQTT if that specific config section's hash actually changed, and only rebuilds devices whose config differs (unchanged devices keep their `DeviceNode` instance, and thus their cache/alarm history).
 
 **Sensor types**: only `float`/`float32` apply `scale`/`offset`; `int`/`uint16`/`uint32`/`int32` are read raw. The 32-bit types combine two consecutive holding registers in big-endian word order (`registers[0]` = high 16 bits) — an assumption, not auto-detected; a device using the opposite word order needs `domain/sensors.py::_combine_32bit()` flipped.
 
@@ -60,6 +60,6 @@ No lint/format tooling (flake8/black/ruff/mypy) is configured in this repo.
 
 - `docs/README.md` is the actual README (moved here from the repo root); its links to `docs/Modbus_client/...` are broken — that directory is currently at `docs/ppModbus_client/` on disk.
 - `src/main_modbus.py`, `src/modbus_client.py`, and `src/utils/logger.py` — the standalone Modbus client library `docs/ppModbus_client/` documents — do not currently exist anywhere in this repo (only separate, simpler mock-test copies live under `tests/akvo_modbus_mock/` and `tests/test_modbus_client/.../`). Check git history (pre-dates commit `4562ed9`) if they need restoring.
-- `edge_node_improved.py`, `config_manager.py`, and the `config/`/`domain/` packages all currently exist as two manually-synced copies (`src/Venko_Green/` and `src/`, duplicated by an earlier external reorg) — there is no build step linking them, so a source change must be applied to both (`cp` the file/dir over), or the copies will silently diverge.
-- AWS IoT certs live under `src/certs/` and `src/Venko_Green/certs/` (gitignored via `*.pem`/`*.key`/`*.crt` — never commit these, and never open the real ones for a task that doesn't need them).
+- AWS IoT certs live under `src/certs/` (gitignored via `*.pem`/`*.key`/`*.crt` — never commit these, and never open the real ones for a task that doesn't need them).
+- `src/certs/wifi_lib.py` and `src/certs/mainAkvo.py` are unused legacy scripts (not imported by anything) left over from an earlier reorg; `wifi_lib.py` contains a hardcoded WiFi SSID/password in plaintext, already committed to git history. A sibling copy of both once existed at the top-level `src/` (deleted, along with that whole then-unused duplicate tree) — these two survived because they lived under `src/Venko_Green/certs/` specifically, which is why deleting the duplicate didn't catch them.
 - None of the four `*_reboot_timeout`/`watchdog_timeout` settings are set in `config.json` today, so `_default_reboot_fn` (real `sudo reboot`) is dormant until a deployment opts in.

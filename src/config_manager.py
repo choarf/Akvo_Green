@@ -32,7 +32,11 @@ from config.schema import validate as validate_config
 # ------------------------------------------------------------------
 
 BASE_DIR = Path(__file__).resolve().parent
-CONFIG_DIR = BASE_DIR / "config_data"
+# config_data/ is centralized at the repo root (not under src/) so both the
+# real gateway and every test suite read/write the exact same config.json -
+# src/ is one level down from the repo root (.../<repo>/src/config_manager.py).
+REPO_ROOT = BASE_DIR.parent
+CONFIG_DIR = REPO_ROOT / "config_data"
 
 CONFIG_JSON = CONFIG_DIR / "config.json"
 

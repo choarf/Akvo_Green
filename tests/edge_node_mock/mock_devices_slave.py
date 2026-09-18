@@ -4,9 +4,9 @@ Multi-slave Modbus RTU mock server driven by an edge-node config.json.
 
 edge_node_improved.py polls several devices (slave IDs) over a single shared
 RS-485 bus. This script mirrors that: it reads the "devices" section of a
-Venko_Green-style config.json and serves every enabled device's slave ID and
-sensor registers on ONE virtual serial port, the way real slaves would share
-one bus. Sensor values drift randomly within (and occasionally outside) each
+Venko-Green-style config.json (the edge gateway's own config shape) and
+serves every enabled device's slave ID and sensor registers on ONE virtual
+serial port, the way real slaves would share one bus. Sensor values drift randomly within (and occasionally outside) each
 sensor's configured min/max so alarm evaluation (HIGH/LOW) and error handling
 (BUS_ERROR/EXCEPTION for an unreachable slave) can be exercised without
 physical hardware.
@@ -17,7 +17,7 @@ implemented so the same mock can double as a generic register sandbox.
 
 Usage:
     python3 mock_devices_slave.py --port /tmp/akvo_edge_node_slave \\
-        --config ../../src/Venko_Green/config_data/config.json
+        --config ../../config_data/config.json
 
 Pair with a virtual serial link (see tests/akvo_modbus_mock/start_virtual_serial.sh
 or run_edge_node_test.py, which sets one up automatically), and point the
@@ -270,8 +270,7 @@ def main() -> None:
     parser.add_argument(
         "--config",
         default=str(
-            Path(__file__).resolve().parents[2]
-            / "src" / "Venko_Green" / "config_data" / "config.json"
+            Path(__file__).resolve().parents[2] / "config_data" / "config.json"
         ),
         help="Edge-node config.json to source devices/slaves/sensors from",
     )
