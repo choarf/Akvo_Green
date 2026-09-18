@@ -656,3 +656,42 @@
 2026-09-10 20:49:33,536 | ERROR | ModbusConnect | Modbus connect error: Connection failed
 2026-09-10 20:49:38,537 | ERROR | ModbusConnect | Modbus connect error: Connection failed
 2026-09-10 20:49:42,049 | INFO | MainThread | Stopping Edge Node
+2026-09-17 18:47:10,610 | INFO | MainThread | Starting Edge Node
+2026-09-17 18:47:10,618 | INFO | MainThread | Connecting MQTT...
+2026-09-17 18:47:10,619 | ERROR | ModbusConnect | Modbus connect error: Connection failed - retrying in 5.9s
+2026-09-17 18:47:10,643 | INFO | WifiConnect | WiFi connected
+2026-09-17 18:47:10,912 | INFO | MainThread | MQTT connected
+2026-09-17 18:47:10,916 | INFO | ConfigWatcher | Reloading config...
+2026-09-17 18:47:16,514 | ERROR | ModbusConnect | Modbus connect error: Connection failed - retrying in 12.7s
+2026-09-17 19:46:36,244 | INFO | MainThread | Log level: DEBUG (set AKVO_LOG_LEVEL to change, e.g. AKVO_LOG_LEVEL=DEBUG)
+2026-09-17 19:46:36,245 | INFO | MainThread | Starting Edge Node
+2026-09-17 19:46:36,245 | INFO | ModbusConnect | Connecting Modbus (/dev/ttyUSB0)...
+2026-09-17 19:46:36,245 | INFO | MainThread | Connecting MQTT...
+2026-09-17 19:46:36,247 | ERROR | ModbusConnect | Modbus connect error: Connection failed - retrying in 5.8s
+2026-09-17 19:46:36,269 | INFO | WifiConnect | WiFi connected
+2026-09-17 19:46:36,528 | INFO | MainThread | MQTT connected
+2026-09-17 19:46:36,529 | DEBUG | Scheduler | Scheduler: queued 2 device(s), qsize=2, next in 20s
+2026-09-17 19:46:36,530 | DEBUG | Worker | Sensor Presion2 (slave=4, addr=4): EXCEPTION Modbus client not yet connected
+2026-09-17 19:46:36,531 | DEBUG | Worker | Sensor Presion2 (slave=5, addr=4): EXCEPTION Modbus client not yet connected
+2026-09-17 19:46:36,532 | INFO | ConfigWatcher | Reloading config...
+2026-09-17 19:46:36,534 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-17 19:46:42,005 | INFO | ModbusConnect | Connecting Modbus (/dev/ttyUSB0)...
+2026-09-17 19:46:42,006 | ERROR | ModbusConnect | Modbus connect error: Connection failed - retrying in 7.5s
+2026-09-17 19:46:49,497 | INFO | ModbusConnect | Connecting Modbus (/dev/ttyUSB0)...
+2026-09-17 19:46:49,498 | ERROR | ModbusConnect | Modbus connect error: Connection failed - retrying in 23.6s
+2026-09-17 19:46:56,530 | DEBUG | Scheduler | Scheduler: queued 2 device(s), qsize=2, next in 20s
+2026-09-17 19:46:56,531 | DEBUG | Worker | Sensor Presion2 (slave=4, addr=4): EXCEPTION Modbus client not yet connected
+2026-09-17 19:46:56,531 | DEBUG | Worker | Sensor Presion2 (slave=5, addr=4): EXCEPTION Modbus client not yet connected
+2026-09-17 19:47:13,114 | INFO | ModbusConnect | Connecting Modbus (/dev/ttyUSB0)...
+2026-09-17 19:47:13,115 | ERROR | ModbusConnect | Modbus connect error: Connection failed - retrying in 47.0s
+2026-09-17 19:47:16,531 | DEBUG | Scheduler | Scheduler: queued 2 device(s), qsize=2, next in 20s
+2026-09-17 19:47:16,531 | DEBUG | Worker | Sensor Presion2 (slave=4, addr=4): EXCEPTION Modbus client not yet connected
+2026-09-17 19:47:16,532 | DEBUG | Worker | Sensor Presion2 (slave=5, addr=4): EXCEPTION Modbus client not yet connected
+2026-09-17 19:47:36,532 | DEBUG | Scheduler | Scheduler: queued 2 device(s), qsize=2, next in 20s
+2026-09-17 19:47:36,532 | DEBUG | Worker | Sensor Presion2 (slave=4, addr=4): EXCEPTION Modbus client not yet connected
+2026-09-17 19:47:36,533 | DEBUG | Worker | Sensor Presion2 (slave=5, addr=4): EXCEPTION Modbus client not yet connected
+2026-09-17 19:47:56,533 | DEBUG | Scheduler | Scheduler: queued 2 device(s), qsize=2, next in 20s
+2026-09-17 19:47:56,533 | DEBUG | Worker | Sensor Presion2 (slave=4, addr=4): EXCEPTION Modbus client not yet connected
+2026-09-17 19:47:56,534 | DEBUG | Worker | Sensor Presion2 (slave=5, addr=4): EXCEPTION Modbus client not yet connected
+2026-09-17 19:48:00,073 | INFO | ModbusConnect | Connecting Modbus (/dev/ttyUSB0)...
+2026-09-17 19:48:00,073 | ERROR | ModbusConnect | Modbus connect error: Connection failed - retrying in 60.2s
