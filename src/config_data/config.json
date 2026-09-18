@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-09-17T22:34:37.788791+00:00",
-        "hash": "896828b9a163ec7f7fe018849cfaccc8"
+        "generated_at": "2026-09-18T15:07:31.625075+00:00",
+        "hash": "5cb051f2100e1bfa3b4ac92e90632a65"
     },
     "gateway": {
         "gateway_id": "AKVO_GW_101",
@@ -35,7 +35,7 @@
             "enabled": true,
             "sensors": [
                 {
-                    "name": "Presion2",
+                    "name": "Presion1",
                     "addr": 4,
                     "count": 1,
                     "scale": 1.0,
