@@ -93,13 +93,28 @@ python3 main_modbus.py
 
 ### Debug logging
 
-Logging defaults to `INFO`. Set `AKVO_LOG_LEVEL` before starting the process for more (or less) detail:
+Logging defaults to `INFO`. Set `AKVO_LOG_LEVEL` before starting the process for more (or less) detail — it's read once at startup, so it needs a (re)start to take effect, not a live-reloadable `config.json` setting:
 
 ```bash
+# Running the real gateway directly (from src/Venko_Green/)
 AKVO_LOG_LEVEL=DEBUG python3 edge_node_improved.py
+
+# Running the mocked integration harness (from tests/edge_node_mock/) -
+# useful to reproduce/debug without touching real hardware
+AKVO_LOG_LEVEL=DEBUG python3 run_edge_node_test.py --duration 30
+
+# Via the repo-root test runner
+AKVO_LOG_LEVEL=DEBUG ./run_tests.sh integration --duration 30
 ```
 
 At `DEBUG`, every sensor read logs its raw registers, decoded value, and alarm result (`Sensor Temp (slave=1, addr=0, type=float): registers=[560] -> val=56.0 alarm=HIGH`), and the scheduler logs its queue depth every cycle — both silent at `INFO`. Accepts any standard level name (`DEBUG`/`INFO`/`WARNING`/`ERROR`/`CRITICAL`); an invalid value falls back to `INFO` with a note in the startup log line.
+
+DEBUG is verbose (one line per sensor per poll cycle) — filter it live, or after the fact from `logs/system.log`:
+
+```bash
+AKVO_LOG_LEVEL=DEBUG python3 edge_node_improved.py 2>&1 | grep "DEV_3"
+grep "Sensor Temp" logs/system.log
+```
 
 ### Exporting config back to CSV
 
