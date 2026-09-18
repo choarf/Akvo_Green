@@ -402,6 +402,20 @@ class MQTTManager:
         # at once).
         self.lock = threading.RLock()
         self._reboot = _RebootEscalator(reboot_after, reboot_fn)
+        # Built once and reused for every connect() attempt over this
+        # manager's whole lifetime (including retries and update_config()'s
+        # reconnects) - a ClientBootstrap/EventLoopGroup is meant to serve
+        # many connections, not be rebuilt per attempt. The previous code
+        # built a fresh pair inside the connect() retry loop, so a slow
+        # AWS endpoint or bad cert leaked one more EventLoopGroup's worth of
+        # native I/O threads per retry, indefinitely - those aren't Python
+        # daemon threads and don't reliably die with the interpreter, which
+        # is a large part of why a killed edge node process could still
+        # linger holding the (unrelated, but same-process) serial port open.
+        self._bootstrap = io.ClientBootstrap(
+            io.EventLoopGroup(1),
+            io.DefaultHostResolver(io.EventLoopGroup(1))
+        )
 
     def connect(self):
         attempt = 0
@@ -411,18 +425,13 @@ class MQTTManager:
             try:
                 logger.info("Connecting MQTT...")
 
-                bootstrap = io.ClientBootstrap(
-                    io.EventLoopGroup(1),
-                    io.DefaultHostResolver(io.EventLoopGroup(1))
-                )
-
                 connection = mqtt_connection_builder.mtls_from_path(
                     endpoint=self.cfg["host"],
                     cert_filepath=self.cfg["cert"],
                     pri_key_filepath=self.cfg["key"],
                     ca_filepath=self.cfg["ca"],
                     client_id=self.cfg["client_id"],
-                    client_bootstrap=bootstrap,
+                    client_bootstrap=self._bootstrap,
                     keep_alive_secs=60,
                     clean_session=False
                 )
@@ -969,25 +978,32 @@ class EdgeNode:
     def start(self):
         logger.info("Starting Edge Node")
 
-        self.init_system()
-
-        threads = [
-            threading.Thread(target=self.scheduler, name="Scheduler"),
-            threading.Thread(target=self.worker, name="Worker"),
-            threading.Thread(target=self.publisher, name="Publisher"),
-            threading.Thread(target=self.system_publisher, name="SystemPublisher"),
-            threading.Thread(target=self.config_watcher, name="ConfigWatcher"),
-            threading.Thread(target=self.watchdog, name="Watchdog"),
-            threading.Thread(
-                target=self.wifi.monitor, args=(self.stop_event,), name="WifiMonitor"
-            ),
-        ]
-
-        for t in threads:
-            t.daemon = True
-            t.start()
-
+        # init_system() is inside this try, not just the idle loop below -
+        # it blocks on self.mqtt.connect() (retries forever) before any
+        # thread exists, so a Ctrl+C landing during that first connect used
+        # to propagate straight out of start() without ever calling stop():
+        # self.modbus/self.wifi's already-open connections (init_system()
+        # assigns self.modbus/self.mqtt/self.wifi before that blocking call)
+        # were simply abandoned instead of disconnected.
         try:
+            self.init_system()
+
+            threads = [
+                threading.Thread(target=self.scheduler, name="Scheduler"),
+                threading.Thread(target=self.worker, name="Worker"),
+                threading.Thread(target=self.publisher, name="Publisher"),
+                threading.Thread(target=self.system_publisher, name="SystemPublisher"),
+                threading.Thread(target=self.config_watcher, name="ConfigWatcher"),
+                threading.Thread(target=self.watchdog, name="Watchdog"),
+                threading.Thread(
+                    target=self.wifi.monitor, args=(self.stop_event,), name="WifiMonitor"
+                ),
+            ]
+
+            for t in threads:
+                t.daemon = True
+                t.start()
+
             while True:
                 time.sleep(1)
         except KeyboardInterrupt:
