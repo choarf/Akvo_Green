@@ -10,6 +10,7 @@ import platform
 import subprocess
 import threading
 from datetime import datetime, UTC
+from pathlib import Path
 from zoneinfo import ZoneInfo
 from logging.handlers import RotatingFileHandler
 
@@ -21,6 +22,17 @@ from awsiot import mqtt_connection_builder
 
 from config.schema import validate as validate_config
 from domain.sensors import decode as decode_sensor
+
+# aws.{ca,cert,key} in config.json are conventionally relative (e.g.
+# "./certs/AmazonRootCA1.pem", as config_manager.py's aws.csv -> config.json
+# build writes them) and meant to resolve against this file's own directory
+# - not whatever the process's cwd happens to be at startup - since that's
+# where the certs/ directory actually lives. ConfigManager.load() resolves
+# them against this before MQTTManager ever opens them, so a manual run
+# from the wrong directory (unlike the systemd service, which sets
+# WorkingDirectory=) doesn't fail with a confusing "No such file or
+# directory" on a path that looked fine relative to the intended directory.
+BASE_DIR = Path(__file__).resolve().parent
 
 
 # =========================
@@ -88,6 +100,15 @@ class ConfigManager:
             logger.warning(warning)
         if errors:
             raise ValueError("Invalid config: " + "; ".join(errors))
+
+        # See BASE_DIR's comment above. An already-absolute path is left
+        # untouched: Path(BASE_DIR) / absolute_path collapses to just
+        # absolute_path.
+        aws = config.get("aws", {})
+        for key in ("ca", "cert", "key"):
+            path = aws.get(key)
+            if path:
+                aws[key] = str((BASE_DIR / path).resolve())
 
         return config
 

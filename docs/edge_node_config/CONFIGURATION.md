@@ -125,9 +125,12 @@ ones `edge_node_improved.py` actually reads.
 | `topic_pub` | MQTT topic device/sensor data is published to. |
 | `topic_system` | MQTT topic host telemetry is published to. |
 
-`ca`/`cert`/`key` are conventionally relative paths (`./certs/...`),
-resolved from whatever directory `edge_node_improved.py` is *run from*
-(normally `src/Venko_Green/`) — not from `config.json`'s own location.
+`ca`/`cert`/`key` are conventionally relative paths (`./certs/...`).
+`ConfigManager.load()` resolves them against `edge_node_improved.py`'s own
+directory (`src/Venko_Green/`) — not the process's working directory, and
+not `config.json`'s own location (`config_data/`) — so they work
+regardless of where the process is launched from. An already-absolute
+path is left untouched.
 
 ```csv
 host,client_id,ca,cert,key,topic_pub,topic_system
