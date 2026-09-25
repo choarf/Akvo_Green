@@ -659,3 +659,16 @@
 2026-09-11 19:55:48,913 | ERROR | Thread-1 (connect) | Modbus connect error: Connection failed - retrying in 8.8s
 2026-09-11 19:55:57,709 | ERROR | Thread-1 (connect) | Modbus connect error: Connection failed - retrying in 17.8s
 2026-09-14 20:15:29,899 | WARNING | MainThread | DEV_6: Duplicate slave ID 3
+2026-09-18 15:41:21,716 | INFO | MainThread | Log level: INFO (set AKVO_LOG_LEVEL to change, e.g. AKVO_LOG_LEVEL=DEBUG)
+2026-09-18 15:41:21,716 | INFO | MainThread | Starting Edge Node
+2026-09-18 15:41:21,717 | INFO | ModbusConnect | Connecting Modbus (/dev/ttyUSB0)...
+2026-09-18 15:41:21,717 | ERROR | ModbusConnect | Modbus connect error: Connection failed - retrying in 4.4s
+2026-09-18 15:41:21,718 | INFO | MainThread | Connecting MQTT...
+2026-09-18 15:41:21,732 | INFO | WifiConnect | WiFi connected
+2026-09-18 15:41:22,009 | INFO | MainThread | MQTT connected
+2026-09-18 15:41:22,014 | INFO | ConfigWatcher | Reloading config...
+2026-09-18 15:41:22,017 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-18 15:41:26,132 | INFO | ModbusConnect | Connecting Modbus (/dev/ttyUSB0)...
+2026-09-18 15:41:26,133 | ERROR | ModbusConnect | Modbus connect error: Connection failed - retrying in 12.8s
+2026-09-18 15:41:38,982 | INFO | ModbusConnect | Connecting Modbus (/dev/ttyUSB0)...
+2026-09-18 15:41:38,983 | ERROR | ModbusConnect | Modbus connect error: Connection failed - retrying in 16.2s

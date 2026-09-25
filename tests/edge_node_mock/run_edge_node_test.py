@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-End-to-end test harness for src/edge_node_improved.py.
+End-to-end test harness for gateway/edge_node_improved.py.
 
 Runs the real EdgeNode engine (scheduler/worker/publisher/config_watcher
 threads, alarm evaluation, reconnect logic - unmodified) against Modbus and
@@ -48,8 +48,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[1]
-SRC_DIR = REPO_ROOT / "src"
-# config_data/ is centralized at the repo root, not under src/ - see
+GATEWAY_DIR = REPO_ROOT / "gateway"
+# config_data/ is centralized at the repo root, not under gateway/ - see
 # config_manager.py's own REPO_ROOT/CONFIG_DIR for why.
 DEFAULT_CONFIG = REPO_ROOT / "config_data" / "config.json"
 DEFAULT_SETTINGS = HERE / "harness_config.json"
@@ -118,9 +118,9 @@ def build_test_config(source: Path, dest: Path, fake_modbus: bool, cert_base: Pa
     when fake_modbus is enabled. Left untouched (real hardware port) otherwise.
 
     AWS cert paths are always resolved to absolute paths against cert_base
-    (normally SRC_DIR, not source's own directory - config_data/ is
+    (normally GATEWAY_DIR, not source's own directory - config_data/ is
     centralized at the repo root, but the "./certs/..." relative paths it
-    stores are still meant to resolve from src/, since that's
+    stores are still meant to resolve from gateway/, since that's
     where the certs/ directory actually lives and where edge_node_improved.py
     is normally run from): the harness chdir's into a scratch work dir
     before starting EdgeNode, which would otherwise break those relative
@@ -200,7 +200,7 @@ def main() -> None:
 
     work_dir = Path(tempfile.mkdtemp(prefix="akvo_edge_node_test_"))
     test_config = work_dir / "config.json"
-    build_test_config(args.config, test_config, fake_modbus, cert_base=SRC_DIR)
+    build_test_config(args.config, test_config, fake_modbus, cert_base=GATEWAY_DIR)
 
     print(f"Test config: {test_config}")
     print(f"Working dir (logs go here): {work_dir}")
@@ -218,7 +218,7 @@ def main() -> None:
         real_port = json.loads(args.config.read_text())["modbus"]["port"]
         print(f"Connecting to real Modbus hardware at {real_port}")
 
-    sys.path.insert(0, str(SRC_DIR))
+    sys.path.insert(0, str(GATEWAY_DIR))
     import edge_node_improved as en  # noqa: E402  (path must be set first)
     from fake_mqtt import make_fake_mtls_from_path, round_floats  # noqa: E402
 

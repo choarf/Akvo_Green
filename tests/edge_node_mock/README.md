@@ -209,7 +209,7 @@ json.dump(cfg, open('/tmp/test_config.json', 'w'), indent=4)
 # 2. Launch the unmodified EdgeNode, with MQTT faked (no AWS needed)
 python3 -u -c "
 import sys
-sys.path.insert(0, 'src')
+sys.path.insert(0, 'gateway')
 sys.path.insert(0, 'tests/edge_node_mock')
 import edge_node_improved as en
 from fake_mqtt import make_fake_mtls_from_path

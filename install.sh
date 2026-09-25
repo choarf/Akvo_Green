@@ -25,9 +25,9 @@
 set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SRC_DIR="$HERE/src"
+GATEWAY_DIR="$HERE/gateway"
 VENV_DIR="$HERE/.venv"
-CERTS_DIR="$SRC_DIR/certs"
+CERTS_DIR="$GATEWAY_DIR/certs"
 SERVICE_USER="$(whoami)"
 SERVICE_NAME="akvo-green"
 
@@ -55,8 +55,8 @@ warn() { echo "WARNING: $*" >&2; }
 
 log "Checking environment"
 
-if [[ ! -f "$SRC_DIR/edge_node_improved.py" ]]; then
-    echo "error: expected to find edge_node_improved.py under $SRC_DIR" >&2
+if [[ ! -f "$GATEWAY_DIR/edge_node_improved.py" ]]; then
+    echo "error: expected to find edge_node_improved.py under $GATEWAY_DIR" >&2
     echo "Run this script from inside the Akvo_Green repo (./install.sh)." >&2
     exit 1
 fi
@@ -108,7 +108,7 @@ else
     echo "Already exists, reusing it."
 fi
 
-REQUIREMENTS_FILE="$SRC_DIR/requirements.txt"
+REQUIREMENTS_FILE="$GATEWAY_DIR/requirements.txt"
 if [[ ! -f "$REQUIREMENTS_FILE" ]]; then
     cat > "$REQUIREMENTS_FILE" <<'REQS'
 # Runtime dependencies for edge_node_improved.py / config_manager.py.
@@ -225,8 +225,8 @@ Wants=network-online.target
 [Service]
 Type=simple
 User=$SERVICE_USER
-WorkingDirectory=$SRC_DIR
-ExecStart=$VENV_DIR/bin/python3 $SRC_DIR/edge_node_improved.py
+WorkingDirectory=$GATEWAY_DIR
+ExecStart=$VENV_DIR/bin/python3 $GATEWAY_DIR/edge_node_improved.py
 Restart=on-failure
 RestartSec=10
 
@@ -243,7 +243,7 @@ EOF
          "layer that stays stuck (see CLAUDE.md's Architecture section)."
 else
     warn "systemctl not found - skipping service installation. Run the gateway" \
-         " manually: cd $SRC_DIR && $VENV_DIR/bin/python3 edge_node_improved.py"
+         " manually: cd $GATEWAY_DIR && $VENV_DIR/bin/python3 edge_node_improved.py"
 fi
 
 # ---------------------------------------------------------------------------
@@ -263,7 +263,7 @@ echo ""
 echo "Next steps:"
 echo "  1. Edit config_data/{devices,modbus,system,aws}.csv" \
      "for your gateway_id/city/Modbus port/sensors, then:"
-echo "       cd ${SRC_DIR#$HERE/} && $VENV_DIR/bin/python3 config_manager.py build"
+echo "       cd ${GATEWAY_DIR#$HERE/} && $VENV_DIR/bin/python3 config_manager.py build"
 echo "     (or hand-edit config_data/config.json directly - either way it's validated" \
      "against config/schema.py before being used)."
 if [[ $SKIP_CERTS -eq 1 ]] || [[ ! -f "$CERTS_DIR/certificate.pem.crt" ]]; then

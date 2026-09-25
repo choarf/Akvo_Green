@@ -1,0 +1,4 @@
+device_id,slave,sensor_name,addr,count,scale,offset,unit,type,min,max,enabled
+DEV_4,4,Presion1,8,1,1,0,Mpa,float,0,450,1
+DEV_5,5,Presion2,8,1,1,0,Mpa,float,0,450,1
+

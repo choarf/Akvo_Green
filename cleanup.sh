@@ -7,17 +7,18 @@
 # the interrupt lands while that try block is active. init_system() blocks
 # on self.mqtt.connect() (which retries forever) *before* that block is
 # entered - a Ctrl+C during that window kills the process without ever
-# calling stop(), so self.modbus.disconnect() never runs. Separately, every
-# MQTT connect attempt (including retries) builds a brand-new
-# io.EventLoopGroup/ClientBootstrap (see MQTTManager.connect() in
-# edge_node_improved.py) without shutting down the previous one, and awscrt's
-# underlying native I/O threads aren't Python daemon threads - they don't
-# reliably die with the interpreter, which can leave the process itself
-# lingering, still holding the serial port open. The mock test harness
-# (tests/edge_node_mock/) has the same exposure one level up: if
-# run_edge_node_test.py/stress_test.py is killed before reaching their own
-# `finally` block (e.g. SIGKILL, a crashed terminal), their socat child and
-# virtual PTY pair (/tmp/akvo_edge_node_master|slave) are orphaned.
+# calling stop(), so self.modbus.disconnect() never runs, which can leave
+# the process itself lingering, still holding the serial port open.
+# (MQTTManager used to make this worse by building a brand-new
+# io.EventLoopGroup/ClientBootstrap - awscrt native I/O threads that don't
+# reliably die with the interpreter - on every single connect() retry; it
+# now builds one in __init__ and reuses it for the manager's whole
+# lifetime, so that specific leak is fixed. The Ctrl+C-during-init_system()
+# gap above is still real.) The mock test harness (tests/edge_node_mock/)
+# has the same exposure one level up: if run_edge_node_test.py/
+# stress_test.py is killed before reaching their own `finally` block (e.g.
+# SIGKILL, a crashed terminal), their socat child and virtual PTY pair
+# (/tmp/akvo_edge_node_master|slave) are orphaned.
 #
 # This script doesn't fix that root cause (see the note printed at the end)
 # - it's the reset button: run it, then start a fresh iteration.
@@ -202,8 +203,9 @@ fi
 echo ""
 echo "If this keeps happening: it's usually a Ctrl+C landing while" \
      "edge_node_improved.py is still blocked in init_system()'s initial" \
-     "MQTT connect (before its own KeyboardInterrupt handler is active), or" \
-     "orphaned awscrt I/O threads from repeated MQTT reconnect attempts" \
-     "(MQTTManager.connect() allocates a new EventLoopGroup/ClientBootstrap" \
-     "on every retry without shutting the previous one down). Worth fixing" \
-     "at the source if this script becomes a regular necessity."
+     "MQTT connect, before its own KeyboardInterrupt handler is active." \
+     "(The other historical cause - MQTTManager building a fresh" \
+     "EventLoopGroup/ClientBootstrap on every retry - is already fixed:" \
+     "it now builds one in __init__ and reuses it.) Worth fixing the" \
+     "Ctrl+C-during-init_system() gap at the source if this script becomes" \
+     "a regular necessity."

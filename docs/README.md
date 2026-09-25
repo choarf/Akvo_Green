@@ -18,9 +18,9 @@ AWS IoT Core (MQTT, mTLS)
 ## Features
 
 - **Modbus RTU client (V3)** — thread-safe wrapper around PyModbus supporting FC01/02/03/04/05/06/15/16, connection/reconnection helpers, input validation, and per-call statistics (success rate, response time). See [`docs/Modbus_client/AKVO_Modbus_Client_API_V3.md`](docs/Modbus_client/AKVO_Modbus_Client_API_V3.md) for the full API reference.
-- **Edge Node engine** (`src/edge_node_improved.py`) — polls configured devices/sensors on a schedule, evaluates min/max alarms, and publishes device data and host telemetry (CPU/RAM/disk/IP) to AWS IoT via MQTT. Modbus and MQTT connections retry independently and forever, so a dead serial bus doesn't block cloud reporting.
+- **Edge Node engine** (`gateway/edge_node_improved.py`) — polls configured devices/sensors on a schedule, evaluates min/max alarms, and publishes device data and host telemetry (CPU/RAM/disk/IP) to AWS IoT via MQTT. Modbus and MQTT connections retry independently and forever, so a dead serial bus doesn't block cloud reporting.
 - **Live config reload** — a background watcher detects changes to `config.json` and reconnects Modbus/MQTT or rebuilds only the affected devices, without restarting the process.
-- **CSV-driven configuration** (`src/config_manager.py`) — builds `config.json` from `devices.csv`, `modbus.csv`, `system.csv`, and `aws.csv`, with validation (duplicate slave IDs, overlapping registers, invalid sensor types) and a matching `export` command to go back from JSON to CSV.
+- **CSV-driven configuration** (`gateway/config_manager.py`) — builds `config.json` from `devices.csv`, `modbus.csv`, `system.csv`, and `aws.csv`, with validation (duplicate slave IDs, overlapping registers, invalid sensor types) and a matching `export` command to go back from JSON to CSV.
 - **Hardware-free testing** — a mock Modbus slave plus a virtual serial link (`socat`) let the client be exercised end-to-end without physical RS‑485 equipment.
 
 ## Repository layout
@@ -30,12 +30,15 @@ Akvo_Green/
 ├── config_data/                  # Centralized runtime config - same files for
 │   ├── config.json               # the real gateway AND every test suite
 │   └── devices.csv / modbus.csv / system.csv / aws.csv
-├── src/                           # Edge gateway application
+├── modbus_client/                 # Standalone Modbus client library
 │   ├── main_modbus.py            # Minimal example: connect + read one register
 │   ├── modbus_client.py          # ModbusClient V3 (standalone Modbus API)
-│   ├── utils/logger.py           # Shared logger used by the Modbus client
+│   └── utils/logger.py           # Shared logger used by the Modbus client
+├── gateway/                       # Edge gateway application
 │   ├── edge_node_improved.py     # Main engine: scheduler/worker/publisher threads
 │   ├── config_manager.py         # CSV <-> config.json build/export tool
+│   ├── config/schema.py          # config.json validation
+│   ├── domain/sensors.py         # Sensor-type decoder registry
 │   └── certs/                    # AWS IoT Core certificates (mTLS)
 ├── tests/
 │   ├── akvo_modbus_mock/         # Virtual-serial mock Modbus slave + client tests
@@ -45,7 +48,7 @@ Akvo_Green/
 └── docs/Modbus_client/           # Modbus client API documentation
 ```
 
-`config_data/` lives at the repo root (not nested under `src/`) specifically so the real gateway and every test suite (`tests/edge_node_mock/run_edge_node_test.py`/`stress_test.py`/`mock_devices_slave.py`) read and build from the exact same `config.json`/CSVs - see `config_manager.py`'s `REPO_ROOT`/`CONFIG_DIR`.
+`config_data/` lives at the repo root (not nested under `gateway/`) specifically so the real gateway and every test suite (`tests/edge_node_mock/run_edge_node_test.py`/`stress_test.py`/`mock_devices_slave.py`) read and build from the exact same `config.json`/CSVs - see `config_manager.py`'s `REPO_ROOT`/`CONFIG_DIR`.
 
 ## Requirements
 
@@ -70,7 +73,7 @@ pip install pymodbus pyserial psutil awsiotsdk
 Connects to a device on `/dev/ttyUSB0` and reads one holding register:
 
 ```bash
-cd src
+cd modbus_client
 python3 main_modbus.py
 ```
 
@@ -79,11 +82,11 @@ python3 main_modbus.py
 1. Build `config.json` from the CSV files:
 
    ```bash
-   cd src
+   cd gateway
    python3 config_manager.py build
    ```
 
-2. Place AWS IoT Core certificates under `src/certs/` (paths are referenced from `config.json`'s `aws` section).
+2. Place AWS IoT Core certificates under `gateway/certs/` (paths are referenced from `config.json`'s `aws` section).
 3. Start the edge node:
 
    ```bash
@@ -97,7 +100,7 @@ python3 main_modbus.py
 Logging defaults to `INFO`. Set `AKVO_LOG_LEVEL` before starting the process for more (or less) detail — it's read once at startup, so it needs a (re)start to take effect, not a live-reloadable `config.json` setting:
 
 ```bash
-# Running the real gateway directly (from src/)
+# Running the real gateway directly (from gateway/)
 AKVO_LOG_LEVEL=DEBUG python3 edge_node_improved.py
 
 # Running the mocked integration harness (from tests/edge_node_mock/) -

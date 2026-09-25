@@ -1,7 +1,7 @@
 # Edge Node Configuration Reference
 
 `edge_node_improved.py` runs entirely off `config_data/config.json`, centralized
-at the repo root (not nested under `src/`) so the real gateway
+at the repo root (not nested under `gateway/`) so the real gateway
 and every test suite read/build the same file. You normally don't
 hand-edit that file — you edit four CSVs and run `config_manager.py build`
 to regenerate it:
@@ -100,7 +100,7 @@ One header row + one data row — gateway identity and timing.
 | `city` | string | **Actually an IANA/Olson timezone name** (e.g. `America/Mexico_City`), not a display label — it's passed straight to `zoneinfo.ZoneInfo()` to compute `city_time` in the system payload. An invalid value doesn't fail the build; at runtime `city_time()` catches the lookup error and falls back to a UTC timestamp suffixed with `Error`. |
 | `poll_interval` | int (seconds) | Used **twice**: it's both how often the scheduler queues every device for a Modbus poll, and how often the publisher thread sends the `AKVO/data` payload. |
 | `system_interval` | int (seconds) | How often the `AKVO/system` host-telemetry payload (CPU/RAM/disk/IP) is published. |
-| `watchdog_timeout` | int (seconds) | If the worker thread (the one doing Modbus reads) stalls for longer than this — genuinely stuck, e.g. blocked inside a library call that never returns, not just returning read errors — a dedicated watchdog thread logs a `CRITICAL` line and exits the process via `os._exit(1)`. Leave blank/`0` to disable. **Requires an external supervisor** (systemd `Restart=always`, a container restart policy, etc.) to actually bring the process back up — without one, the gateway just stays down after the watchdog fires. |
+| `watchdog_timeout` | int (seconds) | If the worker thread (the one doing Modbus reads) stalls for longer than this — genuinely stuck, e.g. blocked inside a library call that never returns, not just returning read errors — a dedicated watchdog thread logs a `CRITICAL` line and reboots the whole host (`sudo reboot`, via the same `_RebootEscalator`/`_default_reboot_fn` the three communication managers use — see `CLAUDE.md`'s Architecture section). Leave blank/`0` to disable. Guarded by the same reboot-loop limit (max 3 reboots/hour) so a problem a reboot can't fix doesn't boot-loop the device. |
 
 Unlike `devices.csv`, a missing column here isn't caught with a friendly
 error — it surfaces as a raw `KeyError` during `build`.
@@ -129,7 +129,7 @@ ones `edge_node_improved.py` actually reads.
 
 `ca`/`cert`/`key` are conventionally relative paths (`./certs/...`).
 `ConfigManager.load()` resolves them against `edge_node_improved.py`'s own
-directory (`src/`) — not the process's working directory, and
+directory (`gateway/`) — not the process's working directory, and
 not `config.json`'s own location (the repo root's `config_data/`) — so
 they work regardless of where the process is launched from. An already-absolute
 path is left untouched.
