@@ -22,6 +22,7 @@ from awsiot import mqtt_connection_builder
 
 from config.schema import validate as validate_config
 from domain.sensors import decode as decode_sensor
+from storage import HistoryStore
 
 # aws.{ca,cert,key} in config.json are conventionally relative (e.g.
 # "./certs/AmazonRootCA1.pem", as config_manager.py's aws.csv -> config.json
@@ -715,6 +716,11 @@ class EdgeNode:
         self.modbus = None
         self.wifi = None
 
+        # Optional local SQLite history - stays None (feature fully off)
+        # unless config.json's "database" section enables it. See
+        # init_system().
+        self.history = None
+
         # Track hashes of the sub-sections that require a reconnect
         # (rather than just rebuilding the device list) when changed.
         self._modbus_hash = None
@@ -777,6 +783,36 @@ class EdgeNode:
         self._aws_hash = _section_hash(cfg["aws"])
 
         self.build_devices(cfg)
+
+        # Optional and best-effort: a bad path or unwritable data/ dir must
+        # never block gateway startup or take down Modbus/MQTT, so this is
+        # after everything essential above. Read once here (not
+        # live-reloadable, same as AKVO_LOG_LEVEL) - toggling database.*
+        # on a running gateway needs a restart.
+        db_cfg = cfg.get("database", {})
+        if db_cfg.get("enabled"):
+            try:
+                self.history = HistoryStore(retention_days=db_cfg.get("retention_days", 30))
+                self._sync_history_config(cfg)
+            except Exception as e:
+                logger.error(f"History database init failed, continuing without it: {e}")
+                self.history = None
+
+    def _sync_history_config(self, cfg):
+        """Mirrors config.json's devices/sensors into the history database
+        (one-way - config.json stays the source of truth). Never raises: a
+        database problem must not block startup or a config reload."""
+        if self.history is None:
+            return
+        try:
+            diff = self.history.sync_config(cfg)
+            if diff:
+                logger.info(
+                    f"History DB synced from config.json -> added:{diff['added']} "
+                    f"removed:{diff['removed']} updated:{[u['id'] for u in diff['updated']]}"
+                )
+        except Exception as e:
+            logger.error(f"History DB config sync error: {e}")
 
     def build_devices(self, cfg):
         """Initial build: construct every device from scratch."""
@@ -883,6 +919,16 @@ class EdgeNode:
                 }
 
                 self.mqtt.publish(cfg["aws"]["topic_pub"], payload)
+
+                if self.history is not None:
+                    # Own try/except, separate from the one below: a sqlite3
+                    # failure (locked db, disk full, ...) must never mask an
+                    # MQTT failure or end this thread's loop, which would
+                    # silently stop all MQTT publishing forever.
+                    try:
+                        self.history.record_devices(payload)
+                    except Exception as e:
+                        logger.error(f"History record_devices error: {e}")
             except Exception as e:
                 # See scheduler() - same reasoning: don't let one bad cycle
                 # permanently kill the thread that reports device data.
@@ -900,6 +946,13 @@ class EdgeNode:
                 payload = get_system_status(cfg["gateway"])
 
                 self.mqtt.publish(cfg["aws"]["topic_system"], payload)
+
+                if self.history is not None:
+                    try:
+                        self.history.record_system(payload)
+                        self.history.maybe_prune()
+                    except Exception as e:
+                        logger.error(f"History record_system error: {e}")
             except Exception as e:
                 # See scheduler() - same reasoning: don't let one bad cycle
                 # permanently kill host-health reporting.
@@ -918,6 +971,13 @@ class EdgeNode:
                     reload_start = time.time()
                     logger.info("Reloading config...")
                     cfg = self.config_mgr.reload()
+
+                    # Before the reconnects below, which can block this
+                    # thread indefinitely - the sync is a cheap local write
+                    # that doesn't depend on either connection, and doing it
+                    # first means a new sensor's row exists before its
+                    # first reading lands.
+                    self._sync_history_config(cfg)
 
                     # Reconnect Modbus only if its section actually changed.
                     new_modbus_hash = _section_hash(cfg["modbus"])
@@ -1047,6 +1107,8 @@ class EdgeNode:
             self.modbus.disconnect()
         if self.wifi is not None:
             self.wifi.disconnect()
+        if self.history is not None:
+            self.history.close()
 
 
 # =========================

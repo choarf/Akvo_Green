@@ -11,6 +11,8 @@ ModbusClient / ModbusManager  --  config.json (devices, polling, AWS)
         v
 Edge Node (scheduler, worker, publisher threads)
         |
+        +--> data/history.db  (optional local SQLite history, mirrors config.json)
+        |
         v
 AWS IoT Core (MQTT, mTLS)
 ```
@@ -20,6 +22,7 @@ AWS IoT Core (MQTT, mTLS)
 - **Modbus RTU client (V3)** — thread-safe wrapper around PyModbus supporting FC01/02/03/04/05/06/15/16, connection/reconnection helpers, input validation, and per-call statistics (success rate, response time). See [`docs/Modbus_client/AKVO_Modbus_Client_API_V3.md`](docs/Modbus_client/AKVO_Modbus_Client_API_V3.md) for the full API reference.
 - **Edge Node engine** (`gateway/edge_node_improved.py`) — polls configured devices/sensors on a schedule, evaluates min/max alarms, and publishes device data and host telemetry (CPU/RAM/disk/IP) to AWS IoT via MQTT. Modbus and MQTT connections retry independently and forever, so a dead serial bus doesn't block cloud reporting.
 - **Live config reload** — a background watcher detects changes to `config.json` and reconnects Modbus/MQTT or rebuilds only the affected devices, without restarting the process.
+- **Local SQLite history (optional)** (`gateway/storage.py`) — records every published sensor reading and host-telemetry sample to `data/history.db` for on-site inspection with plain SQL, and keeps a one-way mirror of `config.json`'s devices/sensors (with a change log) so old readings stay interpretable after the config changes. Off by default; see [Local history database](#local-history-database-optional).
 - **CSV-driven configuration** (`gateway/config_manager.py`) — builds `config.json` from `devices.csv`, `modbus.csv`, `system.csv`, and `aws.csv`, with validation (duplicate slave IDs, overlapping registers, invalid sensor types) and a matching `export` command to go back from JSON to CSV.
 - **Hardware-free testing** — a mock Modbus slave plus a virtual serial link (`socat`) let the client be exercised end-to-end without physical RS‑485 equipment.
 
@@ -39,7 +42,9 @@ Akvo_Green/
 │   ├── config_manager.py         # CSV <-> config.json build/export tool
 │   ├── config/schema.py          # config.json validation
 │   ├── domain/sensors.py         # Sensor-type decoder registry
+│   ├── storage.py                # Optional SQLite history store + config.json mirror
 │   └── certs/                    # AWS IoT Core certificates (mTLS)
+├── data/                          # Created at runtime (gitignored): history.db
 ├── tests/
 │   ├── akvo_modbus_mock/         # Virtual-serial mock Modbus slave + client tests
 │   ├── test_modbus_client/       # Additional pytest suite + real-hardware test plan
@@ -94,6 +99,116 @@ python3 main_modbus.py
    ```
 
    Editing `devices.csv`, `modbus.csv`, `system.csv`, or `aws.csv` and re-running `config_manager.py build` (or writing `config.json` directly) triggers a live reload — no restart required.
+
+### Local history database (optional)
+
+By default the gateway keeps only the *latest* reading per sensor in memory and forwards it to AWS. Turning on the local database also writes every published reading and host-telemetry sample to a SQLite file, so you can look at what a gateway has been doing without going through the cloud.
+
+**Enable it** with two columns in `config_data/system.csv`, then rebuild the config and restart the gateway:
+
+```csv
+gateway_id,city,poll_interval,system_interval,watchdog_timeout,database_enabled,database_retention_days
+AKVO_GW_101,America/Mexico_City,20,60,120,1,30
+```
+
+```bash
+cd gateway && python3 config_manager.py build
+```
+
+This produces a `database` section in `config.json` (`"database": { "enabled": true, "retention_days": 30 }`). The columns are optional — a `system.csv` without them leaves the database off.
+
+`retention_days` (default `30`) bounds disk use: older readings and telemetry are pruned hourly. The file is `data/history.db` at the repo root. Leaving the columns out, or `database_enabled` at `0`, keeps everything exactly as before. `config_manager.py export` writes the settings back to `system.csv`. The startup log confirms it worked:
+
+```text
+History DB synced from config.json -> added:['DEV_1', 'DEV_2', ...] removed:[] updated:[]
+```
+
+**How it relates to `config.json`.** `config.json` stays the single source of truth; the database follows it, never the other way round. At startup and on every live reload, the `devices` and `sensors` tables are updated to match `config.json`'s device list (only that list — never the `aws`/`modbus`/`gateway` sections):
+
+| You change in `config.json` (or the CSVs) | The database |
+|---|---|
+| Add a device or sensor | New row; readings start linking to it |
+| Change `scale`, `offset`, `min`, `max`, `unit`, `addr`, ... | Row updated in place; the old and new values are logged in `config_history` |
+| Remove a device or sensor | Row marked `active = 0` — **not** deleted; its readings remain queryable |
+| Add it back later | Same row reactivated |
+| Save an invalid `config.json` | Rejected by validation before it reaches the database; nothing changes |
+
+**Tables:** `readings` (one row per sensor per publish cycle: `ts`, `device_id`, `sensor_name`, `value`, `status`, `alarm`, `sensor_id`), `system_telemetry` (CPU/RAM/disk/IP per system interval), `devices` and `sensors` (the config mirror), and `config_history` (what changed, and when).
+
+**Querying it.** The gateway can keep running while you read: the database uses WAL mode, so open it read-only with the `sqlite3` CLI (`sudo apt install sqlite3`) or any SQLite viewer:
+
+```bash
+sqlite3 -readonly data/history.db
+```
+
+Timestamps are UTC ISO-8601 strings, so plain string comparison sorts and filters them correctly. `value` is `NULL` when a read failed (`status` is then `BUS_ERROR` or `EXCEPTION`).
+
+#### Use cases
+
+**What is every sensor reading right now?** (e.g. checking a unit on-site)
+
+```sql
+SELECT r.device_id, r.sensor_name, r.value, s.unit, r.alarm, MAX(r.ts) AS ts
+FROM readings r JOIN sensors s ON s.id = r.sensor_id
+WHERE s.active = 1
+GROUP BY r.sensor_id;
+```
+
+**Which sensors went out of range in the last day?** (`alarm` is `HIGH`/`LOW` outside the sensor's `min`/`max`; the log only records transitions, the database keeps every sample)
+
+```sql
+SELECT ts, device_id, sensor_name, value, alarm FROM readings
+WHERE alarm IN ('HIGH','LOW') AND ts > strftime('%Y-%m-%dT%H:%M:%S','now','-1 day')
+ORDER BY ts DESC;
+```
+
+**How has a sensor trended?** (hourly average — e.g. spotting drift or fouling before it alarms)
+
+```sql
+SELECT substr(ts,1,13) AS hour, ROUND(AVG(value),2) AS avg_value, COUNT(*) AS samples
+FROM readings
+WHERE device_id = 'DEV_4' AND sensor_name = 'Presion1' AND status = 'OK'
+GROUP BY hour ORDER BY hour;
+```
+
+**Which sensors or slaves are unreliable?** (a cable, termination or address problem shows up as repeated failures on one device)
+
+```sql
+SELECT device_id, sensor_name, COUNT(*) AS failures FROM readings
+WHERE status != 'OK' AND ts > strftime('%Y-%m-%dT%H:%M:%S','now','-7 day')
+GROUP BY device_id, sensor_name ORDER BY failures DESC;
+```
+
+**What changed in the configuration, and when?** (and which readings were taken under the old calibration)
+
+```sql
+SELECT ts, added, removed, updated FROM config_history ORDER BY id DESC LIMIT 10;
+```
+
+`updated` holds the old and new values of each changed setting, so a jump in a trend that lines up with a `config_history` row is a calibration change, not a real process change.
+
+**What devices used to exist?** (removed devices keep their history)
+
+```sql
+SELECT device_id, last_changed FROM devices WHERE active = 0;
+```
+
+**Is the gateway host healthy?**
+
+```sql
+SELECT ts, cpu_load_percent, ram_usage_percent, disk_usage_percent
+FROM system_telemetry ORDER BY ts DESC LIMIT 20;
+```
+
+To take a copy while the gateway is running, use `sqlite3 data/history.db ".backup copy.db"` rather than copying the file — recent writes live in the `-wal` file next to it.
+
+#### Limitations
+
+- **Independent of AWS — never synced or replayed to it.** The database only records; nothing reads it back to send to AWS, and AWS never writes to it. If the connection drops after the gateway has started, polling and recording carry on (every cycle is still written locally), while the AWS library holds the unsent publishes in memory and delivers them when the connection resumes. Those held messages live only in memory: if the gateway restarts or the Pi reboots during the outage they are lost from AWS, and the database is **not** used to backfill them — the readings stay only in `data/history.db`.
+- **Nothing is polled or recorded until AWS has connected once.** At startup the gateway waits for its first MQTT connection before starting any polling threads, so a boot with no network produces no readings, in AWS or in the database, until the connection comes up.
+- **Restart required** to turn it on/off or change `retention_days`. Only the `devices` mirror follows live `config.json` edits.
+- **A database problem never stops the gateway.** If `data/` is unwritable or the disk is full, the failure is logged (`History record_devices error: ...`) and Modbus polling and MQTT publishing carry on unaffected.
+- **No built-in viewer.** It is a plain SQLite file — there is no web dashboard in the gateway.
 
 ### Debug logging
 
@@ -176,7 +291,7 @@ python3 run_edge_node_test.py --no-fake-modbus
 
 See [`tests/edge_node_mock/README.md`](tests/edge_node_mock/README.md) for the full configuration reference, a caution about `fake_mqtt: false` against production AWS IoT things, and a manual (multi-terminal) walkthrough.
 
-The edge node's own logic (alarm evaluation, 32-bit register combining, device-reload diffing, retry backoff) has a fast, hardware-free unit test suite under `tests/test_edge_node/`, using fake collaborators instead of real Modbus/MQTT connections:
+The edge node's own logic (alarm evaluation, 32-bit register combining, device-reload diffing, retry backoff, the SQLite history store and its `config.json` sync) has a fast, hardware-free unit test suite under `tests/test_edge_node/`, using fake collaborators instead of real Modbus/MQTT connections:
 
 ```bash
 cd tests/test_edge_node
@@ -194,7 +309,7 @@ python3 -m pytest --cov=edge_node_improved --cov-report=term-missing -q
 ## Documentation
 
 - [Modbus Client API V3](docs/Modbus_client/AKVO_Modbus_Client_API_V3.md) — full reference for connection handling, supported function codes, error handling, statistics, and thread safety.
-- [Edge Node Configuration Reference](docs/edge_node_config/CONFIGURATION.md) — every column in `devices.csv`/`modbus.csv`/`system.csv`/`aws.csv` and every field in the generated `config.json`, plus non-obvious behaviors (disabled devices, sensor-type scaling, live-reload semantics).
+- [Edge Node Configuration Reference](docs/edge_node_config/CONFIGURATION.md) — every column in `devices.csv`/`modbus.csv`/`system.csv`/`aws.csv` and every field in the generated `config.json`, plus the optional `database` section and non-obvious behaviors (disabled devices, sensor-type scaling, live-reload semantics).
 - [Testing Guide](docs/testing/TESTING.md) — the three test levels (unit/mocked/real-hardware) across all four test suites, a decision table for which to run, and setup for each.
 
 ## License

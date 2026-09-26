@@ -298,6 +298,24 @@ class ConfigManager:
             "watchdog_timeout": int(s["watchdog_timeout"]),
         }
 
+        # The local SQLite history settings live in system.csv too, but in
+        # their own "database" section of config.json (not under "gateway"),
+        # since storage.py reads them separately. Both columns are optional:
+        # a system.csv without them just means the database is off, so an
+        # existing CSV keeps building exactly as before.
+        if "database_enabled" in s or "database_retention_days" in s:
+            config["database"] = {
+                "enabled": _parse_bool(s.get("database_enabled"), default=False),
+            }
+            retention = (s.get("database_retention_days") or "").strip()
+            if retention:
+                try:
+                    config["database"]["retention_days"] = int(retention)
+                except ValueError:
+                    raise ValueError(
+                        f"system.csv: database_retention_days must be an integer, got {retention!r}"
+                    )
+
         # Loaded generically (not restricted to a fixed set of keys) so any
         # column present in aws.csv - now or in the future - survives the
         # build/export round trip.
@@ -397,7 +415,13 @@ class ConfigManager:
 
     def export_system(self, config: Dict[str, Any]) -> None:
         logger.info("Exporting system.csv")
-        self._write_single_row_csv(SYSTEM_CSV, config["gateway"])
+        row = dict(config["gateway"])
+        database = config.get("database")
+        if database is not None:
+            row["database_enabled"] = int(bool(database.get("enabled", False)))
+            if "retention_days" in database:
+                row["database_retention_days"] = database["retention_days"]
+        self._write_single_row_csv(SYSTEM_CSV, row)
 
     def export_aws(self, config: Dict[str, Any]) -> None:
         logger.info("Exporting aws.csv")

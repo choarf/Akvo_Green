@@ -10,3 +10,6 @@ __pycache__/
 
 # run_tests.sh's generated reports and per-suite scratch logs
 reports/
+
+# Local SQLite history database (gateway/storage.py) - runtime data, incl. -wal/-shm files
+data/

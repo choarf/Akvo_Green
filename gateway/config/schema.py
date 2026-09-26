@@ -86,6 +86,7 @@ def validate(config: dict) -> tuple[list[str], list[str]]:
     errors += _validate_section(config, "gateway", REQUIRED_GATEWAY_KEYS)
     errors += _validate_section(config, "modbus", REQUIRED_MODBUS_KEYS)
     errors += _validate_section(config, "aws", REQUIRED_AWS_KEYS)
+    errors += _validate_database(config)
 
     device_errors, device_warnings = _validate_devices(config.get("devices", []))
     errors += device_errors
@@ -104,6 +105,29 @@ def _validate_section(config: dict, section: str, required_keys: set[str]) -> li
         return [f"'{section}' section is missing required key(s): {sorted(missing)}"]
 
     return []
+
+
+def _validate_database(config: dict) -> list[str]:
+    """Unlike gateway/modbus/aws, 'database' is entirely optional - absent
+    means the local SQLite history store is off, which is the default for
+    every existing config.json. Only loosely type-checked (never required)
+    so a typo'd hand-edit fails fast here instead of surfacing as a
+    confusing error inside storage.py."""
+    data = config.get("database")
+    if data is None:
+        return []
+    if not isinstance(data, dict):
+        return ["'database' section must be an object if present"]
+
+    errors = []
+    if "enabled" in data and not isinstance(data["enabled"], bool):
+        errors.append(f"database.enabled must be a boolean, got {data['enabled']!r}")
+    retention = data.get("retention_days")
+    if "retention_days" in data and not (
+        isinstance(retention, int) and not isinstance(retention, bool) and retention > 0
+    ):
+        errors.append(f"database.retention_days must be a positive int, got {retention!r}")
+    return errors
 
 
 def _validate_devices(devices: list) -> tuple[list[str], list[str]]:
