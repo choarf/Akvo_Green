@@ -1,11 +1,11 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-09-26T19:58:04.484626+00:00",
-        "hash": "9b9281706dc7abda071a44f1d8c5819e"
+        "generated_at": "2026-09-26T20:16:53.021086+00:00",
+        "hash": "65f29d4cd311b6761fd615a008009bee"
     },
     "gateway": {
-        "gateway_id": "AKVO_GW_101",
+        "gateway_id": "AKVO_Gateway",
         "city": "America/Mexico_City",
         "poll_interval": 20,
         "system_interval": 60,
