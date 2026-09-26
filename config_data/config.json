@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-09-26T16:44:26.702082+00:00",
-        "hash": "5d671053bcaa4ef00e16a758d429ca52"
+        "generated_at": "2026-09-26T19:58:04.484626+00:00",
+        "hash": "9b9281706dc7abda071a44f1d8c5819e"
     },
     "gateway": {
         "gateway_id": "AKVO_GW_101",
@@ -40,7 +40,7 @@
                     "count": 1,
                     "scale": 1.0,
                     "offset": 0.0,
-                    "unit": "Celsius*10",
+                    "unit": "0.1 \u00b0C",
                     "type": "float",
                     "min": 0.0,
                     "max": 500.0
@@ -58,7 +58,7 @@
                     "count": 1,
                     "scale": 1.0,
                     "offset": 0.0,
-                    "unit": "Celsius*10",
+                    "unit": "0.1 \u00b0C",
                     "type": "float",
                     "min": 0.0,
                     "max": 500.0
@@ -69,7 +69,7 @@
                     "count": 1,
                     "scale": 1.0,
                     "offset": 1.0,
-                    "unit": "*10%",
+                    "unit": "0.1 %HR",
                     "type": "float",
                     "min": 0.0,
                     "max": 1000.0
