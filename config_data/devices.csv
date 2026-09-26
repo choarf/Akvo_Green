@@ -1,6 +1,16 @@
 device_id,slave,sensor_name,addr,count,scale,offset,unit,type,min,max,enabled
-DEV_2,3,TempAgua,0,1,1,0,0.1 °C,float,0,500,1
-DEV_3,3,TempAmb,0,1,1,0,0.1 °C,float,0,500,1
-DEV_3,3,HumAmb,1,1,1,1,0.1 %HR,float,0,1000,1
-DEV_4,4,Presion1,8,1,1,0,Mpa,float,0,450,1
-DEV_5,5,Presion2,8,1,1,0,Mpa,float,0,450,1
+DEV_1,2,Pt100Sensor,0,1,1,0,°C,float,0,55,1
+DEV_2,3,Ambient,0,1,1,0,°C,float,0,55,1
+DEV_3,3,Humedad,1,1,1,0,%HR,float,0,80,1
+DEV_4,10,ORPSensor,0,2,1,0,mV,float,-1500,1500,1
+DEV_5,25,PhSensor,0,2,1,0,unit,float,0,14,1
+DEV_6,25,TempPhSensor,2,2,1,0,°C,float,0,55,1
+DEV_7,5,DOSensor,0,4,1,0,mg/L,float,0,2500,1
+DEV_8,9,CODSensor,0,2,1,0,mg/L,float,0,1500,1
+DEV_9,9,TempCODSensor,2,2,1,0,°C,float,0,55,1
+DEV_10,9,TurbCODSensort,4,2,1,0,NTU,float,0,100,1
+DEV_11,9,BODSensor,6,2,1,0,mg/L,float,0,40,1
+DEV_12,9,TOCSensor,8,2,1,0,mg/L,float,0,300,1
+DEV_13,20,CondSensor,0,6,1,0,uc/cm,float,0,200,1
+DEV_14,20,TempCondSensor,0,6,1,0,°C,float,0,55,1
+DEV_15,20,TDSCondSensor,0,6,1,0,uS/cm,float,10,5000,1

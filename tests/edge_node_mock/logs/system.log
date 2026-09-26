@@ -5716,3 +5716,102 @@
 2026-09-25 17:03:48,394 | INFO | MainThread | MQTT disconnected
 2026-09-25 17:03:48,395 | INFO | MainThread | Modbus disconnected
 2026-09-25 17:03:48,395 | INFO | MainThread | WiFi disconnected
+2026-09-26 16:38:34,092 | INFO | MainThread | Log level: INFO (set AKVO_LOG_LEVEL to change, e.g. AKVO_LOG_LEVEL=DEBUG)
+2026-09-26 16:38:34,115 | WARNING | MainThread | DEV_3: Duplicate slave ID 3
+2026-09-26 16:38:34,116 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-26 16:38:34,116 | INFO | ModbusConnect | Connecting Modbus (/tmp/akvo_edge_node_master)...
+2026-09-26 16:38:34,117 | INFO | ModbusConnect | Modbus connected
+2026-09-26 16:38:34,117 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-26 16:38:34,131 | INFO | WifiConnect | WiFi connected
+2026-09-26 16:38:34,362 | INFO | Thread-1 (start) | MQTT connected
+2026-09-26 16:38:34,447 | INFO | Thread-1 (start) | History DB synced from config.json -> added:['DEV_2.TempAgua', 'DEV_3.TempAmb', 'DEV_3.HumAmb', 'DEV_4.Presion1', 'DEV_5.Presion2'] removed:['DEV_1', 'DEV_6', 'DEV_7', 'DEV_8', 'DEV_9', 'DEV_10', 'DEV_11', 'DEV_12', 'DEV_13', 'DEV_14', 'DEV_15', 'DEV_2.Ambient', 'DEV_3.Humedad', 'DEV_4.ORPSensor', 'DEV_5.PhSensor'] updated:['DEV_4', 'DEV_5']
+2026-09-26 16:38:34,450 | INFO | ConfigWatcher | Reloading config...
+2026-09-26 16:38:34,451 | WARNING | ConfigWatcher | DEV_3: Duplicate slave ID 3
+2026-09-26 16:38:34,456 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-26 16:39:40,815 | INFO | MainThread | Log level: INFO (set AKVO_LOG_LEVEL to change, e.g. AKVO_LOG_LEVEL=DEBUG)
+2026-09-26 16:39:40,816 | WARNING | MainThread | DEV_3: Duplicate slave ID 3
+2026-09-26 16:39:40,817 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-26 16:39:40,818 | INFO | ModbusConnect | Connecting Modbus (/tmp/akvo_edge_node_master)...
+2026-09-26 16:39:40,818 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-26 16:39:40,823 | INFO | ModbusConnect | Modbus connected
+2026-09-26 16:39:40,834 | INFO | WifiConnect | WiFi connected
+2026-09-26 16:39:41,052 | INFO | Thread-1 (start) | MQTT connected
+2026-09-26 16:39:41,059 | INFO | ConfigWatcher | Reloading config...
+2026-09-26 16:39:41,060 | WARNING | ConfigWatcher | DEV_3: Duplicate slave ID 3
+2026-09-26 16:39:41,067 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-26 16:40:13,128 | WARNING | Worker | [ALERT] DEV_4.Presion1 HIGH
+2026-09-26 16:40:40,817 | INFO | MainThread | Stopping Edge Node
+2026-09-26 16:40:40,818 | INFO | MainThread | MQTT disconnected
+2026-09-26 16:40:40,818 | INFO | MainThread | Modbus disconnected
+2026-09-26 16:40:40,818 | INFO | MainThread | WiFi disconnected
+2026-09-26 16:49:43,077 | INFO | MainThread | Log level: INFO (set AKVO_LOG_LEVEL to change, e.g. AKVO_LOG_LEVEL=DEBUG)
+2026-09-26 16:49:43,095 | WARNING | MainThread | DEV_3: Duplicate slave ID 3
+2026-09-26 16:49:43,095 | WARNING | MainThread | DEV_6: Duplicate slave ID 25
+2026-09-26 16:49:43,096 | WARNING | MainThread | DEV_9: Duplicate slave ID 9
+2026-09-26 16:49:43,096 | WARNING | MainThread | DEV_10: Duplicate slave ID 9
+2026-09-26 16:49:43,096 | WARNING | MainThread | DEV_11: Duplicate slave ID 9
+2026-09-26 16:49:43,096 | WARNING | MainThread | DEV_12: Duplicate slave ID 9
+2026-09-26 16:49:43,096 | WARNING | MainThread | DEV_14: Duplicate slave ID 20
+2026-09-26 16:49:43,096 | WARNING | MainThread | DEV_15: Duplicate slave ID 20
+2026-09-26 16:49:43,097 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-26 16:49:43,097 | INFO | ModbusConnect | Connecting Modbus (/tmp/akvo_edge_node_master)...
+2026-09-26 16:49:43,098 | INFO | ModbusConnect | Modbus connected
+2026-09-26 16:49:43,098 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-26 16:49:43,123 | INFO | WifiConnect | WiFi connected
+2026-09-26 16:49:43,531 | INFO | Thread-1 (start) | MQTT connected
+2026-09-26 16:49:43,587 | INFO | Thread-1 (start) | History DB synced from config.json -> added:['DEV_1', 'DEV_2.Ambient', 'DEV_3.Humedad', 'DEV_4.ORPSensor', 'DEV_5.PhSensor', 'DEV_6', 'DEV_7', 'DEV_8', 'DEV_9', 'DEV_10', 'DEV_11', 'DEV_12', 'DEV_13', 'DEV_14', 'DEV_15'] removed:['DEV_2.TempAgua', 'DEV_3.TempAmb', 'DEV_3.HumAmb', 'DEV_4.Presion1', 'DEV_5.Presion2'] updated:['DEV_4', 'DEV_5']
+2026-09-26 16:49:43,589 | INFO | ConfigWatcher | Reloading config...
+2026-09-26 16:49:43,592 | WARNING | ConfigWatcher | DEV_3: Duplicate slave ID 3
+2026-09-26 16:49:43,592 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 25
+2026-09-26 16:49:43,592 | WARNING | ConfigWatcher | DEV_9: Duplicate slave ID 9
+2026-09-26 16:49:43,593 | WARNING | ConfigWatcher | DEV_10: Duplicate slave ID 9
+2026-09-26 16:49:43,593 | WARNING | ConfigWatcher | DEV_11: Duplicate slave ID 9
+2026-09-26 16:49:43,593 | WARNING | ConfigWatcher | DEV_12: Duplicate slave ID 9
+2026-09-26 16:49:43,593 | WARNING | ConfigWatcher | DEV_14: Duplicate slave ID 20
+2026-09-26 16:49:43,594 | WARNING | ConfigWatcher | DEV_15: Duplicate slave ID 20
+2026-09-26 16:49:43,596 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-26 16:49:44,291 | WARNING | Worker | [ALERT] DEV_13.CondSensor HIGH
+2026-09-26 16:49:44,344 | WARNING | Worker | [ALERT] DEV_14.TempCondSensor HIGH
+2026-09-26 16:50:04,066 | WARNING | Worker | [ALERT] DEV_9.TempCODSensor HIGH
+2026-09-26 16:50:04,119 | WARNING | Worker | [ALERT] DEV_10.TurbCODSensort HIGH
+2026-09-26 16:50:04,172 | WARNING | Worker | [ALERT] DEV_11.BODSensor HIGH
+2026-09-26 16:50:04,225 | WARNING | Worker | [ALERT] DEV_12.TOCSensor HIGH
+2026-09-26 16:50:04,387 | WARNING | Worker | [ALERT] DEV_15.TDSCondSensor HIGH
+2026-09-26 16:50:23,763 | WARNING | Worker | [ALERT] DEV_4.ORPSensor HIGH
+2026-09-26 16:50:23,871 | WARNING | Worker | [ALERT] DEV_6.TempPhSensor HIGH
+2026-09-26 16:50:43,097 | INFO | MainThread | Stopping Edge Node
+2026-09-26 16:50:43,098 | INFO | MainThread | MQTT disconnected
+2026-09-26 16:50:43,099 | INFO | MainThread | Modbus disconnected
+2026-09-26 16:50:43,099 | INFO | MainThread | WiFi disconnected
+2026-09-26 16:50:49,584 | INFO | MainThread | Log level: INFO (set AKVO_LOG_LEVEL to change, e.g. AKVO_LOG_LEVEL=DEBUG)
+2026-09-26 16:50:49,586 | WARNING | MainThread | DEV_3: Duplicate slave ID 3
+2026-09-26 16:50:49,586 | WARNING | MainThread | DEV_6: Duplicate slave ID 25
+2026-09-26 16:50:49,586 | WARNING | MainThread | DEV_9: Duplicate slave ID 9
+2026-09-26 16:50:49,586 | WARNING | MainThread | DEV_10: Duplicate slave ID 9
+2026-09-26 16:50:49,586 | WARNING | MainThread | DEV_11: Duplicate slave ID 9
+2026-09-26 16:50:49,586 | WARNING | MainThread | DEV_12: Duplicate slave ID 9
+2026-09-26 16:50:49,587 | WARNING | MainThread | DEV_14: Duplicate slave ID 20
+2026-09-26 16:50:49,587 | WARNING | MainThread | DEV_15: Duplicate slave ID 20
+2026-09-26 16:50:49,587 | INFO | Thread-1 (start) | Starting Edge Node
+2026-09-26 16:50:49,588 | INFO | ModbusConnect | Connecting Modbus (/tmp/akvo_edge_node_master)...
+2026-09-26 16:50:49,588 | INFO | ModbusConnect | Modbus connected
+2026-09-26 16:50:49,589 | INFO | Thread-1 (start) | Connecting MQTT...
+2026-09-26 16:50:49,604 | INFO | WifiConnect | WiFi connected
+2026-09-26 16:50:49,797 | INFO | Thread-1 (start) | MQTT connected
+2026-09-26 16:50:49,805 | INFO | ConfigWatcher | Reloading config...
+2026-09-26 16:50:49,807 | WARNING | ConfigWatcher | DEV_3: Duplicate slave ID 3
+2026-09-26 16:50:49,808 | WARNING | ConfigWatcher | DEV_6: Duplicate slave ID 25
+2026-09-26 16:50:49,808 | WARNING | ConfigWatcher | DEV_9: Duplicate slave ID 9
+2026-09-26 16:50:49,809 | WARNING | ConfigWatcher | DEV_10: Duplicate slave ID 9
+2026-09-26 16:50:49,809 | WARNING | ConfigWatcher | DEV_11: Duplicate slave ID 9
+2026-09-26 16:50:49,810 | WARNING | ConfigWatcher | DEV_12: Duplicate slave ID 9
+2026-09-26 16:50:49,810 | WARNING | ConfigWatcher | DEV_14: Duplicate slave ID 20
+2026-09-26 16:50:49,811 | WARNING | ConfigWatcher | DEV_15: Duplicate slave ID 20
+2026-09-26 16:50:49,814 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-09-26 16:50:50,505 | WARNING | Worker | [ALERT] DEV_13.CondSensor HIGH
+2026-09-26 16:50:50,558 | WARNING | Worker | [ALERT] DEV_14.TempCondSensor HIGH
+2026-09-26 16:51:09,911 | WARNING | Worker | [ALERT] DEV_2.Ambient HIGH
+2026-09-26 16:51:19,588 | INFO | MainThread | Stopping Edge Node
+2026-09-26 16:51:19,589 | INFO | MainThread | MQTT disconnected
+2026-09-26 16:51:19,590 | INFO | MainThread | Modbus disconnected
+2026-09-26 16:51:19,590 | INFO | MainThread | WiFi disconnected
