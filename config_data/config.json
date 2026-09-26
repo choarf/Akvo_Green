@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-09-26T16:39:23.982256+00:00",
-        "hash": "1b4c71541c64c054d74ac243a7f61b1a"
+        "generated_at": "2026-09-26T16:44:26.702082+00:00",
+        "hash": "5d671053bcaa4ef00e16a758d429ca52"
     },
     "gateway": {
         "gateway_id": "AKVO_GW_101",
@@ -40,10 +40,10 @@
                     "count": 1,
                     "scale": 1.0,
                     "offset": 0.0,
-                    "unit": "Celsius",
+                    "unit": "Celsius*10",
                     "type": "float",
                     "min": 0.0,
-                    "max": 50.0
+                    "max": 500.0
                 }
             ]
         },
@@ -58,10 +58,10 @@
                     "count": 1,
                     "scale": 1.0,
                     "offset": 0.0,
-                    "unit": "Celsius",
+                    "unit": "Celsius*10",
                     "type": "float",
                     "min": 0.0,
-                    "max": 50.0
+                    "max": 500.0
                 },
                 {
                     "name": "HumAmb",
@@ -69,10 +69,10 @@
                     "count": 1,
                     "scale": 1.0,
                     "offset": 1.0,
-                    "unit": "%",
+                    "unit": "*10%",
                     "type": "float",
                     "min": 0.0,
-                    "max": 50.0
+                    "max": 1000.0
                 }
             ]
         },

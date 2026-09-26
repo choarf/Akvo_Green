@@ -1,6 +1,6 @@
 device_id,slave,sensor_name,addr,count,scale,offset,unit,type,min,max,enabled
-DEV_2,3,TempAgua,0,1,1,0,Celsius,float,0,50,1
-DEV_3,3,TempAmb,0,1,1,0,Celsius,float,0,50,1
-DEV_3,3,HumAmb,1,1,1,1,%,float,0,50,1
+DEV_2,3,TempAgua,0,1,1,0,Celsius*10,float,0,500,1
+DEV_3,3,TempAmb,0,1,1,0,Celsius*10,float,0,500,1
+DEV_3,3,HumAmb,1,1,1,1,*10%,float,0,1000,1
 DEV_4,4,Presion1,8,1,1,0,Mpa,float,0,450,1
 DEV_5,5,Presion2,8,1,1,0,Mpa,float,0,450,1
