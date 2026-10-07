@@ -17,13 +17,16 @@ Edge Node (scheduler, worker, publisher threads)
 AWS IoT Core (MQTT, mTLS)
 ```
 
+**Contents:** [Features](#features) · [Repository layout](#repository-layout) · [Requirements](#requirements) · [Installation](#installation) · [Quick start](#quick-start) · [Optional features](#optional-features) ([local history database](#local-history-database-optional), [virtual Modbus](#virtual-modbus-optional)) · [Operations](#operations) ([debug logging](#debug-logging), [exporting config back to CSV](#exporting-config-back-to-csv)) · [Testing](#testing) · [Documentation](#documentation)
+
 ## Features
 
 - **Modbus RTU client (V3)** — thread-safe wrapper around PyModbus supporting FC01/02/03/04/05/06/15/16, connection/reconnection helpers, input validation, and per-call statistics (success rate, response time). See [`docs/Modbus_client/AKVO_Modbus_Client_API_V3.md`](docs/Modbus_client/AKVO_Modbus_Client_API_V3.md) for the full API reference.
 - **Edge Node engine** (`gateway/edge_node_improved.py`) — polls configured devices/sensors on a schedule, evaluates min/max alarms, and publishes device data and host telemetry (CPU/RAM/disk/IP) to AWS IoT via MQTT. Modbus and MQTT connections retry independently and forever, so a dead serial bus doesn't block cloud reporting.
 - **Live config reload** — a background watcher detects changes to `config.json` and reconnects Modbus/MQTT or rebuilds only the affected devices, without restarting the process.
-- **Local SQLite history (optional)** (`gateway/storage.py`) — records every published sensor reading and host-telemetry sample to `data/history.db` for on-site inspection with plain SQL, and keeps a one-way mirror of `config.json`'s devices/sensors (with a change log) so old readings stay interpretable after the config changes. Off by default; see [Local history database](#local-history-database-optional).
 - **CSV-driven configuration** (`gateway/config_manager.py`) — builds `config.json` from `devices.csv`, `modbus.csv`, `system.csv`, and `aws.csv`, with validation (duplicate slave IDs, overlapping registers, invalid sensor types) and a matching `export` command to go back from JSON to CSV.
+- **Local SQLite history (optional)** (`gateway/storage.py`) — records every published sensor reading and host-telemetry sample to `data/history.db` for on-site inspection with plain SQL, and keeps a one-way mirror of `config.json`'s devices/sensors (with a change log) so old readings stay interpretable after the config changes. Off by default; see [Local history database](#local-history-database-optional).
+- **Virtual Modbus (optional)** (`gateway/domain/simulation.py`) — run against synthetic, config-driven sensor data instead of a real serial bus, for demos/dev with no RS-485 hardware at all (no `socat`, no second process). Every reading is tagged `"simulated": true` so it's never confused with real data downstream. Off by default; see [Virtual Modbus](#virtual-modbus-optional).
 - **Hardware-free testing** — a mock Modbus slave plus a virtual serial link (`socat`) let the client be exercised end-to-end without physical RS‑485 equipment.
 
 ## Repository layout
@@ -42,9 +45,11 @@ Akvo_Green/
 │   ├── config_manager.py         # CSV <-> config.json build/export tool
 │   ├── config/schema.py          # config.json validation
 │   ├── domain/sensors.py         # Sensor-type decoder registry
+│   ├── domain/simulation.py      # Optional virtual Modbus (synthetic sensor data)
 │   ├── storage.py                # Optional SQLite history store + config.json mirror
 │   └── certs/                    # AWS IoT Core certificates (mTLS)
 ├── data/                          # Created at runtime (gitignored): history.db
+├── sites/                         # Optional: per-site config_data/+certs/ for multi-site deployments
 ├── tests/
 │   ├── akvo_modbus_mock/         # Virtual-serial mock Modbus slave + client tests
 │   ├── test_modbus_client/       # Additional pytest suite + real-hardware test plan
@@ -71,7 +76,7 @@ source .venv/bin/activate
 pip install pymodbus pyserial psutil awsiotsdk
 ```
 
-## Usage
+## Quick start
 
 ### Quick Modbus test
 
@@ -99,6 +104,12 @@ python3 main_modbus.py
    ```
 
    Editing `devices.csv`, `modbus.csv`, `system.csv`, or `aws.csv` and re-running `config_manager.py build` (or writing `config.json` directly) triggers a live reload — no restart required.
+
+No RS-485 hardware yet? Skip straight to [Virtual Modbus](#virtual-modbus-optional) — the gateway runs the same way, against synthetic sensor data instead.
+
+## Optional features
+
+Two independent, off-by-default features — each is one config change plus a restart, and neither affects the other or the core polling/publishing path.
 
 ### Local history database (optional)
 
@@ -143,7 +154,8 @@ sqlite3 -readonly data/history.db
 
 Timestamps are UTC ISO-8601 strings, so plain string comparison sorts and filters them correctly. `value` is `NULL` when a read failed (`status` is then `BUS_ERROR` or `EXCEPTION`).
 
-#### Use cases
+<details>
+<summary><strong>Example queries</strong> (current readings, alarms, trends, reliability, config history, host health)</summary>
 
 **What is every sensor reading right now?** (e.g. checking a unit on-site)
 
@@ -202,13 +214,44 @@ FROM system_telemetry ORDER BY ts DESC LIMIT 20;
 
 To take a copy while the gateway is running, use `sqlite3 data/history.db ".backup copy.db"` rather than copying the file — recent writes live in the `-wal` file next to it.
 
-#### Limitations
+</details>
+
+**Limitations:**
 
 - **Independent of AWS — never synced or replayed to it.** The database only records; nothing reads it back to send to AWS, and AWS never writes to it. If the connection drops after the gateway has started, polling and recording carry on (every cycle is still written locally), while the AWS library holds the unsent publishes in memory and delivers them when the connection resumes. Those held messages live only in memory: if the gateway restarts or the Pi reboots during the outage they are lost from AWS, and the database is **not** used to backfill them — the readings stay only in `data/history.db`.
 - **Nothing is polled or recorded until AWS has connected once.** At startup the gateway waits for its first MQTT connection before starting any polling threads, so a boot with no network produces no readings, in AWS or in the database, until the connection comes up.
 - **Restart required** to turn it on/off or change `retention_days`. Only the `devices` mirror follows live `config.json` edits.
 - **A database problem never stops the gateway.** If `data/` is unwritable or the disk is full, the failure is logged (`History record_devices error: ...`) and Modbus polling and MQTT publishing carry on unaffected.
 - **No built-in viewer.** It is a plain SQLite file — there is no web dashboard in the gateway.
+
+### Virtual Modbus (optional)
+
+Run the gateway against synthetic, config-driven sensor data instead of a real serial port — useful for demos or development with no RS-485 hardware wired up at all. No `socat`, no second process to run: every sensor's value is generated in-process from its own `min`/`max`/`type` in `devices.csv` (a bounded random walk, with occasional excursions to exercise `HIGH`/`LOW` alarms realistically).
+
+**Enable it** with one column in `config_data/modbus.csv`, then rebuild the config and restart the gateway:
+
+```csv
+port,baudrate,timeout,parity,stopbits,bytesize,simulate_enabled
+/dev/ttyUSB0,9600,1.0,N,1,8,1
+```
+
+```bash
+cd gateway && python3 config_manager.py build
+```
+
+This produces `"modbus": {..., "simulate": true}` in `config.json`. The column is optional — a `modbus.csv` without it uses the real serial port, as always. The startup log makes simulate mode unmistakable:
+
+```text
+Modbus SIMULATE mode is ON - every reading is synthetic, not real sensor data (config.json's modbus.simulate)
+```
+
+**Never confusable with real data.** Every reading published while this is on is tagged `"simulated": true` at the top level of the MQTT payload — not just logged, so it's preserved wherever that payload ends up (the local history database, S3, Athena, a dashboard) and stays distinguishable from real readings permanently, not just at a glance on a screen.
+
+**Restart required**, same as the database feature — `modbus.simulate` is read once at startup, not live-reloadable.
+
+See `docs/edge_node_config/CONFIGURATION.md`'s **Virtual Modbus** section for the full field reference, and `gateway/domain/simulation.py` for how each sensor type (`int`/`uint16`/`float`/`uint32`/`int32`/`float32`) is simulated — it round-trips through the exact same decoder (`domain/sensors.py::decode()`) a real reading would.
+
+## Operations
 
 ### Debug logging
 
@@ -291,7 +334,9 @@ python3 run_edge_node_test.py --no-fake-modbus
 
 See [`tests/edge_node_mock/README.md`](tests/edge_node_mock/README.md) for the full configuration reference, a caution about `fake_mqtt: false` against production AWS IoT things, and a manual (multi-terminal) walkthrough.
 
-The edge node's own logic (alarm evaluation, 32-bit register combining, device-reload diffing, retry backoff, the SQLite history store and its `config.json` sync) has a fast, hardware-free unit test suite under `tests/test_edge_node/`, using fake collaborators instead of real Modbus/MQTT connections:
+This repo's own `tests/edge_node_mock/` mock simulates at the Modbus *wire* level (real framing over a virtual serial port via `socat`), to test `pymodbus`'s real client path — a different thing from the in-process [Virtual Modbus](#virtual-modbus-optional) feature above, which is a supported deployment option, not a test harness.
+
+The edge node's own logic (alarm evaluation, 32-bit register combining, device-reload diffing, retry backoff, the SQLite history store and its `config.json` sync, virtual Modbus) has a fast, hardware-free unit test suite under `tests/test_edge_node/`, using fake collaborators instead of real Modbus/MQTT connections:
 
 ```bash
 cd tests/test_edge_node
@@ -309,7 +354,7 @@ python3 -m pytest --cov=edge_node_improved --cov-report=term-missing -q
 ## Documentation
 
 - [Modbus Client API V3](docs/Modbus_client/AKVO_Modbus_Client_API_V3.md) — full reference for connection handling, supported function codes, error handling, statistics, and thread safety.
-- [Edge Node Configuration Reference](docs/edge_node_config/CONFIGURATION.md) — every column in `devices.csv`/`modbus.csv`/`system.csv`/`aws.csv` and every field in the generated `config.json`, plus the optional `database` section and non-obvious behaviors (disabled devices, sensor-type scaling, live-reload semantics).
+- [Edge Node Configuration Reference](docs/edge_node_config/CONFIGURATION.md) — every column in `devices.csv`/`modbus.csv`/`system.csv`/`aws.csv` and every field in the generated `config.json`, plus the optional `database` and virtual-Modbus settings and non-obvious behaviors (disabled devices, sensor-type scaling, live-reload semantics).
 - [Testing Guide](docs/testing/TESTING.md) — the three test levels (unit/mocked/real-hardware) across all four test suites, a decision table for which to run, and setup for each.
 
 ## License

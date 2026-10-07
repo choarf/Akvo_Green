@@ -1,0 +1,308 @@
+{
+    "meta": {
+        "version": "2.0",
+        "generated_at": "2026-10-04T20:35:33.737602+00:00",
+        "hash": "ba8b8f5457dec2c724b72c7d85765bd0"
+    },
+    "gateway": {
+        "gateway_id": "AKVO_cmd4",
+        "city": "America/Mexico_City",
+        "poll_interval": 20,
+        "system_interval": 60,
+        "watchdog_timeout": 120
+    },
+    "modbus": {
+        "port": "/dev/ttyUSB0",
+        "baudrate": 9600,
+        "timeout": 1.0,
+        "parity": "N",
+        "stopbits": 1,
+        "bytesize": 8,
+        "simulate": true
+    },
+    "aws": {
+        "host": "a2zzu55sjawy4x-ats.iot.us-east-1.amazonaws.com",
+        "client_id": "AKVO_cmd4",
+        "ca": "./certs/AmazonRootCA1.pem",
+        "cert": "./certs/certificate.pem.crt",
+        "key": "./certs/private.pem.key",
+        "topic_pub": "VENKO/cmd4/data",
+        "topic_system": "VENKO/cmd4/system"
+    },
+    "devices": [
+        {
+            "id": "DEV_1",
+            "slave": 2,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "Pt100Sensor",
+                    "addr": 0,
+                    "count": 1,
+                    "scale": 1.0,
+                    "offset": 0.0,
+                    "unit": "\u00b0C",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 55.0
+                }
+            ]
+        },
+        {
+            "id": "DEV_2",
+            "slave": 3,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "Ambient",
+                    "addr": 0,
+                    "count": 1,
+                    "scale": 1.0,
+                    "offset": 0.0,
+                    "unit": "\u00b0C",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 55.0
+                }
+            ]
+        },
+        {
+            "id": "DEV_3",
+            "slave": 3,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "Humedad",
+                    "addr": 1,
+                    "count": 1,
+                    "scale": 1.0,
+                    "offset": 0.0,
+                    "unit": "%HR",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 80.0
+                }
+            ]
+        },
+        {
+            "id": "DEV_4",
+            "slave": 10,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "ORPSensor",
+                    "addr": 0,
+                    "count": 2,
+                    "scale": 1.0,
+                    "offset": 0.0,
+                    "unit": "mV",
+                    "type": "float",
+                    "min": -1500.0,
+                    "max": 1500.0
+                }
+            ]
+        },
+        {
+            "id": "DEV_5",
+            "slave": 25,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "PhSensor",
+                    "addr": 0,
+                    "count": 2,
+                    "scale": 1.0,
+                    "offset": 0.0,
+                    "unit": "unit",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 14.0
+                }
+            ]
+        },
+        {
+            "id": "DEV_6",
+            "slave": 25,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "TempPhSensor",
+                    "addr": 2,
+                    "count": 2,
+                    "scale": 1.0,
+                    "offset": 0.0,
+                    "unit": "\u00b0C",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 55.0
+                }
+            ]
+        },
+        {
+            "id": "DEV_7",
+            "slave": 5,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "DOSensor",
+                    "addr": 0,
+                    "count": 4,
+                    "scale": 1.0,
+                    "offset": 0.0,
+                    "unit": "mg/L",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 2500.0
+                }
+            ]
+        },
+        {
+            "id": "DEV_8",
+            "slave": 9,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "CODSensor",
+                    "addr": 0,
+                    "count": 2,
+                    "scale": 1.0,
+                    "offset": 0.0,
+                    "unit": "mg/L",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 1500.0
+                }
+            ]
+        },
+        {
+            "id": "DEV_9",
+            "slave": 9,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "TempCODSensor",
+                    "addr": 2,
+                    "count": 2,
+                    "scale": 1.0,
+                    "offset": 0.0,
+                    "unit": "\u00b0C",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 55.0
+                }
+            ]
+        },
+        {
+            "id": "DEV_10",
+            "slave": 9,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "TurbCODSensort",
+                    "addr": 4,
+                    "count": 2,
+                    "scale": 1.0,
+                    "offset": 0.0,
+                    "unit": "NTU",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 100.0
+                }
+            ]
+        },
+        {
+            "id": "DEV_11",
+            "slave": 9,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "BODSensor",
+                    "addr": 6,
+                    "count": 2,
+                    "scale": 1.0,
+                    "offset": 0.0,
+                    "unit": "mg/L",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 40.0
+                }
+            ]
+        },
+        {
+            "id": "DEV_12",
+            "slave": 9,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "TOCSensor",
+                    "addr": 8,
+                    "count": 2,
+                    "scale": 1.0,
+                    "offset": 0.0,
+                    "unit": "mg/L",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 300.0
+                }
+            ]
+        },
+        {
+            "id": "DEV_13",
+            "slave": 20,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "CondSensor",
+                    "addr": 0,
+                    "count": 6,
+                    "scale": 1.0,
+                    "offset": 0.0,
+                    "unit": "uc/cm",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 200.0
+                }
+            ]
+        },
+        {
+            "id": "DEV_14",
+            "slave": 20,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "TempCondSensor",
+                    "addr": 0,
+                    "count": 6,
+                    "scale": 1.0,
+                    "offset": 0.0,
+                    "unit": "\u00b0C",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 55.0
+                }
+            ]
+        },
+        {
+            "id": "DEV_15",
+            "slave": 20,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "TDSCondSensor",
+                    "addr": 0,
+                    "count": 6,
+                    "scale": 1.0,
+                    "offset": 0.0,
+                    "unit": "uS/cm",
+                    "type": "float",
+                    "min": 10.0,
+                    "max": 5000.0
+                }
+            ]
+        }
+    ],
+    "database": {
+        "enabled": true,
+        "retention_days": 30
+    }
+}

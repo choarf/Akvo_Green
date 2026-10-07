@@ -283,6 +283,18 @@ def test_database_section_is_optional_and_validated():
     assert validate(cfg)[0]
 
 
+def test_modbus_simulate_flag_is_optional_and_must_be_a_bool():
+    assert validate(VALID_CONFIG)[0] == []  # absent: fine, real hardware is used
+
+    ok = copy.deepcopy(VALID_CONFIG)
+    ok["modbus"]["simulate"] = True
+    assert validate(ok)[0] == []
+
+    bad = copy.deepcopy(VALID_CONFIG)
+    bad["modbus"]["simulate"] = "yes"
+    assert validate(bad)[0]
+
+
 # ---------------------------------------------------------------------------
 # EdgeNode wiring: the DB must never be able to hurt the MQTT publish path
 # ---------------------------------------------------------------------------
@@ -323,6 +335,7 @@ def make_publishing_node(history):
     node.devices = {}
     node.mqtt = RecordingMqtt()
     node.history = history
+    node.simulate_modbus = False
     node.config_mgr = FakeConfigMgr({
         "gateway": {"poll_interval": 1, "system_interval": 1},
         "aws": {"topic_pub": "pub", "topic_system": "sys"},

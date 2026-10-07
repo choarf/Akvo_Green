@@ -87,6 +87,7 @@ def validate(config: dict) -> tuple[list[str], list[str]]:
     errors += _validate_section(config, "modbus", REQUIRED_MODBUS_KEYS)
     errors += _validate_section(config, "aws", REQUIRED_AWS_KEYS)
     errors += _validate_database(config)
+    errors += _validate_modbus_simulate(config)
 
     device_errors, device_warnings = _validate_devices(config.get("devices", []))
     errors += device_errors
@@ -128,6 +129,19 @@ def _validate_database(config: dict) -> list[str]:
     ):
         errors.append(f"database.retention_days must be a positive int, got {retention!r}")
     return errors
+
+
+def _validate_modbus_simulate(config: dict) -> list[str]:
+    """modbus.simulate is optional - absent/false means the real serial
+    bus is used (the default for every existing config.json). Only loosely
+    type-checked so a typo'd hand-edit fails fast here rather than
+    surfacing as a confusing error inside domain/simulation.py."""
+    data = config.get("modbus")
+    if not isinstance(data, dict) or "simulate" not in data:
+        return []
+    if not isinstance(data["simulate"], bool):
+        return [f"modbus.simulate must be a boolean, got {data['simulate']!r}"]
+    return []
 
 
 def _validate_devices(devices: list) -> tuple[list[str], list[str]]:

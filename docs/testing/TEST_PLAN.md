@@ -18,12 +18,13 @@ run" lookup without the rationale, see [`TESTING.md`](TESTING.md).
 | `SensorNode` (register read, alarm eval) | `test_sensor_node.py` (20 tests) | Unit |
 | `DeviceNode` (poll, alarm transition logging) | `test_device_node.py` (4 tests) | Unit |
 | `EdgeNode` (device reload diffing, section hashing, watchdog) | `test_edge_node.py` (9 tests) | Unit |
-| `config_manager.py` CSV build/export of `system.csv`'s `database_*` columns | `test_config_manager.py` (15 tests) | Unit |
-| `storage.py::HistoryStore` (SQLite history, `config.json` -> devices/sensors sync, retention), `database` schema section, and its failure isolation from `publisher()`/`system_publisher()` | `test_storage.py` (23 tests) | Unit |
+| `config_manager.py` CSV build/export of `system.csv`'s `database_*` and `modbus.csv`'s `simulate_enabled` columns | `test_config_manager.py` (25 tests) | Unit |
+| `storage.py::HistoryStore` (SQLite history, `config.json` -> devices/sensors sync, retention), `database`/`modbus.simulate` schema sections, and failure isolation from `publisher()`/`system_publisher()` | `test_storage.py` (24 tests) | Unit |
+| `domain/simulation.py` (`SimSensor`/`SimulatedModbusManager` - virtual Modbus deployment mode) | `test_simulation.py` (19 tests) | Unit |
 | Whole gateway, real threads, real config pipeline | `run_edge_node_test.py` | Mocked integration |
 | Whole gateway under load + concurrent multi-layer failure | `stress_test.py` | Stress/chaos |
 
-Total unit suite: **150 tests**, run via `python3 -m pytest -q` from
+Total unit suite: **180 tests**, run via `python3 -m pytest -q` from
 `tests/test_edge_node/` (or `./run_tests.sh unit`), completing in well
 under a second.
 
@@ -48,10 +49,11 @@ cd tests/test_edge_node && python3 -m pytest test_sensor_node.py::test_read_uint
 | `test_managers.py` | 10 | MQTT/Modbus disconnect safety, publish-triggers-reconnect (cold and on send failure), `_retry_delay` backoff escalation/cap, read-before-connect guard |
 | `test_sensor_node.py` | 20 | Alarm threshold table (numeric + non-numeric no-op), raw vs. scaled reads, out-of-range → alarm, 32-bit roundtrips, bus-error/exception paths, unsupported-type exception |
 | `test_communication_managers.py` | 24 | See §3 below |
-| `test_config_manager.py` | 15 | `system.csv` `database_enabled`/`database_retention_days` -> `config.json`'s separate `database` section (truthy spellings, disabled, blank retention, missing columns = off, non-integer and zero retention rejected), `export` writing the columns back (and adding none when there is no section), build -> export -> build roundtrip stability; all paths redirected to `tmp_path` |
-| `test_storage.py` | 23 | Schema creation/in-place migration of an older `history.db`; readings/telemetry roundtrip (NULL value on `BUS_ERROR`/`EXCEPTION`, `sensor_id` linking); filtered queries; one-way `config.json` sync — first sync, unchanged config is a no-op, sensor added, calibration change recorded old/new, removed sensor/device kept inactive with history intact, re-added device reactivated, all-or-nothing rollback, no `aws`/secrets mirrored; retention pruning; multi-thread use; the optional `database` schema section; `publisher()`/`system_publisher()` keep publishing to MQTT when a history write raises, and the sync helper never raises |
+| `test_config_manager.py` | 25 | `system.csv` `database_enabled`/`database_retention_days` -> `config.json`'s separate `database` section (truthy spellings, disabled, blank retention, missing columns = off, non-integer and zero retention rejected); `modbus.csv` `simulate_enabled` -> `modbus.simulate` (truthy spellings, absent column leaves `modbus` unchanged); both `export`ed back (and adding no column when absent); build -> export -> build roundtrip stability; all paths redirected to `tmp_path` |
+| `test_storage.py` | 24 | Schema creation/in-place migration of an older `history.db`; readings/telemetry roundtrip (NULL value on `BUS_ERROR`/`EXCEPTION`, `sensor_id` linking); filtered queries; one-way `config.json` sync — first sync, unchanged config is a no-op, sensor added, calibration change recorded old/new, removed sensor/device kept inactive with history intact, re-added device reactivated, all-or-nothing rollback, no `aws`/secrets mirrored; retention pruning; multi-thread use; the optional `database` schema section; `publisher()`/`system_publisher()` keep publishing to MQTT when a history write raises, and the sync helper never raises; `modbus.simulate` schema validation |
+| `test_simulation.py` | 19 | `SimSensor`'s bounded random walk and occasional out-of-range spike; `registers()` round-trips every sensor type (`int`/`uint16`/`float`/`uint32`/`int32`/`float32`) through the real `domain.sensors.decode()`, not a parallel reimplementation; `SimulatedModbusManager`'s `read_holding_registers()` interface-compatibility with `ModbusManager` (unknown slave/addr -> error result, multi-register sensors, two devices sharing one slave); a real `SensorNode.read()` through a real `SimulatedModbusManager` end-to-end; `publisher()` tags payloads `"simulated": true` only when the mode is on |
 
-**Exit criteria:** 150/150 pass, 0 skips, runtime <1s (a slower run
+**Exit criteria:** 180/180 pass, 0 skips, runtime <1s (a slower run
 signals something's accidentally touching real I/O — check for a
 missing mock/monkeypatch).
 
@@ -172,7 +174,7 @@ Covered by their own, separate documentation — not duplicated here:
 
 ## 7. Recommended pre-release checklist
 
-1. `./run_tests.sh unit` — must be 150/150.
+1. `./run_tests.sh unit` — must be 180/180.
 2. `./run_tests.sh integration --duration 60` — clean start, poll,
    publish, stop.
 3. `./run_tests.sh stress --duration 600` (10 min) or longer — check the

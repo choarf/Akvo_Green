@@ -17,7 +17,7 @@ python3 config_manager.py build --dry-run  # validate + print, don't write
 python3 config_manager.py export           # config.json -> the four CSVs
 ```
 
-**Run the gateway** (from `gateway/`): `python3 edge_node_improved.py`. Editing the CSVs (via `build`) or `config.json` directly triggers a live reload — no restart needed. Both commands above always read/write `config_data/` at the **repo root**, regardless of what directory they're run from (see Architecture's Config pipeline note).
+**Run the gateway** (from `gateway/`): `python3 edge_node_improved.py`. Editing the CSVs (via `build`) or `config.json` directly triggers a live reload — no restart needed. Both commands above read/write `config_data/` at the **repo root** by default, regardless of what directory they're run from (see Architecture's Config pipeline note); `--config-dir DIR` points `build`/`export` at another site's folder instead (`sites/<key>/config_data/`, see `sites/README.md`). `tools/push_site.sh <key> <user@pi> [--certs]` deploys the code plus one site's `config.json` (and certs) to a Pi.
 
 **Testing** — four independent suites, no single top-level test command:
 

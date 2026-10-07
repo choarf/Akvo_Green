@@ -1,0 +1,2 @@
+gateway_id,city,poll_interval,system_interval,watchdog_timeout,database_enabled,database_retention_days
+AKVO_cmd4,America/Mexico_City,20,60,120,1,30

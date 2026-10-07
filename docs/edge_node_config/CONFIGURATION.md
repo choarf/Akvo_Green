@@ -90,6 +90,43 @@ port,baudrate,timeout,parity,stopbits,bytesize
 /dev/ttyUSB0,9600,1.0,N,1,8
 ```
 
+### Virtual Modbus (optional `simulate_enabled` column)
+
+An optional seventh column turns on synthetic sensor data instead of
+reading `port` at all — useful for demoing the full pipeline (gateway →
+AWS IoT → dashboard) with no RS-485 hardware, no `socat`, nothing to wire
+up:
+
+```csv
+port,baudrate,timeout,parity,stopbits,bytesize,simulate_enabled
+/dev/ttyUSB0,9600,1.0,N,1,8,1
+```
+
+| Column | Type | Description |
+|---|---|---|
+| `simulate_enabled` | bool (optional) | `1`/`true`/`yes`/`on` runs against `gateway/domain/simulation.py`'s in-process simulator instead of the real serial port; `0`/blank/absent uses real hardware (the default — absent means every existing `modbus.csv` builds and behaves exactly as before). Becomes `modbus.simulate` in `config.json`. |
+
+Every sensor in `devices.csv` gets its own simulated value: a bounded
+random walk within that sensor's `min`/`max`, with an occasional
+excursion outside them to exercise `HIGH`/`LOW` alarms — generated from
+*this gateway's own config*, not canned data, so changing `devices.csv`
+changes what the demo shows with no other changes needed. Every published
+reading is also tagged `"simulated": true` in the MQTT payload (and so in
+S3/Athena too), so synthetic and real data can never be confused with each
+other downstream, even after the fact.
+
+**Read once at startup, like `database.*`** — toggling `simulate_enabled`
+on a running gateway needs a restart, not just a config reload (`sam deploy`
+isn't involved at all; this is purely a Akvo_Green-side setting). The
+startup log makes it unmistakable either way: `Modbus SIMULATE mode is ON
+- every reading is synthetic, not real sensor data`.
+
+This is also a supported *deployment* option, not just a dev convenience
+— a site with no Pi (or no sensors wired) yet can still stand up a fully
+working demo: build that site's `config.json` with `simulate_enabled=1`
+and run `edge_node_improved.py` anywhere Python runs (a Pi, a plain VM, a
+container) — no RS-485 adapter required at all.
+
 ## system.csv
 
 One header row + one data row — gateway identity and timing.
@@ -296,6 +333,7 @@ whichever thread hits the missing/malformed field first:
   the CSV builder and the runtime loader check against.
 - `database` is optional; if present it must be an object, `enabled` a
   boolean, and `retention_days` a positive integer.
+- `modbus.simulate` is optional; if present it must be a boolean.
 - Two devices sharing one `slave` ID is a *warning*, not an error (the
   normal way to model two sensors on one physical unit).
 - A `config.json` edit that fails validation while the gateway is already

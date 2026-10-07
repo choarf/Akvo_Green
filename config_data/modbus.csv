@@ -1,2 +1,2 @@
-port,baudrate,timeout,parity,stopbits,bytesize
-/dev/ttyUSB0,9600,1.0,N,1,8
+port,baudrate,timeout,parity,stopbits,bytesize,simulate_enabled
+/dev/ttyUSB0,9600,1.0,N,1,8,0

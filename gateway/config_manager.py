@@ -8,6 +8,10 @@ Usage:
     python config_manager.py build
     python config_manager.py build --dry-run
     python config_manager.py export
+    python config_manager.py build --config-dir ../sites/akvo/config_data
+
+--config-dir points build/export at another site's CSVs + config.json (see
+sites/README.md); without it they use the repo-root config_data/ as always.
 """
 
 from __future__ import annotations
@@ -44,6 +48,18 @@ DEVICES_CSV = CONFIG_DIR / "devices.csv"
 MODBUS_CSV = CONFIG_DIR / "modbus.csv"
 SYSTEM_CSV = CONFIG_DIR / "system.csv"
 AWS_CSV = CONFIG_DIR / "aws.csv"
+
+
+def use_config_dir(path: Path) -> None:
+    """Repoint every CSV/config.json path at another config directory
+    (one per site under sites/<key>/config_data/)."""
+    global CONFIG_DIR, CONFIG_JSON, DEVICES_CSV, MODBUS_CSV, SYSTEM_CSV, AWS_CSV
+    CONFIG_DIR = Path(path).resolve()
+    CONFIG_JSON = CONFIG_DIR / "config.json"
+    DEVICES_CSV = CONFIG_DIR / "devices.csv"
+    MODBUS_CSV = CONFIG_DIR / "modbus.csv"
+    SYSTEM_CSV = CONFIG_DIR / "system.csv"
+    AWS_CSV = CONFIG_DIR / "aws.csv"
 
 # Columns that MUST be present in devices.csv. "enabled" is optional -
 # if the column is missing every device defaults to enabled.
@@ -289,6 +305,12 @@ class ConfigManager:
             "bytesize": int(m["bytesize"]),
         }
 
+        # Optional: run against synthetic, config-driven sensor data instead
+        # of this real serial port - see domain/simulation.py. Absent column
+        # = off, so an existing modbus.csv builds exactly as before.
+        if "simulate_enabled" in m:
+            config["modbus"]["simulate"] = _parse_bool(m.get("simulate_enabled"), default=False)
+
         s = self.load_single_row_csv(SYSTEM_CSV)
         config["gateway"] = {
             "gateway_id": s["gateway_id"],
@@ -411,7 +433,10 @@ class ConfigManager:
 
     def export_modbus(self, config: Dict[str, Any]) -> None:
         logger.info("Exporting modbus.csv")
-        self._write_single_row_csv(MODBUS_CSV, config["modbus"])
+        row = dict(config["modbus"])
+        if "simulate" in row:
+            row["simulate_enabled"] = int(bool(row.pop("simulate")))
+        self._write_single_row_csv(MODBUS_CSV, row)
 
     def export_system(self, config: Dict[str, Any]) -> None:
         logger.info("Exporting system.csv")
@@ -442,6 +467,19 @@ class ConfigManager:
 # ------------------------------------------------------------------
 
 def main() -> None:
+    if "--config-dir" in sys.argv:
+        i = sys.argv.index("--config-dir")
+        if i + 1 >= len(sys.argv):
+            print("--config-dir needs a directory")
+            sys.exit(1)
+        config_dir = Path(sys.argv[i + 1])
+        if not config_dir.is_dir():
+            print(f"--config-dir: {config_dir} is not a directory")
+            sys.exit(1)
+        use_config_dir(config_dir)
+        del sys.argv[i:i + 2]
+        logger.info(f"Using config directory {CONFIG_DIR}")
+
     cm = ConfigManager()
 
     if len(sys.argv) < 2:
@@ -451,6 +489,7 @@ def main() -> None:
         print(" build       Build config.json")
         print(" export      Export CSV")
         print(" build --dry-run")
+        print(" ... --config-dir DIR   use DIR instead of config_data/")
         print()
         sys.exit(1)
 

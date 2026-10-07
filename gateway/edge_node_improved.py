@@ -22,6 +22,7 @@ from awsiot import mqtt_connection_builder
 
 from config.schema import validate as validate_config
 from domain.sensors import decode as decode_sensor
+from domain.simulation import SimulatedModbusManager
 from storage import HistoryStore
 
 # aws.{ca,cert,key} in config.json are conventionally relative (e.g.
@@ -715,6 +716,13 @@ class EdgeNode:
         self.mqtt = None
         self.modbus = None
         self.wifi = None
+        # Set from config.json's modbus.simulate in init_system() - read
+        # once at startup (not live-reloadable, same as database.* and
+        # AKVO_LOG_LEVEL). Tags every publisher() payload with
+        # "simulated": true whenever on, so synthetic and real readings
+        # stay distinguishable downstream (dashboard, Athena, history),
+        # permanently, not just in the startup log.
+        self.simulate_modbus = False
 
         # Optional local SQLite history - stays None (feature fully off)
         # unless config.json's "database" section enables it. See
@@ -747,7 +755,15 @@ class EdgeNode:
         cfg = self.config_mgr.get()
         gw = cfg.get("gateway", {})
 
-        self.modbus = ModbusManager(cfg["modbus"], reboot_after=gw.get("modbus_reboot_timeout"))
+        self.simulate_modbus = bool(cfg["modbus"].get("simulate"))
+        if self.simulate_modbus:
+            logger.warning(
+                "Modbus SIMULATE mode is ON - every reading is synthetic, "
+                "not real sensor data (config.json's modbus.simulate)"
+            )
+            self.modbus = SimulatedModbusManager(cfg["devices"])
+        else:
+            self.modbus = ModbusManager(cfg["modbus"], reboot_after=gw.get("modbus_reboot_timeout"))
         self.mqtt = MQTTManager(cfg["aws"], reboot_after=gw.get("aws_reboot_timeout"))
         self.wifi = WifiManager(gw)
 
@@ -917,6 +933,8 @@ class EdgeNode:
                         for k, v in self.devices.items()
                     }
                 }
+                if self.simulate_modbus:
+                    payload["simulated"] = True
 
                 self.mqtt.publish(cfg["aws"]["topic_pub"], payload)
 

@@ -61,6 +61,21 @@ def write_system(workspace, **extra):
     write_csv(workspace / "system.csv", list(row), [list(row.values())])
 
 
+MODBUS_BASE = {
+    "port": "/dev/ttyUSB0",
+    "baudrate": "9600",
+    "timeout": "1.0",
+    "parity": "N",
+    "stopbits": "1",
+    "bytesize": "8",
+}
+
+
+def write_modbus(workspace, **extra):
+    row = {**MODBUS_BASE, **extra}
+    write_csv(workspace / "modbus.csv", list(row), [list(row.values())])
+
+
 def build():
     return cm.ConfigManager().build_config()
 
@@ -160,3 +175,81 @@ def test_build_export_build_roundtrip_is_stable(workspace):
     for cfg in (first, second):
         cfg.pop("meta")
     assert first == second
+
+
+# ---------------------------------------------------------------------------
+# build/export: modbus.csv's optional simulate_enabled -> config["modbus"]["simulate"]
+# ---------------------------------------------------------------------------
+
+def test_build_maps_simulate_enabled_into_modbus_section(workspace):
+    write_system(workspace)
+    write_modbus(workspace, simulate_enabled="1")
+
+    config = build()
+
+    assert config["modbus"]["simulate"] is True
+    assert config["modbus"]["port"] == "/dev/ttyUSB0"  # the rest of the section is untouched
+
+
+def test_build_without_simulate_enabled_column_leaves_modbus_unchanged(workspace):
+    write_system(workspace)
+    write_modbus(workspace)  # an older modbus.csv, before this column existed
+
+    config = build()
+
+    assert "simulate" not in config["modbus"]
+
+
+@pytest.mark.parametrize("value,expected", [("1", True), ("true", True), ("0", False), ("", False)])
+def test_build_simulate_enabled_accepts_the_usual_spellings(workspace, value, expected):
+    write_system(workspace)
+    write_modbus(workspace, simulate_enabled=value)
+    assert build()["modbus"]["simulate"] is expected
+
+
+def test_export_writes_simulate_enabled_back_to_modbus_csv(workspace):
+    write_system(workspace)
+    write_modbus(workspace, simulate_enabled="1")
+    build()
+    write_modbus(workspace)  # wipe the column, then restore it from config.json
+
+    cm.ConfigManager().export_config()
+
+    with open(workspace / "modbus.csv", newline="", encoding="utf-8") as f:
+        row = next(csv.DictReader(f))
+    assert row["simulate_enabled"] == "1"
+    assert row["port"] == "/dev/ttyUSB0"
+
+
+def test_export_without_simulate_section_adds_no_column(workspace):
+    write_system(workspace)
+    write_modbus(workspace)
+    build()
+    cm.ConfigManager().export_config()
+    with open(workspace / "modbus.csv", newline="", encoding="utf-8") as f:
+        row = next(csv.DictReader(f))
+    assert "simulate_enabled" not in row
+
+
+# ---------------------------------------------------------------------------
+# --config-dir: build another site's config directory
+# ---------------------------------------------------------------------------
+
+def test_config_dir_option_builds_that_directory_only(workspace, tmp_path, monkeypatch):
+    write_system(workspace)
+    for name in ("CONFIG_DIR", "CONFIG_JSON", "DEVICES_CSV", "MODBUS_CSV", "SYSTEM_CSV", "AWS_CSV"):
+        monkeypatch.setattr(cm, name, getattr(cm, name))  # restore after the test
+    monkeypatch.setattr(cm.sys, "argv", ["config_manager.py", "build", "--config-dir", str(workspace)])
+
+    cm.main()
+
+    assert cm.CONFIG_JSON == workspace.resolve() / "config.json"
+    config = json.loads((workspace / "config.json").read_text())
+    assert config["gateway"]["gateway_id"] == "GW1"
+    assert config["aws"]["topic_pub"] == "t/data"
+
+
+def test_config_dir_option_rejects_a_missing_directory(tmp_path, monkeypatch):
+    monkeypatch.setattr(cm.sys, "argv", ["config_manager.py", "build", "--config-dir", str(tmp_path / "nope")])
+    with pytest.raises(SystemExit):
+        cm.main()
