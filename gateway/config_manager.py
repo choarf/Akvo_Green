@@ -338,6 +338,18 @@ class ConfigManager:
                         f"system.csv: database_retention_days must be an integer, got {retention!r}"
                     )
 
+        # Optional local web dashboard over that database (history_web.py,
+        # its own systemd service) - same pattern: its own "web" section,
+        # both columns optional, absent = off.
+        if "web_enabled" in s or "web_port" in s:
+            config["web"] = {"enabled": _parse_bool(s.get("web_enabled"), default=False)}
+            port = (s.get("web_port") or "").strip()
+            if port:
+                try:
+                    config["web"]["port"] = int(port)
+                except ValueError:
+                    raise ValueError(f"system.csv: web_port must be an integer, got {port!r}")
+
         # Loaded generically (not restricted to a fixed set of keys) so any
         # column present in aws.csv - now or in the future - survives the
         # build/export round trip.
@@ -446,6 +458,11 @@ class ConfigManager:
             row["database_enabled"] = int(bool(database.get("enabled", False)))
             if "retention_days" in database:
                 row["database_retention_days"] = database["retention_days"]
+        web = config.get("web")
+        if web is not None:
+            row["web_enabled"] = int(bool(web.get("enabled", False)))
+            if "port" in web:
+                row["web_port"] = web["port"]
         self._write_single_row_csv(SYSTEM_CSV, row)
 
     def export_aws(self, config: Dict[str, Any]) -> None:

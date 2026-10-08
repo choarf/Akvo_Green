@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-10-04T20:35:33.737602+00:00",
-        "hash": "ba8b8f5457dec2c724b72c7d85765bd0"
+        "generated_at": "2026-10-07T23:30:55.231666+00:00",
+        "hash": "9e5020db0eebbb9938de366e9f4e6293"
     },
     "gateway": {
         "gateway_id": "AKVO_cmd4",
@@ -304,5 +304,9 @@
     "database": {
         "enabled": true,
         "retention_days": 30
+    },
+    "web": {
+        "enabled": true,
+        "port": 8080
     }
 }

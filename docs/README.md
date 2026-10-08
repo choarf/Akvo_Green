@@ -26,6 +26,7 @@ AWS IoT Core (MQTT, mTLS)
 - **Live config reload** — a background watcher detects changes to `config.json` and reconnects Modbus/MQTT or rebuilds only the affected devices, without restarting the process.
 - **CSV-driven configuration** (`gateway/config_manager.py`) — builds `config.json` from `devices.csv`, `modbus.csv`, `system.csv`, and `aws.csv`, with validation (duplicate slave IDs, overlapping registers, invalid sensor types) and a matching `export` command to go back from JSON to CSV.
 - **Local SQLite history (optional)** (`gateway/storage.py`) — records every published sensor reading and host-telemetry sample to `data/history.db` for on-site inspection with plain SQL, and keeps a one-way mirror of `config.json`'s devices/sensors (with a change log) so old readings stay interpretable after the config changes. Off by default; see [Local history database](#local-history-database-optional).
+- **Local web dashboard (optional)** (`gateway/history_web.py`) — a read-only page on the Pi (`http://<pi>:8080`) with live values, trends, alarm episodes, CSV export and host health from that database. Works with no internet. Its own systemd service (`akvo-history-web`), so it can't disturb the gateway. Turned on with `web_enabled=1` in `system.csv`.
 - **Virtual Modbus (optional)** (`gateway/domain/simulation.py`) — run against synthetic, config-driven sensor data instead of a real serial bus, for demos/dev with no RS-485 hardware at all (no `socat`, no second process). Every reading is tagged `"simulated": true` so it's never confused with real data downstream. Off by default; see [Virtual Modbus](#virtual-modbus-optional).
 - **Hardware-free testing** — a mock Modbus slave plus a virtual serial link (`socat`) let the client be exercised end-to-end without physical RS‑485 equipment.
 
@@ -47,6 +48,8 @@ Akvo_Green/
 │   ├── domain/sensors.py         # Sensor-type decoder registry
 │   ├── domain/simulation.py      # Optional virtual Modbus (synthetic sensor data)
 │   ├── storage.py                # Optional SQLite history store + config.json mirror
+│   ├── history_web.py            # Optional local web dashboard over history.db (own service)
+│   ├── web/                      # Its page: index.html, app.js, chart.js, style.css
 │   └── certs/                    # AWS IoT Core certificates (mTLS)
 ├── data/                          # Created at runtime (gitignored): history.db
 ├── sites/                         # Optional: per-site config_data/+certs/ for multi-site deployments
@@ -222,7 +225,7 @@ To take a copy while the gateway is running, use `sqlite3 data/history.db ".back
 - **Nothing is polled or recorded until AWS has connected once.** At startup the gateway waits for its first MQTT connection before starting any polling threads, so a boot with no network produces no readings, in AWS or in the database, until the connection comes up.
 - **Restart required** to turn it on/off or change `retention_days`. Only the `devices` mirror follows live `config.json` edits.
 - **A database problem never stops the gateway.** If `data/` is unwritable or the disk is full, the failure is logged (`History record_devices error: ...`) and Modbus polling and MQTT publishing carry on unaffected.
-- **No built-in viewer.** It is a plain SQLite file — there is no web dashboard in the gateway.
+- **Viewer:** the optional local web dashboard (`web_enabled=1` in `system.csv`) shows it at `http://<pi-address>:8080` - see `docs/edge_node_config/CONFIGURATION.md`, "Local web dashboard".
 
 ### Virtual Modbus (optional)
 

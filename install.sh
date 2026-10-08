@@ -30,6 +30,7 @@ VENV_DIR="$HERE/.venv"
 CERTS_DIR="$GATEWAY_DIR/certs"
 SERVICE_USER="$(whoami)"
 SERVICE_NAME="akvo-green"
+WEB_SERVICE_NAME="akvo-history-web"
 
 SKIP_CERTS=0
 for arg in "$@"; do
@@ -235,9 +236,39 @@ WantedBy=multi-user.target
 EOF
     sudo install -m 0644 -o root -g root "$SERVICE_TMP" "$SERVICE_FILE"
     rm -f "$SERVICE_TMP"
+
+    # Local web dashboard over data/history.db (gateway/history_web.py). A
+    # separate service on purpose: it only reads the database, so it can
+    # never stall Modbus/MQTT. It exits right away (and stays stopped) unless
+    # system.csv has web_enabled=1, so installing it everywhere is harmless.
+    WEB_SERVICE_FILE="/etc/systemd/system/${WEB_SERVICE_NAME}.service"
+    SERVICE_TMP="$(mktemp)"
+    cat > "$SERVICE_TMP" <<EOF
+[Unit]
+Description=Akvo Green local history dashboard
+After=network-online.target ${SERVICE_NAME}.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=$SERVICE_USER
+WorkingDirectory=$GATEWAY_DIR
+ExecStart=$VENV_DIR/bin/python3 $GATEWAY_DIR/history_web.py
+Restart=on-failure
+RestartSec=10
+Nice=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    sudo install -m 0644 -o root -g root "$SERVICE_TMP" "$WEB_SERVICE_FILE"
+    rm -f "$SERVICE_TMP"
+
     sudo systemctl daemon-reload
-    sudo systemctl enable "$SERVICE_NAME" >/dev/null 2>&1
+    sudo systemctl enable "$SERVICE_NAME" "$WEB_SERVICE_NAME" >/dev/null 2>&1
     echo "Installed and enabled $SERVICE_FILE (starts on boot; not started now)."
+    echo "Installed and enabled $WEB_SERVICE_FILE (local dashboard on port 8080 when" \
+         "system.csv has web_enabled=1; otherwise it exits at start)."
     echo "Restart=on-failure: systemd restarts the process on an unexpected crash," \
          "on top of the gateway's own OS-level reboot escalation for a communication" \
          "layer that stays stuck (see CLAUDE.md's Architecture section)."
@@ -259,6 +290,7 @@ echo "  - dialout group membership for $SERVICE_USER"
 [[ $SKIP_CERTS -eq 0 ]] && echo "  - AWS IoT certs (whichever you provided) under ${CERTS_DIR#$HERE/}/"
 echo "  - Passwordless 'reboot' sudo rule (if validation succeeded above)"
 echo "  - systemd service '$SERVICE_NAME' (enabled, not started)"
+echo "  - systemd service '$WEB_SERVICE_NAME' (enabled, not started; needs web_enabled=1)"
 echo ""
 echo "Next steps:"
 echo "  1. Edit config_data/{devices,modbus,system,aws}.csv" \

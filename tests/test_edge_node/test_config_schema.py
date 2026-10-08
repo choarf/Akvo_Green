@@ -128,3 +128,25 @@ def test_duplicate_slave_across_devices_is_a_warning_not_an_error():
     errors, warnings = validate(config)
     assert errors == []
     assert any("Duplicate slave ID" in w for w in warnings)
+
+
+@pytest.mark.parametrize("web", [{"enabled": True}, {"enabled": False, "port": 8080}, {}])
+def test_valid_web_section(web):
+    config = copy.deepcopy(VALID_CONFIG)
+    config["web"] = web
+    assert validate(config)[0] == []
+
+
+@pytest.mark.parametrize("web, needle", [
+    ("on", "'web' section"),
+    ({"enabled": "yes"}, "web.enabled"),
+    ({"port": 0}, "web.port"),
+    ({"port": 70000}, "web.port"),
+    ({"port": "8080"}, "web.port"),
+    ({"port": True}, "web.port"),
+])
+def test_invalid_web_section_is_an_error(web, needle):
+    config = copy.deepcopy(VALID_CONFIG)
+    config["web"] = web
+    errors, _ = validate(config)
+    assert any(needle in e for e in errors)

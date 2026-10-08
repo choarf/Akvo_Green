@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Historial local</title>
+  <script>
+    // Apply the saved theme before the first paint (no light flash in dark mode).
+    try { const t = localStorage.getItem("akvo-theme"); if (t === "dark" || t === "light") document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <strong>Akvo Green</strong>
+      <span class="muted">Historial local · <span id="gw">—</span></span>
+    </div>
+    <div class="badges">
+      <span id="sim" class="badge warn" hidden>⚠ Datos simulados</span>
+      <span id="fresh" class="badge">…</span>
+      <button id="theme" type="button" class="theme-toggle" aria-pressed="false">
+        <span aria-hidden="true">☾</span><b>Modo oscuro</b>
+      </button>
+    </div>
+  </header>
+  <nav class="tabs" aria-label="Vistas">
+    <a href="#actual">Actual</a>
+    <a href="#historicos">Históricos</a>
+    <a href="#alarmas">Alarmas</a>
+    <a href="#sistema">Sistema</a>
+  </nav>
+
+  <main>
+    <p id="error" class="error" role="alert" hidden></p>
+
+    <section id="view-actual" class="view">
+      <p class="hint">Último valor de cada sensor y su tendencia de la última hora. Se actualiza solo.</p>
+      <div id="cards" class="cards"></div>
+    </section>
+
+    <section id="view-historicos" class="view" hidden>
+      <div class="filters">
+        <div class="presets" data-target="hist"></div>
+        <label>Desde <input type="datetime-local" id="h-start"></label>
+        <label>Hasta <input type="datetime-local" id="h-end"></label>
+        <button id="h-run" class="primary">Consultar</button>
+        <button id="h-csv">Exportar CSV</button>
+      </div>
+      <details class="picker" open>
+        <summary>Sensores (<span id="h-count">0</span>) <span class="picker-actions"><button id="h-all" type="button">Todos</button><button id="h-none" type="button">Ninguno</button></span></summary>
+        <div id="h-sensors" class="sensor-list"></div>
+      </details>
+      <p id="h-note" class="hint"></p>
+      <div id="h-charts" class="multiples"></div>
+    </section>
+
+    <section id="view-alarmas" class="view" hidden>
+      <div class="filters">
+        <div class="presets" data-target="alarm"></div>
+        <label>Sensor <select id="a-sensor"><option value="">Todos</option></select></label>
+      </div>
+      <p id="a-summary" class="hint"></p>
+      <div class="table-wrap">
+        <table id="a-table">
+          <thead><tr><th>Sensor</th><th>Tipo</th><th>Inicio</th><th>Fin</th><th>Duración</th><th class="num">Muestras</th><th class="num">Pico</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="view-sistema" class="view" hidden>
+      <div class="cards">
+        <div class="card"><h3>Gateway</h3><dl id="s-gw"></dl></div>
+        <div class="card"><h3>Base de datos</h3><dl id="s-db"></dl></div>
+      </div>
+      <div class="filters"><div class="presets" data-target="sys"></div></div>
+      <div class="card wide"><h3>CPU, RAM y disco (%)</h3><div id="s-chart"></div></div>
+    </section>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -253,3 +253,39 @@ def test_config_dir_option_rejects_a_missing_directory(tmp_path, monkeypatch):
     monkeypatch.setattr(cm.sys, "argv", ["config_manager.py", "build", "--config-dir", str(tmp_path / "nope")])
     with pytest.raises(SystemExit):
         cm.main()
+
+
+# ---------------------------------------------------------------------------
+# build/export: system.csv's optional web_* columns -> config["web"]
+# ---------------------------------------------------------------------------
+
+def test_build_maps_web_columns_into_their_own_section(workspace):
+    write_system(workspace, database_enabled="1", web_enabled="1", web_port="8080")
+    config = build()
+    assert config["web"] == {"enabled": True, "port": 8080}
+    assert "web_enabled" not in config["gateway"]
+
+
+def test_build_without_web_columns_leaves_it_off(workspace):
+    write_system(workspace)
+    assert "web" not in build()
+
+
+def test_build_blank_web_port_omits_it_so_the_default_applies(workspace):
+    write_system(workspace, web_enabled="1", web_port="")
+    assert build()["web"] == {"enabled": True}
+
+
+def test_build_rejects_non_integer_web_port(workspace):
+    write_system(workspace, web_enabled="1", web_port="eighty")
+    with pytest.raises(ValueError, match="web_port"):
+        build()
+
+
+def test_export_writes_web_columns_back_to_system_csv(workspace):
+    write_system(workspace, web_enabled="1", web_port="8081")
+    build()
+    write_system(workspace)
+    cm.ConfigManager().export_config()
+    row = read_system_row(workspace)
+    assert row["web_enabled"] == "1" and row["web_port"] == "8081"

@@ -9,7 +9,8 @@
 #
 # Code is synced with rsync, never touching the Pi's config_data/, data/, logs/,
 # gateway/certs/ or .venv/. config.json is copied into config_data/ (the gateway
-# live-reloads it); the akvo-green service is restarted only when code changed.
+# live-reloads it); the akvo-green service is restarted only when code changed,
+# the akvo-history-web dashboard (if installed) on every push.
 # First install on a new Pi: run this, then ./install.sh --skip-certs on the Pi.
 set -euo pipefail
 
@@ -66,5 +67,13 @@ fi
 if [ -n "$CHANGES" ] && ssh "$PI" "systemctl is-enabled --quiet akvo-green" 2>/dev/null; then
   echo "== code changed: restarting akvo-green"
   ssh -t "$PI" "sudo systemctl restart akvo-green"
+fi
+# The local dashboard reads web.* and the page files only at start, and a
+# restart can't disturb the gateway - so always restart it when installed.
+if ssh "$PI" "systemctl is-enabled --quiet akvo-history-web" 2>/dev/null; then
+  echo "== restarting akvo-history-web (local dashboard)"
+  ssh -t "$PI" "sudo systemctl restart akvo-history-web"
+elif [ -n "$CHANGES" ]; then
+  echo "   note: akvo-history-web is not installed on this Pi - run ./install.sh --skip-certs there once"
 fi
 echo "done. The gateway reloads config.json within 5 s."

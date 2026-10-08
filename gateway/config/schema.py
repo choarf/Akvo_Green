@@ -88,6 +88,7 @@ def validate(config: dict) -> tuple[list[str], list[str]]:
     errors += _validate_section(config, "aws", REQUIRED_AWS_KEYS)
     errors += _validate_database(config)
     errors += _validate_modbus_simulate(config)
+    errors += _validate_web(config)
 
     device_errors, device_warnings = _validate_devices(config.get("devices", []))
     errors += device_errors
@@ -128,6 +129,26 @@ def _validate_database(config: dict) -> list[str]:
         isinstance(retention, int) and not isinstance(retention, bool) and retention > 0
     ):
         errors.append(f"database.retention_days must be a positive int, got {retention!r}")
+    return errors
+
+
+def _validate_web(config: dict) -> list[str]:
+    """'web' (the local history dashboard, history_web.py) is optional like
+    'database' - absent means off. Loosely type-checked for the same reason."""
+    data = config.get("web")
+    if data is None:
+        return []
+    if not isinstance(data, dict):
+        return ["'web' section must be an object if present"]
+
+    errors = []
+    if "enabled" in data and not isinstance(data["enabled"], bool):
+        errors.append(f"web.enabled must be a boolean, got {data['enabled']!r}")
+    port = data.get("port")
+    if "port" in data and not (
+        isinstance(port, int) and not isinstance(port, bool) and 1 <= port <= 65535
+    ):
+        errors.append(f"web.port must be an int between 1 and 65535, got {port!r}")
     return errors
 
 

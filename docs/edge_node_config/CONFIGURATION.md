@@ -140,15 +140,17 @@ One header row + one data row — gateway identity and timing.
 | `watchdog_timeout` | int (seconds) | If the worker thread (the one doing Modbus reads) stalls for longer than this — genuinely stuck, e.g. blocked inside a library call that never returns, not just returning read errors — a dedicated watchdog thread logs a `CRITICAL` line and reboots the whole host (`sudo reboot`, via the same `_RebootEscalator`/`_default_reboot_fn` the three communication managers use — see `CLAUDE.md`'s Architecture section). Leave blank/`0` to disable. Guarded by the same reboot-loop limit (max 3 reboots/hour) so a problem a reboot can't fix doesn't boot-loop the device. |
 | `database_enabled` | bool (optional) | `1`/`true`/`yes`/`on` turns on the local SQLite history store; `0`/blank/anything else leaves it off. Becomes `database.enabled` in `config.json` — **not** a `gateway` key. See [Local history database](#local-history-database-optional-database-section). |
 | `database_retention_days` | int (optional) | Days of readings/telemetry to keep (default `30` when blank). Becomes `database.retention_days`. Must be a positive integer — a non-integer fails `build` with a clear message. |
+| `web_enabled` | bool (optional) | `1` turns on the local web dashboard over that database (`gateway/history_web.py`, service `akvo-history-web`); `0`/blank/absent leaves it off. Becomes `web.enabled`. See [Local web dashboard](#local-web-dashboard-optional-web-section). |
+| `web_port` | int (optional) | Port of that dashboard (default `8080` when blank). Becomes `web.port`; must be 1-65535. |
 
-The two `database_*` columns are optional: a `system.csv` without them builds
+The `database_*` and `web_*` columns are optional: a `system.csv` without them builds
 exactly as before, with the database off. The other columns are still required —
 a missing one isn't caught with a friendly error, it surfaces as a raw
 `KeyError` during `build`.
 
 ```csv
-gateway_id,city,poll_interval,system_interval,watchdog_timeout,database_enabled,database_retention_days
-AKVO_GW_101,America/Mexico_City,15,30,120,1,30
+gateway_id,city,poll_interval,system_interval,watchdog_timeout,database_enabled,database_retention_days,web_enabled,web_port
+AKVO_GW_101,America/Mexico_City,15,30,120,1,30,1,8080
 ```
 
 ## aws.csv
@@ -313,6 +315,64 @@ mirrored — never `aws`/`modbus`/`gateway`.
   for a reading recorded before that sensor was first synced).
 - An invalid `config.json` edit is rejected by validation before it ever
   reaches the database.
+
+## Local web dashboard (optional `web` section)
+
+A small web page on the Pi itself that shows the local history database:
+open `http://<pi-address>:8080` from any device on the same network. It works
+with **no internet** (the page draws its own charts, no CDN) and **without AWS**,
+so it is the way to look at a site when the cloud dashboard can't.
+
+```csv
+...,database_enabled,database_retention_days,web_enabled,web_port
+...,1,30,1,8080
+```
+
+```json
+"web": { "enabled": true, "port": 8080 }
+```
+
+Views (in Spanish):
+
+| View | Shows |
+|---|---|
+| **Actual** | Latest value of every sensor, status (Normal / ▲ Alto / ▼ Bajo / ✕ Error), limits and a 1-hour sparkline. Refreshes every poll interval. |
+| **Históricos** | Pick sensors and a range (1 h – 30 d, or custom): one chart per sensor (average line, min–max band, alarm limits), a table view, and **Exportar CSV** (raw readings of the selected sensors, max 7 days: one row per reading cycle, one column per sensor, plus an `alarmas` column naming the sensors in alarm or with a read error; opens in Excel). |
+| **Alarmas** | Alarm *episodes* (consecutive out-of-range samples merged), with start, end, duration and peak. Click one to open its trend. |
+| **Sistema** | Gateway IP/OS, database size and date range, CPU/RAM/disk over time. |
+
+How it runs:
+
+- **Separate service, read-only.** `gateway/history_web.py` runs as its own
+  systemd service, `akvo-history-web` (installed by `install.sh`), and opens
+  `data/history.db` read-only. A slow query or a crash there can't affect Modbus
+  polling or MQTT. Standard library only, nothing extra to install.
+- **Needs `database_enabled=1`** - it shows what the database has recorded.
+  With the database off it shows whatever is already in the file, and says so.
+- **No password.** Anyone who can reach the Pi on the network can *view* the data
+  (nothing can be changed through it). Keep it to trusted networks; turn it off
+  with `web_enabled=0`.
+- **Restart to apply.** `web.*` is read at service start: after a change,
+  `tools/push_site.sh` restarts `akvo-history-web` automatically (or run
+  `sudo systemctl restart akvo-history-web` on the Pi). The gateway itself is not
+  restarted for this.
+- When `web_enabled` is off, the service starts, logs
+  `Local web dashboard is off` and exits - so it can stay installed everywhere.
+- Times are shown in the gateway's `city` time zone; the CSV has both UTC and
+  local time. A blank CSV cell means a read error (or the sensor wasn't read in that cycle).
+- Check it on the Pi: `systemctl status akvo-history-web`,
+  `journalctl -u akvo-history-web -n 20`, `curl -s localhost:8080/api/info`.
+- **Show it on the Pi's own screen at boot:** run `tools/setup_kiosk.sh` on the Pi
+  (as `pi`). It adds `~/.config/autostart/akvo-kiosk.desktop`, so at each
+  desktop login Chromium opens `http://localhost:<web_port>/#actual` full screen
+  (`tools/kiosk_launch.sh`). The launcher waits up to 2 minutes for the
+  dashboard service, uses its own browser profile (`~/.config/akvo-kiosk`, so no
+  old tabs or "restore pages?" bar after a power cut) and picks Wayland/X11 by
+  itself. `--window` = normal maximized window, `--off` = remove. Needs Raspberry
+  Pi OS with desktop auto-login (the default; `raspi-config` > System Options >
+  Boot / Auto Login). Alt+F4 closes it until the next boot.
+- Local testing against a copy of a database:
+  `python3 gateway/history_web.py --force --db copy.db --config config.json --host 127.0.0.1 --port 8081`.
 
 ## Validation (`config/schema.py`)
 
