@@ -137,6 +137,10 @@ class SimulatedModbusManager:
     def connect(self) -> None:
         logger.info("Modbus SIMULATED - no serial port opened, synthetic readings only")
 
+    def status(self) -> dict:
+        """For the gateway's status file - no port is open in simulate mode."""
+        return {"connected": True, "port": None, "baudrate": None, "simulated": True}
+
     def update_config(self, cfg: dict) -> None:
         """Called by config_watcher when the 'modbus' section's hash
         changes. Device/sensor changes themselves are handled separately

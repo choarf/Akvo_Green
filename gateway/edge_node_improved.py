@@ -40,6 +40,12 @@ BASE_DIR = Path(__file__).resolve().parent
 # same config.json - src/ is one level down from there.
 REPO_ROOT = BASE_DIR.parent
 
+# Live connection state for local readers (history_web.py). In RAM when the
+# OS has /dev/shm (every Linux/Pi), so the every-poll write costs no SD-card
+# wear; data/ otherwise. history_web.py resolves the same path.
+STATUS_PATH = (Path("/dev/shm/akvo-green-status.json") if Path("/dev/shm").is_dir()
+               else REPO_ROOT / "data" / "status.json")
+
 
 # =========================
 # LOGGER
@@ -321,6 +327,15 @@ def get_system_status(gateway_cfg: dict) -> dict:
 
     city = gateway_cfg.get("city")
 
+    # Cumulative since boot, every interface but loopback (WiFi + Ethernet +
+    # any modem) - readers take differences between samples.
+    try:
+        nics = psutil.net_io_counters(pernic=True)
+        net_recv = sum(c.bytes_recv for name, c in nics.items() if name != "lo")
+        net_sent = sum(c.bytes_sent for name, c in nics.items() if name != "lo")
+    except Exception:
+        net_recv = net_sent = None
+
     return {
         "ts": datetime.now(UTC).isoformat(),
         "gateway": gateway_cfg.get("gateway_id"),
@@ -332,6 +347,8 @@ def get_system_status(gateway_cfg: dict) -> dict:
         "disk_usage_percent": psutil.disk_usage(disk_path).percent,
         "ip_address": ip_address,
         "os": os_info,
+        "net_bytes_recv": net_recv,
+        "net_bytes_sent": net_sent,
     }
 
 
@@ -389,6 +406,10 @@ class WifiManager:
             time.sleep(delay)
             attempt += 1
 
+    def status(self):
+        """For the status file (EdgeNode.write_status)."""
+        return {"connected": self.connected, "check": f"{self.check_host}:{self.check_port}"}
+
     def disconnect(self):
         """Marks the link as down. There's no socket to close at this level
         (see class docstring) - this exists for symmetry with
@@ -429,6 +450,14 @@ class MQTTManager:
         # at once).
         self.lock = threading.RLock()
         self._reboot = _RebootEscalator(reboot_after, reboot_fn)
+        # Live link state for the status file. After the first connect the
+        # AWS library reconnects on its own and publish() (QoS 1, not
+        # awaited) doesn't raise during an outage, so without the
+        # interrupted/resumed callbacks below a dropped link is invisible.
+        self.connected = False
+        self.last_change = None    # epoch s of the last connected/disconnected change
+        self.last_publish = None   # epoch s of the last publish() handed to a live connection
+        self.last_error = None
         # Built once and reused for every connect() attempt over this
         # manager's whole lifetime (including retries and update_config()'s
         # reconnects) - a ClientBootstrap/EventLoopGroup is meant to serve
@@ -460,12 +489,15 @@ class MQTTManager:
                     client_id=self.cfg["client_id"],
                     client_bootstrap=self._bootstrap,
                     keep_alive_secs=60,
-                    clean_session=False
+                    clean_session=False,
+                    on_connection_interrupted=self._on_interrupted,
+                    on_connection_resumed=self._on_resumed,
                 )
 
                 connection.connect().result()
                 with self.lock:
                     self.connection = connection
+                self._set_connected(True)
                 elapsed = time.time() - start
                 if attempt:
                     logger.info(f"MQTT connected (after {attempt} retries, {elapsed:.1f}s)")
@@ -474,11 +506,33 @@ class MQTTManager:
                 return
 
             except Exception as e:
+                self.last_error = str(e)
                 delay = _retry_delay(attempt)
                 logger.error(f"MQTT connect failed: {e} - retrying in {delay:.1f}s")
                 self._reboot.check("MQTT")
                 time.sleep(delay)
                 attempt += 1
+
+    def _set_connected(self, value):
+        if value != self.connected:
+            self.connected = value
+            self.last_change = time.time()
+
+    def _on_interrupted(self, connection, error, **kwargs):
+        # Called on an AWS library thread - only flips state, never blocks.
+        self.last_error = str(error)
+        self._set_connected(False)
+        logger.warning(f"MQTT connection interrupted: {error}")
+
+    def _on_resumed(self, connection, return_code, session_present, **kwargs):
+        self._set_connected(True)
+        logger.info(f"MQTT connection resumed (return code {return_code})")
+
+    def status(self):
+        """For the status file (EdgeNode.write_status)."""
+        return {"connected": self.connected, "endpoint": self.cfg.get("host"),
+                "client_id": self.cfg.get("client_id"), "since": self.last_change,
+                "last_publish": self.last_publish, "last_error": self.last_error}
 
     def update_config(self, cfg):
         """Called by config_watcher when the 'aws' section changes.
@@ -505,7 +559,10 @@ class MQTTManager:
                 payload=json.dumps(payload),
                 qos=mqtt.QoS.AT_LEAST_ONCE
             )
+            if self.connected:
+                self.last_publish = time.time()
         except Exception as e:
+            self.last_error = str(e)
             logger.error(f"MQTT publish failed: {e}")
             self.connect()
 
@@ -515,6 +572,7 @@ class MQTTManager:
         with self.lock:
             connection = self.connection
             self.connection = None
+        self._set_connected(False)
         if connection is not None:
             try:
                 connection.disconnect().result()
@@ -578,6 +636,12 @@ class ModbusManager:
                 old_client.close()
         except Exception as e:
             logger.warning(f"Modbus close of old client failed: {e}")
+
+    def status(self):
+        """For the status file (EdgeNode.write_status). 'connected' means the
+        serial port is open; whether devices answer is in the read counts."""
+        return {"connected": self.client is not None, "port": self.cfg.get("port"),
+                "baudrate": self.cfg.get("baudrate"), "simulated": False}
 
     def read_holding_registers(self, address, count, device_id):
         """Thread-safe wrapper other code should call instead of touching
@@ -947,12 +1011,47 @@ class EdgeNode:
                         self.history.record_devices(payload)
                     except Exception as e:
                         logger.error(f"History record_devices error: {e}")
+
+                # Same isolation: a status-file problem never stops publishing.
+                try:
+                    self.write_status(cfg, payload)
+                except Exception as e:
+                    logger.error(f"Status file error: {e}")
             except Exception as e:
                 # See scheduler() - same reasoning: don't let one bad cycle
                 # permanently kill the thread that reports device data.
                 logger.error(f"Publisher error: {e}")
 
             time.sleep(interval)
+
+    def write_status(self, cfg, payload, path=None):
+        """Writes the gateway's live connection state (network, AWS/MQTT,
+        Modbus) and the last cycle's read counts to STATUS_PATH, for local
+        readers in other processes (history_web.py's Sistema page). Atomic
+        (temp file + rename) so a reader never sees half a file; in RAM
+        (/dev/shm) so it costs no SD-card writes."""
+        total = errors = alarms = 0
+        for sensors in payload["devices"].values():
+            for r in sensors.values():
+                total += 1
+                if r.get("status") != "OK":
+                    errors += 1
+                elif r.get("alarm") in ("HIGH", "LOW"):
+                    alarms += 1
+        status = {
+            "ts": payload["ts"],
+            "gateway_id": cfg["gateway"].get("gateway_id"),
+            "poll_interval": cfg["gateway"].get("poll_interval"),
+            "network": self.wifi.status() if self.wifi else None,
+            "mqtt": self.mqtt.status() if self.mqtt else None,
+            "modbus": {**(self.modbus.status() if self.modbus else {}),
+                       "sensors": total, "read_errors": errors, "alarms": alarms},
+        }
+        path = Path(path or STATUS_PATH)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_name(path.name + ".tmp")
+        tmp.write_text(json.dumps(status))
+        os.replace(tmp, path)
 
     def system_publisher(self):
         while not self.stop_event.is_set():

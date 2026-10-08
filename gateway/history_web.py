@@ -40,6 +40,10 @@ REPO_ROOT = BASE_DIR.parent
 DEFAULT_CONFIG = REPO_ROOT / "config_data" / "config.json"
 DEFAULT_DB = REPO_ROOT / "data" / "history.db"
 STATIC_DIR = BASE_DIR / "web"
+# Written by the gateway every poll cycle (edge_node_improved.STATUS_PATH -
+# duplicated, not imported, so this process never loads the AWS/Modbus libs).
+DEFAULT_STATUS = (Path("/dev/shm/akvo-green-status.json") if Path("/dev/shm").is_dir()
+                  else REPO_ROOT / "data" / "status.json")
 DEFAULT_PORT = 8080
 
 MAX_RANGE = timedelta(days=31)       # retention is 30 days by default
@@ -213,6 +217,39 @@ def system_series(conn, start: datetime, end: datetime, step: int) -> dict:
             "latest": dict(last) if last else None}
 
 
+def network_series(conn, start: datetime, end: datetime, step: int) -> dict:
+    """Bytes received/sent per bucket, from the cumulative-since-boot
+    counters in system_telemetry: each sample contributes its difference
+    from the previous one. A counter that went down means a reboot reset it,
+    so that sample counts from zero. Empty when the database predates the
+    counters (older gateway) - nothing to show, not an error."""
+    cols = {r["name"] for r in conn.execute("PRAGMA table_info(system_telemetry)")}
+    if "net_bytes_recv" not in cols:
+        return {"points": [], "total_recv": 0, "total_sent": 0}
+    # One sample before `start` too, so the first bucket has a baseline.
+    prev = conn.execute(
+        "SELECT net_bytes_recv AS r, net_bytes_sent AS s FROM system_telemetry "
+        "WHERE ts < ? AND net_bytes_recv IS NOT NULL ORDER BY ts DESC LIMIT 1", (iso(start),)
+    ).fetchone()
+    last = (prev["r"], prev["s"]) if prev else None
+    buckets: dict[int, list[int]] = {}
+    for row in conn.execute(
+        "SELECT CAST(strftime('%s', ts) AS INTEGER) AS t, net_bytes_recv AS r, net_bytes_sent AS s "
+        "FROM system_telemetry WHERE ts >= ? AND ts < ? AND net_bytes_recv IS NOT NULL ORDER BY ts",
+        (iso(start), iso(end)),
+    ):
+        cur = (row["r"], row["s"])
+        if last is not None:
+            d = [c - p if c >= p else c for c, p in zip(cur, last)]
+            b = buckets.setdefault(row["t"] // step, [0, 0])
+            b[0] += d[0]
+            b[1] += d[1]
+        last = cur
+    points = [[b * step * 1000, v[0], v[1]] for b, v in sorted(buckets.items())]
+    return {"points": points, "total_recv": sum(p[1] for p in points),
+            "total_sent": sum(p[2] for p in points)}
+
+
 def db_info(conn, path: Path) -> dict:
     size = sum(p.stat().st_size for p in (path, path.with_name(path.name + "-wal")) if p.exists())
     span = conn.execute("SELECT MIN(ts) AS first, MAX(ts) AS last, COUNT(*) AS n FROM readings").fetchone()
@@ -274,12 +311,52 @@ def export_rows(conn, sensors: list[dict], start: datetime, end: datetime, tz: Z
 # HTTP
 # ----------------------------------------------------------------------
 
+BUCKET = re.compile(r"^[a-z0-9][a-z0-9.\-]{1,61}[a-z0-9]$")
+
+
+def aws_links(aws: dict) -> dict:
+    """Links to this site's cloud side, from aws.csv's optional
+    dashboard_url / data_bucket / web_bucket columns (only those, plus the
+    region and client id - never the certificate paths). Values that don't
+    look like an https URL / bucket name are dropped, not shown."""
+    m = re.search(r"\.iot\.([a-z0-9-]+)\.amazonaws\.com", aws.get("host", ""))
+    region = m.group(1) if m else None
+    links = {"region": region, "client_id": aws.get("client_id")}
+    url = (aws.get("dashboard_url") or "").strip()
+    if url.startswith("https://"):
+        links["dashboard"] = url
+    for key in ("data_bucket", "web_bucket"):
+        b = (aws.get(key) or "").strip()
+        if BUCKET.match(b):
+            links[key] = {"name": b, "url": f"https://s3.console.aws.amazon.com/s3/buckets/{b}"
+                                            + (f"?region={region}&tab=objects" if region else "")}
+    if region and links["client_id"]:
+        links["iot_thing"] = (f"https://{region}.console.aws.amazon.com/iot/home?region={region}"
+                              f"#/thing/{links['client_id']}")
+    return links
+
+
+def read_status(path: Path, poll_interval: int, now: datetime | None = None) -> dict:
+    """The gateway's status file plus how old it is. 'stale' = the gateway
+    hasn't finished a publish cycle in 3 poll intervals (stopped or stuck),
+    so the connection states in it can't be trusted any more."""
+    try:
+        status = json.loads(path.read_text())
+    except (OSError, ValueError):
+        return {"available": False}
+    now = now or datetime.now(UTC)
+    age = (now - datetime.fromisoformat(status["ts"])).total_seconds()
+    return {"available": True, "age_s": age, "stale": age > 3 * poll_interval, **status}
+
+
 class App:
     """What the handler needs: paths and the parts of config.json it shows."""
 
-    def __init__(self, config: dict, db_path: Path):
+    def __init__(self, config: dict, db_path: Path, status_path: Path = DEFAULT_STATUS):
         gw = config.get("gateway", {})
         self.db_path = db_path
+        self.status_path = status_path
+        self.links = aws_links(config.get("aws", {}))
         self.gateway_id = gw.get("gateway_id", "")
         self.city = gw.get("city") or "UTC"
         self.tz = ZoneInfo(self.city)
@@ -310,6 +387,9 @@ def make_handler(app: App):
             if not url.path.startswith("/api/"):
                 return self._json({"error": "no encontrado"}, HTTPStatus.NOT_FOUND)
             q = {k: v[-1] for k, v in parse_qs(url.query).items()}
+            if url.path == "/api/status":  # no database needed
+                return self._json({"links": app.links, "now": iso(datetime.now(UTC)),
+                                   **read_status(app.status_path, app.poll_interval)})
             try:
                 conn = open_db(app.db_path)
             except FileNotFoundError:
@@ -346,7 +426,13 @@ def make_handler(app: App):
             if path == "/api/system":
                 start, end = time_range(q, timedelta(hours=24), MAX_RANGE)
                 step = bucket_seconds(start, end, app.system_interval)
-                return self._json({"step_s": step, **system_series(conn, start, end, step)})
+                span = (end - start).total_seconds()
+                # Data usage reads best in round periods ("MB per hour"), so
+                # its own, coarser buckets rather than the CPU chart's.
+                net_step = 300 if span <= 6 * 3600 else 3600 if span <= 2 * 86400 else 6 * 3600
+                return self._json({"step_s": step, **system_series(conn, start, end, step),
+                                   "network": {"step_s": net_step,
+                                               **network_series(conn, start, end, net_step)}})
             if path == "/api/export.csv":
                 start, end = time_range(q, timedelta(hours=24), MAX_EXPORT_RANGE)
                 sensors = pick_sensors(conn, q.get("sensors"))
@@ -386,6 +472,7 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     ap.add_argument("--db", type=Path, default=DEFAULT_DB)
+    ap.add_argument("--status", type=Path, default=DEFAULT_STATUS, help="gateway status file")
     ap.add_argument("--host", default="0.0.0.0")
     ap.add_argument("--port", type=int, help="overrides web.port")
     ap.add_argument("--force", action="store_true", help="run even if web.enabled is off (testing)")
@@ -403,7 +490,7 @@ def main(argv=None) -> int:
                        f"{args.db} (set database_enabled=1 in system.csv)")
 
     port = args.port or web.get("port", DEFAULT_PORT)
-    server = ThreadingHTTPServer((args.host, port), make_handler(App(config, args.db)))
+    server = ThreadingHTTPServer((args.host, port), make_handler(App(config, args.db, args.status)))
     logger.info(f"Local web dashboard on http://{args.host}:{port} (database {args.db}, read-only)")
     try:
         server.serve_forever()

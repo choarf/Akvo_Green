@@ -232,3 +232,100 @@ def test_main_exits_quietly_when_disabled(tmp_path):
     cfg = tmp_path / "config.json"
     cfg.write_text(json.dumps({**CONFIG, "web": {"enabled": False}}))
     assert hw.main(["--config", str(cfg), "--db", str(tmp_path / "x.db")]) == 0
+
+
+# ---------------------------------------------------------------------------
+# Sistema: connection status + AWS links
+# ---------------------------------------------------------------------------
+
+AWS = {"host": "abc-ats.iot.us-east-1.amazonaws.com", "client_id": "AKVO_cmd4", "cert": "/secret/cert.pem",
+       "dashboard_url": "https://d1.cloudfront.net", "data_bucket": "venko-cmd4-1-us-east-1",
+       "web_bucket": "venko-cmd4-web-1"}
+
+
+def test_aws_links_build_console_urls_and_never_expose_cert_paths():
+    links = hw.aws_links(AWS)
+    assert links["region"] == "us-east-1" and links["dashboard"] == "https://d1.cloudfront.net"
+    assert links["data_bucket"] == {"name": "venko-cmd4-1-us-east-1",
+                                    "url": "https://s3.console.aws.amazon.com/s3/buckets/venko-cmd4-1-us-east-1"
+                                           "?region=us-east-1&tab=objects"}
+    assert links["iot_thing"].endswith("#/thing/AKVO_cmd4")
+    assert "/secret" not in json.dumps(links)
+
+
+def test_aws_links_drop_values_that_are_not_urls_or_bucket_names():
+    links = hw.aws_links({**AWS, "dashboard_url": "javascript:alert(1)", "data_bucket": "Bad Bucket!",
+                          "web_bucket": ""})
+    assert "dashboard" not in links and "data_bucket" not in links and "web_bucket" not in links
+
+
+def test_read_status_age_stale_and_missing(tmp_path):
+    p = tmp_path / "status.json"
+    assert hw.read_status(p, 20) == {"available": False}
+    p.write_text(json.dumps({"ts": T0.isoformat(), "mqtt": {"connected": True}}))
+    fresh = hw.read_status(p, 20, now=T0 + timedelta(seconds=30))
+    assert fresh["available"] and not fresh["stale"] and fresh["mqtt"]["connected"]
+    assert hw.read_status(p, 20, now=T0 + timedelta(seconds=61))["stale"] is True
+
+
+def test_http_status_works_without_the_database(tmp_path):
+    status = tmp_path / "status.json"
+    status.write_text(json.dumps({"ts": datetime.now(UTC).isoformat(), "modbus": {"simulated": True}}))
+    cfg = {**CONFIG, "aws": AWS}
+    srv = hw.ThreadingHTTPServer(("127.0.0.1", 0), hw.make_handler(hw.App(cfg, tmp_path / "none.db", status)))
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        code, _, body = get(f"http://127.0.0.1:{srv.server_address[1]}/api/status")
+        st = json.loads(body)
+        assert code == 200 and st["available"] and not st["stale"]
+        assert st["modbus"]["simulated"] and st["links"]["web_bucket"]["name"] == "venko-cmd4-web-1"
+    finally:
+        srv.shutdown()
+        srv.server_close()
+
+
+# ---------------------------------------------------------------------------
+# Sistema: network data usage
+# ---------------------------------------------------------------------------
+
+def net_db(tmp_path, samples):
+    """samples: (seconds after T0, bytes_recv, bytes_sent)"""
+    path = tmp_path / "net.db"
+    store = HistoryStore(db_path=path)
+    for s, r, t in samples:
+        store.record_system({"ts": (T0 + timedelta(seconds=s)).isoformat(), "net_bytes_recv": r, "net_bytes_sent": t})
+    store.close()
+    return hw.open_db(path)
+
+
+def test_network_series_sums_differences_per_bucket(tmp_path):
+    c = net_db(tmp_path, [(0, 1000, 100), (60, 3000, 300), (120, 6000, 600), (3600, 7000, 700)])
+    out = hw.network_series(c, T0, T0 + timedelta(hours=2), step=3600)
+    # first sample is only a baseline; 2000+3000 in hour 1, 1000 in hour 2
+    assert [p[1:] for p in out["points"]] == [[5000, 500], [1000, 100]]
+    assert (out["total_recv"], out["total_sent"]) == (6000, 600)
+
+
+def test_network_series_uses_a_sample_before_the_range_as_baseline(tmp_path):
+    c = net_db(tmp_path, [(0, 1000, 10), (7200, 4000, 40)])
+    out = hw.network_series(c, T0 + timedelta(hours=1), T0 + timedelta(hours=3), step=3600)
+    assert out["total_recv"] == 3000
+
+
+def test_network_series_counts_from_zero_after_a_reboot(tmp_path):
+    c = net_db(tmp_path, [(0, 50_000, 5_000), (60, 800, 80)])  # counter reset by a reboot
+    out = hw.network_series(c, T0, T0 + timedelta(hours=1), step=3600)
+    assert (out["total_recv"], out["total_sent"]) == (800, 80)
+
+
+def test_network_series_on_a_database_without_the_counters(tmp_path):
+    import sqlite3
+    path = tmp_path / "old.db"
+    sqlite3.connect(path).executescript("CREATE TABLE system_telemetry (id INTEGER PRIMARY KEY, ts TEXT);")
+    assert hw.network_series(hw.open_db(path), T0, T0 + timedelta(hours=1), 3600)["points"] == []
+
+
+def test_http_system_includes_network(server):
+    start, end = int(T0.timestamp() * 1000), int((T0 + timedelta(hours=1)).timestamp() * 1000)
+    body = json.loads(get(f"{server}/api/system?start={start}&end={end}")[2])
+    assert body["network"]["step_s"] == 300 and "total_recv" in body["network"]

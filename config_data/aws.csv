@@ -1,2 +1,2 @@
-host,client_id,ca,cert,key,topic_pub,topic_system
-a2zzu55sjawy4x-ats.iot.us-east-1.amazonaws.com,AKVO_Gateway,./certs/AmazonRootCA1.pem,./certs/certificate.pem.crt,./certs/private.pem.key,AKVO/demo_data, AKVO/demo_system
+host,client_id,ca,cert,key,topic_pub,topic_system,dashboard_url,data_bucket,web_bucket
+a2zzu55sjawy4x-ats.iot.us-east-1.amazonaws.com,AKVO_Gateway,./certs/AmazonRootCA1.pem,./certs/certificate.pem.crt,./certs/private.pem.key,AKVO/demo_data, AKVO/demo_system,https://ddlxtxblzvu22.cloudfront.net,venko-demo-884520769610-us-east-1,venko-demo-web-884520769610

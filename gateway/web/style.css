@@ -124,6 +124,19 @@ main { padding: 16px; max-width: 1400px; margin: 0 auto; }
 .status.critical i { color: var(--critical); }
 .status.serious i { color: var(--serious); }
 .status.none i { color: var(--muted); }
+.status.warning i { color: var(--warning); }
+
+.cards.sys { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+@media (max-width: 440px) { .cards.sys { grid-template-columns: 1fr; } }
+.conn { display: grid; grid-template-columns: max-content 1fr; gap: 8px 12px; align-items: baseline; font-size: 13px; }
+.conn .label { color: var(--muted); }
+.conn .state { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.conn .detail { color: var(--text-2); font-size: 12px; overflow-wrap: anywhere; }
+.conn.stale .status, .conn.stale .detail { opacity: .55; }
+.conn .note { grid-column: 1 / -1; font-size: 12px; color: var(--muted); }
+dd a { color: var(--accent); text-decoration: none; }
+dd a:hover { text-decoration: underline; }
+dd a::after { content: " ↗"; font-size: 11px; }
 
 dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: 13px; }
 dt { color: var(--muted); }

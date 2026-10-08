@@ -156,3 +156,73 @@ def test_watchdog_does_not_reboot_while_heartbeat_keeps_advancing(monkeypatch):
 
     assert reboot_calls == []
     assert ticks["n"] == 5
+
+
+# ---------------------------------------------------------------------------
+# write_status: the status file history_web.py's Sistema page reads
+# ---------------------------------------------------------------------------
+
+class _Mgr:
+    def __init__(self, status):
+        self._status = status
+
+    def status(self):
+        return self._status
+
+
+def test_write_status_counts_errors_and_alarms_and_is_valid_json(tmp_path):
+    import json
+    node = make_node()
+    node.wifi = _Mgr({"connected": True, "check": "8.8.8.8:53"})
+    node.mqtt = _Mgr({"connected": False, "last_error": "x"})
+    node.modbus = _Mgr({"connected": True, "port": "/dev/ttyUSB0", "simulated": False})
+    payload = {"ts": "2026-10-07T12:00:00+00:00", "devices": {
+        "DEV_1": {"T": {"val": 1, "status": "OK", "alarm": "NORMAL"},
+                  "H": {"val": 99, "status": "OK", "alarm": "HIGH"}},
+        "DEV_2": {"P": {"status": "BUS_ERROR", "alarm": None}}}}
+    cfg = {"gateway": {"gateway_id": "GW1", "poll_interval": 20}}
+    path = tmp_path / "sub" / "status.json"
+
+    node.write_status(cfg, payload, path=path)
+
+    st = json.loads(path.read_text())
+    assert st["ts"] == payload["ts"] and st["gateway_id"] == "GW1"
+    assert st["mqtt"]["connected"] is False and st["network"]["connected"] is True
+    assert st["modbus"] == {"connected": True, "port": "/dev/ttyUSB0", "simulated": False,
+                            "sensors": 3, "read_errors": 1, "alarms": 1}
+    assert not (tmp_path / "sub" / "status.json.tmp").exists()
+
+
+def test_publisher_status_file_failure_does_not_stop_publishing(monkeypatch):
+    node = make_node()
+    node.stop_event = threading.Event()
+    node.simulate_modbus = False
+    node.history = None
+    node.config_mgr = FakeConfigMgr({"gateway": {"poll_interval": 0}, "aws": {"topic_pub": "t"}})
+    sent = []
+
+    class Mqtt:
+        def publish(self, topic, payload):
+            sent.append(topic)
+            node.stop_event.set()
+
+    node.mqtt = Mqtt()
+
+    def boom(*a, **k):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(node, "write_status", boom)
+    node.publisher()
+    assert sent == ["t"]
+
+
+def test_system_status_counts_network_bytes_on_every_interface_but_loopback(monkeypatch):
+    from types import SimpleNamespace as NS
+    monkeypatch.setattr(en.psutil, "net_io_counters", lambda pernic: {
+        "lo": NS(bytes_recv=10**9, bytes_sent=10**9),
+        "wlan0": NS(bytes_recv=1000, bytes_sent=200),
+        "eth0": NS(bytes_recv=30, bytes_sent=4),
+    })
+    monkeypatch.setattr(en.psutil, "cpu_percent", lambda interval: 1.0)
+    st = en.get_system_status({"gateway_id": "GW1"})
+    assert (st["net_bytes_recv"], st["net_bytes_sent"]) == (1030, 204)

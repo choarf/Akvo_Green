@@ -73,7 +73,7 @@ One header row + one data row — the whole serial bus configuration.
 
 | Column | Type | Description |
 |---|---|---|
-| `port` | string | Serial device path (`/dev/ttyUSB0`, `COM3`, ...). |
+| `port` | string | Serial device path: `/dev/ttyUSB0` (USB-RS485 adapter), `/dev/ttySC0`/`/dev/ttySC1` (Waveshare 2-CH RS485 HAT channel 1/2 - see the README's "RS-485 hardware"), `COM3`, ... A change is live-reloaded (Modbus reconnects on the new port). |
 | `baudrate` | int | Serial baud rate. |
 | `timeout` | float | Per-request timeout, in seconds. |
 | `parity` | string | Passed straight to `ModbusSerialClient` (typically `N`/`E`/`O`). |
@@ -169,6 +169,9 @@ ones `edge_node_improved.py` actually reads.
 | `key` | Path to this device's private key. |
 | `topic_pub` | MQTT topic device/sensor data is published to. |
 | `topic_system` | MQTT topic host telemetry is published to. |
+| `dashboard_url` | *(optional)* The site's cloud dashboard (`https://...cloudfront.net`). Shown as a link on the local dashboard's *Sistema* page; not used by the gateway. |
+| `data_bucket` | *(optional)* The site's S3 data bucket name - linked to the S3 console on *Sistema*. |
+| `web_bucket` | *(optional)* The site's S3 web bucket name - same. |
 
 `ca`/`cert`/`key` are conventionally relative paths (`./certs/...`).
 `ConfigManager.load()` resolves them against `edge_node_improved.py`'s own
@@ -178,9 +181,11 @@ they work regardless of where the process is launched from. An already-absolute
 path is left untouched.
 
 ```csv
-host,client_id,ca,cert,key,topic_pub,topic_system
-a2zzu55sjawy4x-ats.iot.us-east-1.amazonaws.com,AKVO_Gateway,./certs/AmazonRootCA1.pem,./certs/certificate.pem.crt,./certs/private.pem.key,AKVO/data,AKVO/system
+host,client_id,ca,cert,key,topic_pub,topic_system,dashboard_url,data_bucket,web_bucket
+a2zzu55sjawy4x-ats.iot.us-east-1.amazonaws.com,AKVO_Gateway,./certs/AmazonRootCA1.pem,./certs/certificate.pem.crt,./certs/private.pem.key,AKVO/data,AKVO/system,https://ddlxtxblzvu22.cloudfront.net,venko-demo-884520769610-us-east-1,venko-demo-web-884520769610
 ```
+
+The three link columns come from VenkoDemo's site summary (`docs/sites/<key>.md`: web page, S3 data bucket, S3 web bucket). Changing them reconnects MQTT once (the `aws` section's hash changes) - harmless.
 
 ## config.json (generated)
 
@@ -339,7 +344,7 @@ Views (in Spanish):
 | **Actual** | Latest value of every sensor, status (Normal / ▲ Alto / ▼ Bajo / ✕ Error), limits and a 1-hour sparkline. Refreshes every poll interval. |
 | **Históricos** | Pick sensors and a range (1 h – 30 d, or custom): one chart per sensor (average line, min–max band, alarm limits), a table view, and **Exportar CSV** (raw readings of the selected sensors, max 7 days: one row per reading cycle, one column per sensor, plus an `alarmas` column naming the sensors in alarm or with a read error; opens in Excel). |
 | **Alarmas** | Alarm *episodes* (consecutive out-of-range samples merged), with start, end, duration and peak. Click one to open its trend. |
-| **Sistema** | Gateway IP/OS, database size and date range, CPU/RAM/disk over time. |
+| **Sistema** | **Conexiones**: gateway active/stopped, network (Internet), AWS IoT (MQTT: connected, last send, last error), Modbus (port open, read errors, simulated) - refreshed every poll. **Nube AWS**: links to the cloud dashboard, the S3 data and web buckets and the IoT thing in the AWS console (from `aws.csv`). Plus gateway IP/OS, database size and date range, CPU/RAM/disk over time, and **network data used** (MB received/sent per 5 min / hour / 6 h depending on the range, with totals; all interfaces except loopback). |
 
 How it runs:
 
@@ -358,6 +363,12 @@ How it runs:
   restarted for this.
 - When `web_enabled` is off, the service starts, logs
   `Local web dashboard is off` and exits - so it can stay installed everywhere.
+- **Connection status** comes from a small status file the gateway rewrites every
+  publish cycle - `/dev/shm/akvo-green-status.json` (RAM, no SD-card writes;
+  `data/status.json` where there's no `/dev/shm`). If it's older than 3 poll
+  intervals the page shows the gateway as **Detenido** and greys out the rest.
+  MQTT state comes from the AWS library's connection interrupted/resumed
+  callbacks, so a dropped link shows within the MQTT keep-alive time.
 - Times are shown in the gateway's `city` time zone; the CSV has both UTC and
   local time. A blank CSV cell means a read error (or the sensor wasn't read in that cycle).
 - Check it on the Pi: `systemctl status akvo-history-web`,

@@ -379,3 +379,22 @@ def test_history_sync_helper_never_raises():
 def test_history_sync_helper_is_a_noop_when_database_disabled():
     node = make_publishing_node(None)
     node._sync_history_config({"devices": []})
+
+
+def test_existing_database_gets_the_network_columns(tmp_path):
+    path = tmp_path / "history.db"
+    conn = sqlite3.connect(path)
+    conn.executescript(
+        "CREATE TABLE system_telemetry (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, gateway TEXT, "
+        "city TEXT, cpu_load_percent REAL, ram_usage_percent REAL, disk_usage_percent REAL, ip_address TEXT, "
+        "platform_type TEXT, os TEXT);"
+        "INSERT INTO system_telemetry (ts, gateway) VALUES ('2026-01-01T00:00:00+00:00', 'old');")
+    conn.commit()
+    conn.close()
+
+    s = HistoryStore(db_path=path)
+    s.record_system({"ts": "2026-01-02T00:00:00+00:00", "gateway": "new", "net_bytes_recv": 5, "net_bytes_sent": 7})
+    got = rows(s, "SELECT gateway, net_bytes_recv, net_bytes_sent FROM system_telemetry ORDER BY id")
+    s.close()
+    assert got == [{"gateway": "old", "net_bytes_recv": None, "net_bytes_sent": None},
+                   {"gateway": "new", "net_bytes_recv": 5, "net_bytes_sent": 7}]

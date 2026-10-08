@@ -54,7 +54,10 @@ CREATE TABLE IF NOT EXISTS system_telemetry (
     disk_usage_percent REAL,
     ip_address TEXT,
     platform_type TEXT,
-    os TEXT
+    os TEXT,
+    -- cumulative bytes on all interfaces but loopback since boot (reset by a reboot)
+    net_bytes_recv INTEGER,
+    net_bytes_sent INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_system_ts ON system_telemetry(ts);
 
@@ -131,6 +134,11 @@ class HistoryStore:
         conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_readings_sensor_ts ON readings(sensor_id, ts)"
         )
+        # Same for the network byte counters added to system telemetry later.
+        cols = {row["name"] for row in conn.execute("PRAGMA table_info(system_telemetry)")}
+        for col in ("net_bytes_recv", "net_bytes_sent"):
+            if col not in cols:
+                conn.execute(f"ALTER TABLE system_telemetry ADD COLUMN {col} INTEGER")
         conn.commit()
 
     def _connect(self) -> sqlite3.Connection:
@@ -365,8 +373,8 @@ class HistoryStore:
         conn.execute(
             "INSERT INTO system_telemetry "
             "(ts, gateway, city, cpu_load_percent, ram_usage_percent, "
-            "disk_usage_percent, ip_address, platform_type, os) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "disk_usage_percent, ip_address, platform_type, os, net_bytes_recv, net_bytes_sent) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 status.get("ts"),
                 status.get("gateway"),
@@ -377,6 +385,8 @@ class HistoryStore:
                 status.get("ip_address"),
                 status.get("platform_type"),
                 status.get("os"),
+                status.get("net_bytes_recv"),
+                status.get("net_bytes_sent"),
             ),
         )
         conn.commit()

@@ -1,2 +1,2 @@
-host,client_id,ca,cert,key,topic_pub,topic_system
-a2zzu55sjawy4x-ats.iot.us-east-1.amazonaws.com,AKVO_cmd4,./certs/AmazonRootCA1.pem,./certs/certificate.pem.crt,./certs/private.pem.key,VENKO/cmd4/data,VENKO/cmd4/system
+host,client_id,ca,cert,key,topic_pub,topic_system,dashboard_url,data_bucket,web_bucket
+a2zzu55sjawy4x-ats.iot.us-east-1.amazonaws.com,AKVO_cmd4,./certs/AmazonRootCA1.pem,./certs/certificate.pem.crt,./certs/private.pem.key,VENKO/cmd4/data,VENKO/cmd4/system,https://d29127v2virrqh.cloudfront.net,venko-cmd4-884520769610-us-east-1,venko-cmd4-web-884520769610

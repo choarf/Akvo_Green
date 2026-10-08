@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-10-07T23:30:55.231666+00:00",
-        "hash": "9e5020db0eebbb9938de366e9f4e6293"
+        "generated_at": "2026-10-08T01:20:32.893921+00:00",
+        "hash": "ed38b7eb9b255dfbb494af6d2b4eb982"
     },
     "gateway": {
         "gateway_id": "AKVO_cmd4",
@@ -27,7 +27,10 @@
         "cert": "./certs/certificate.pem.crt",
         "key": "./certs/private.pem.key",
         "topic_pub": "VENKO/cmd4/data",
-        "topic_system": "VENKO/cmd4/system"
+        "topic_system": "VENKO/cmd4/system",
+        "dashboard_url": "https://d29127v2virrqh.cloudfront.net",
+        "data_bucket": "venko-cmd4-884520769610-us-east-1",
+        "web_bucket": "venko-cmd4-web-884520769610"
     },
     "devices": [
         {

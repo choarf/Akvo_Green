@@ -17,7 +17,7 @@ Edge Node (scheduler, worker, publisher threads)
 AWS IoT Core (MQTT, mTLS)
 ```
 
-**Contents:** [Features](#features) · [Repository layout](#repository-layout) · [Requirements](#requirements) · [Installation](#installation) · [Quick start](#quick-start) · [Optional features](#optional-features) ([local history database](#local-history-database-optional), [virtual Modbus](#virtual-modbus-optional)) · [Operations](#operations) ([debug logging](#debug-logging), [exporting config back to CSV](#exporting-config-back-to-csv)) · [Testing](#testing) · [Documentation](#documentation)
+**Contents:** [Features](#features) · [Repository layout](#repository-layout) · [Requirements](#requirements) ([RS-485 hardware](#rs-485-hardware)) · [Installation](#installation) · [Quick start](#quick-start) · [Optional features](#optional-features) ([local history database](#local-history-database-optional), [virtual Modbus](#virtual-modbus-optional)) · [Operations](#operations) ([debug logging](#debug-logging), [exporting config back to CSV](#exporting-config-back-to-csv)) · [Testing](#testing) · [Documentation](#documentation)
 
 ## Features
 
@@ -68,6 +68,39 @@ Akvo_Green/
 - Python 3.10+ (3.12/3.14 tested)
 - `socat` for the virtual-serial mock environment (Linux/macOS)
 - An AWS IoT Core thing with certificates if running the full edge gateway
+- An RS-485 interface for the Modbus RTU bus - see below (not needed with [virtual Modbus](#virtual-modbus-optional))
+
+### RS-485 hardware
+
+The gateway talks to one Modbus RTU bus through one serial port - `port` in `modbus.csv`. Any RS-485 interface that Linux shows as a serial device works; the code doesn't care which. Two supported options:
+
+| | USB-RS485 adapter | Waveshare 2-CH RS485 HAT (one channel) |
+|---|---|---|
+| `port` in `modbus.csv` | `/dev/ttyUSB0` | `/dev/ttySC0` (channel 1) or `/dev/ttySC1` (channel 2) |
+| Pi setup | none - plug and play | one `config.txt` line + reboot (below) |
+| Isolation | depends on the adapter | isolated power + signal, TVS protection |
+| Mounting | cable, any USB port | sits on the 40-pin header |
+| Send/receive switching | in the adapter | in hardware, when its DIP switch is set to **auto** |
+| Used by | all current sites | - |
+
+**USB-RS485 adapter.** Plug it in; it appears as `/dev/ttyUSB0` (the next one as `ttyUSB1` - with several USB serial devices, prefer the stable `/dev/serial/by-id/...` path as `port`). `install.sh` already adds the service user to the `dialout` group needed to open it.
+
+**Waveshare 2-CH RS485 HAT** ([product](https://www.waveshare.com/2-ch-rs485-hat.htm), [wiki](https://www.waveshare.com/wiki/2-CH_RS485_HAT)): an SC16IS752 SPI dual UART with two isolated RS-485 channels. The gateway uses **one** channel (one bus); the second stays free. Setup, once per Pi:
+
+1. **Board:** needs a 40-pin header (any Pi 4/5; on a Compute Module, a carrier board with the header, e.g. the CM5 IO Board). The HAT uses SPI1 (GPIO 18-21) and IRQ on GPIO 24 - make sure nothing else on the Pi uses them.
+2. **DIP switch: automatic** direction control for the channel you use. Then no GPIO has to be toggled and the gateway needs no changes. Don't use manual mode (EN1/EN2 on GPIO 27/22): it needs per-frame GPIO switching, and Waveshare's examples for it use `RPi.GPIO`, which doesn't work on Pi 5/CM5.
+3. **Termination:** turn the channel's 120 Ω switch on only if the Pi is at an end of the RS-485 line. Wire A→A, B→B (plus the isolated GND as reference if your devices need it).
+4. **Overlay:** add to `/boot/firmware/config.txt` under `[all]`, then reboot:
+   ```
+   dtoverlay=sc16is75x-spi,sc16is752,spi1-1cs,spi1-0,int_pin=24
+   ```
+   This replaces the `dtoverlay=sc16is752-spi1,int_pin=24` line in Waveshare's wiki, which is **deprecated** on current Raspberry Pi OS kernels (6.12+). The default crystal (14.7456 MHz) matches the HAT.
+5. **Check:** `ls /dev/ttySC*` shows `/dev/ttySC0` and `/dev/ttySC1` (both in the `dialout` group).
+6. **Point the gateway at it:** in the site's `modbus.csv` set `port` to `/dev/ttySC0` (or `ttySC1`) and `simulate_enabled` to `0`, `build` and push the config. A port change alone is live-reloaded (the gateway reconnects on the new port within ~5 s); if you also switched `simulate_enabled` from `1` to `0`, restart the gateway (`sudo systemctl restart akvo-green`) - simulate mode is read only at startup.
+
+**Quick test before connecting sensors** - loopback between the two HAT channels: wire channel 1 A/B to channel 2 A/B, run the mock slave from `tests/akvo_modbus_mock/` on `/dev/ttySC1`, and do a read from `/dev/ttySC0` (see [Quick Modbus test](#quick-modbus-test)).
+
+Using **both** channels at once (two independent buses) isn't supported yet: the gateway has a single `modbus` section and one Modbus connection shared by every device. It would need a `bus` column in `modbus.csv`/`devices.csv` and one connection per bus.
 
 ## Installation
 
@@ -147,7 +180,7 @@ History DB synced from config.json -> added:['DEV_1', 'DEV_2', ...] removed:[] u
 | Add it back later | Same row reactivated |
 | Save an invalid `config.json` | Rejected by validation before it reaches the database; nothing changes |
 
-**Tables:** `readings` (one row per sensor per publish cycle: `ts`, `device_id`, `sensor_name`, `value`, `status`, `alarm`, `sensor_id`), `system_telemetry` (CPU/RAM/disk/IP per system interval), `devices` and `sensors` (the config mirror), and `config_history` (what changed, and when).
+**Tables:** `readings` (one row per sensor per publish cycle: `ts`, `device_id`, `sensor_name`, `value`, `status`, `alarm`, `sensor_id`), `system_telemetry` (CPU/RAM/disk/IP and cumulative network bytes received/sent per system interval), `devices` and `sensors` (the config mirror), and `config_history` (what changed, and when).
 
 **Querying it.** The gateway can keep running while you read: the database uses WAL mode, so open it read-only with the `sqlite3` CLI (`sudo apt install sqlite3`) or any SQLite viewer:
 

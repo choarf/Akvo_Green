@@ -294,11 +294,100 @@ function openTrend(key, t0, t1) {
 // ---------------------------------------------------------------- Sistema
 function fillDl(dl, rows) {
   dl.replaceChildren();
-  for (const [k, v] of rows) { dl.appendChild(el("dt", null, k)); dl.appendChild(el("dd", null, v ?? "—")); }
+  for (const [k, v] of rows) {
+    dl.appendChild(el("dt", null, k));
+    const dd = dl.appendChild(el("dd"));
+    if (v instanceof Node) dd.appendChild(v); else dd.textContent = v ?? "—";
+  }
 }
+function link(text, href) {
+  const a = el("a", null, text);
+  a.href = href;
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  return a;
+}
+// [state class, icon, label] - icon + label, never color alone
+const OK = (label = "Conectado") => ["good", "●", label];
+const BAD = label => ["critical", "✕", label];
+const WARN = label => ["warning", "⚠", label];
+const ago = s => (s == null ? null : fmtAgo(s * 1000));
+
+function connectionRows(st) {
+  const now = Date.parse(st.now) / 1000;
+  if (!st.available) {
+    return { stale: true, note: "El gateway no ha publicado su estado: está detenido o tiene una versión anterior.",
+      rows: [["Gateway", BAD("Sin estado"), "no se encontró el archivo de estado"]] };
+  }
+  const rows = [];
+  rows.push(["Gateway", st.stale ? BAD("Detenido") : OK("Activo"),
+    `${st.stale ? "sin actualizar" : "actualizado"} hace ${fmtAgo(st.age_s * 1000)}`]);
+  const n = st.network;
+  if (n) rows.push(["Red / Internet", n.connected ? OK() : BAD("Sin conexión"), `prueba a ${n.check}`]);
+  const m = st.mqtt;
+  if (m) {
+    rows.push(["AWS IoT (MQTT)", m.connected ? OK() : BAD("Desconectado"),
+      m.connected
+        ? (m.last_publish ? `último envío hace ${ago(now - m.last_publish)}` : "sin envíos todavía")
+        : [m.since ? `desde hace ${ago(now - m.since)}` : null, m.last_error].filter(Boolean).join(" · ")]);
+  }
+  const b = st.modbus;
+  if (b) {
+    let s, detail;
+    if (b.simulated) {
+      s = WARN("Simulado");
+      detail = "sin puerto serie: lecturas sintéticas";
+    } else if (!b.connected) {
+      s = BAD("Puerto cerrado");
+      detail = `${b.port || "?"} no se pudo abrir`;
+    } else if (b.sensors && b.read_errors === b.sensors) {
+      s = BAD("Sin respuesta");
+      detail = `${b.port} · ningún sensor responde`;
+    } else if (b.read_errors) {
+      s = WARN("Con errores");
+      detail = `${b.port} · ${b.read_errors} de ${b.sensors} lecturas con error`;
+    } else {
+      s = OK();
+      detail = `${b.port} · ${b.baudrate} baud · ${b.sensors} sensores OK`;
+    }
+    rows.push(["Modbus", s, detail]);
+    if (b.alarms) rows.push(["Alarmas", WARN(`${b.alarms} activas`), "sensores fuera de límites"]);
+  }
+  return { stale: st.stale, rows,
+    note: st.stale ? "El gateway dejó de actualizar: se muestra el último estado conocido." : "" };
+}
+
+function renderConnections(st) {
+  const box = $("#s-conn");
+  const { stale, rows, note } = connectionRows(st);
+  box.classList.toggle("stale", !!stale);
+  box.replaceChildren();
+  for (const [label, [cls, icon, text], detail] of rows) {
+    const chip = el("span", `status ${cls}`);
+    chip.append(el("i", null, icon), document.createTextNode(text));
+    const state = el("div", "state");
+    state.append(chip, el("span", "detail", detail || ""));
+    box.append(el("span", "label", label), state);
+  }
+  if (note) box.appendChild(el("p", "note", note));
+}
+
+function renderAws(links) {
+  const missing = "no configurado (aws.csv)";
+  fillDl($("#s-aws"), [
+    ["Panel web", links.dashboard ? link(links.dashboard.replace(/^https:\/\//, ""), links.dashboard) : missing],
+    ["S3 datos", links.data_bucket ? link(links.data_bucket.name, links.data_bucket.url) : missing],
+    ["S3 web", links.web_bucket ? link(links.web_bucket.name, links.web_bucket.url) : missing],
+    ["Dispositivo IoT", links.iot_thing ? link(links.client_id, links.iot_thing) : links.client_id],
+    ["Región", links.region],
+  ]);
+}
+
 async function viewSistema() {
   const end = Date.now(), start = end - state.sys.span;
-  const [sys] = await Promise.all([api(`/api/system?start=${start}&end=${end}`), refreshInfo()]);
+  const [sys, st] = await Promise.all([api(`/api/system?start=${start}&end=${end}`), api("/api/status"), refreshInfo()]);
+  renderConnections(st);
+  renderAws(st.links || {});
   const info = state.info, l = sys.latest || {};
   fillDl($("#s-gw"), [
     ["Gateway", info.gateway_id], ["IP", l.ip_address], ["Plataforma", l.platform_type], ["Sistema", l.os],
@@ -322,6 +411,44 @@ async function viewSistema() {
     ],
     unit: "%", xDomain: [start, end], yMin: 0, yMax: 100, gapMs: 2.5 * sys.step_s * 1000,
     tz: tz(), height: 220, legend: true, fmt: v => fmtNum(v), ariaLabel: "CPU, RAM y disco",
+  });
+  renderNetwork(sys.network, start, end);
+}
+
+function fmtBytes(b) {
+  const units = ["B", "KB", "MB", "GB"];
+  let i = 0;
+  while (b >= 1024 && i < units.length - 1) { b /= 1024; i++; }
+  return `${b.toLocaleString("es-MX", { maximumFractionDigits: b < 10 ? 2 : 1 })} ${units[i]}`;
+}
+
+function renderNetwork(net, start, end) {
+  const pts = (net && net.points) || [];
+  const per = { 300: "cada 5 min", 3600: "por hora", 21600: "cada 6 h" }[net && net.step_s] || "por intervalo";
+  // One unit for the whole chart, picked from its largest bar.
+  const max = Math.max(0, ...pts.flatMap(p => [p[1], p[2]]));
+  const [div, unit] = max >= 1048576 ? [1048576, "MB"] : [1024, "KB"];
+  $("#s-net-title").textContent = `Datos de red usados (${unit} ${per})`;
+  const stats = $("#s-net-stats");
+  stats.replaceChildren();
+  if (pts.length) {
+    for (const [k, v] of [["recibido", net.total_recv], ["enviado", net.total_sent],
+                          ["total", net.total_recv + net.total_sent]]) {
+      const x = el("span", null, `${k} `);
+      x.appendChild(el("b", null, fmtBytes(v)));
+      stats.appendChild(x);
+    }
+    stats.appendChild(el("span", null, "en el rango · todas las interfaces de red"));
+  } else {
+    stats.appendChild(el("span", null, "El tráfico se registra cada reporte del sistema desde la versión del gateway que lo mide; aún no hay datos en este rango."));
+  }
+  lineChart($("#s-net"), {
+    series: [
+      { name: "Recibido (in)", color: css("--series-1"), points: pts.map(p => [p[0], p[1] / div]) },
+      { name: "Enviado (out)", color: css("--series-2"), points: pts.map(p => [p[0], p[2] / div]) },
+    ],
+    unit, xDomain: [start, end], yMin: 0, gapMs: 2.5 * ((net && net.step_s) || 3600) * 1000,
+    tz: tz(), height: 200, legend: true, fmt: v => fmtNum(v), ariaLabel: "Datos de red recibidos y enviados",
   });
 }
 
@@ -355,8 +482,10 @@ async function render() {
   } catch (e) {
     showError(e);
   }
-  // Actual refreshes itself; the other views refresh on demand.
-  if (state.view === "actual") timer = setTimeout(render, Math.max(10, state.info ? state.info.poll_interval : 20) * 1000);
+  // Actual and Sistema (live connection state) refresh themselves; the others on demand.
+  if (state.view === "actual" || state.view === "sistema") {
+    timer = setTimeout(render, Math.max(10, state.info ? state.info.poll_interval : 20) * 1000);
+  }
 }
 function route() {
   const v = location.hash.slice(1);

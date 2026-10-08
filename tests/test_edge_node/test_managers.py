@@ -16,6 +16,8 @@ def make_mqtt_mgr(connection=None):
     mgr.cfg = {}
     mgr.lock = threading.RLock()
     mgr.connection = connection
+    mgr.connected = connection is not None
+    mgr.last_change = mgr.last_publish = mgr.last_error = None
     return mgr
 
 
@@ -109,3 +111,54 @@ def test_retry_delay_escalates_then_saturates_at_cap():
 def test_retry_delay_is_always_positive():
     for attempt in range(10):
         assert en._retry_delay(attempt) > 0
+
+
+# ---------------------------------------------------------------------------
+# Connection state for the status file
+# ---------------------------------------------------------------------------
+
+def test_mqtt_interrupted_and_resumed_callbacks_track_the_link():
+    mgr = make_mqtt_mgr(FakeMqttConnection())
+    mgr._on_interrupted(None, RuntimeError("socket closed"))
+    st = mgr.status()
+    assert st["connected"] is False and "socket closed" in st["last_error"] and st["since"]
+    mgr._on_resumed(None, 0, True)
+    assert mgr.status()["connected"] is True
+
+
+def test_mqtt_publish_records_last_publish_only_while_connected():
+    mgr = make_mqtt_mgr(FakeMqttConnection())
+    mgr.publish("t", {})
+    first = mgr.last_publish
+    assert first is not None
+    mgr._on_interrupted(None, "down")
+    mgr.publish("t", {})  # queued by the library while down - not a successful send
+    assert mgr.last_publish == first
+
+
+def test_mqtt_disconnect_marks_it_disconnected():
+    mgr = make_mqtt_mgr(FakeMqttConnection())
+    mgr.disconnect()
+    assert mgr.status()["connected"] is False
+
+
+def test_modbus_status_reports_open_port():
+    mgr = make_modbus_mgr(FakeSerialClient())
+    mgr.cfg = {"port": "/dev/ttySC0", "baudrate": 9600}
+    assert mgr.status() == {"connected": True, "port": "/dev/ttySC0", "baudrate": 9600, "simulated": False}
+    assert make_modbus_mgr(None).status()["connected"] is False
+
+
+def test_mqtt_connect_registers_the_link_callbacks(monkeypatch):
+    seen = {}
+
+    def fake_mtls_from_path(**kwargs):
+        seen.update(kwargs)
+        return FakeMqttConnection()
+
+    monkeypatch.setattr(en.mqtt_connection_builder, "mtls_from_path", fake_mtls_from_path)
+    mgr = en.MQTTManager({"host": "h", "cert": "c", "key": "k", "ca": "ca", "client_id": "id"})
+    mgr.connect()
+    assert seen["on_connection_interrupted"] == mgr._on_interrupted
+    assert seen["on_connection_resumed"] == mgr._on_resumed
+    assert mgr.connected is True

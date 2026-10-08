@@ -70,12 +70,19 @@
     </section>
 
     <section id="view-sistema" class="view" hidden>
-      <div class="cards">
+      <div class="cards sys">
+        <div class="card"><h3>Conexiones</h3><div id="s-conn" class="conn"></div></div>
+        <div class="card"><h3>Nube AWS</h3><dl id="s-aws"></dl></div>
         <div class="card"><h3>Gateway</h3><dl id="s-gw"></dl></div>
         <div class="card"><h3>Base de datos</h3><dl id="s-db"></dl></div>
       </div>
       <div class="filters"><div class="presets" data-target="sys"></div></div>
       <div class="card wide"><h3>CPU, RAM y disco (%)</h3><div id="s-chart"></div></div>
+      <div class="card wide">
+        <h3 id="s-net-title">Datos de red usados (MB)</h3>
+        <div id="s-net-stats" class="stats"></div>
+        <div id="s-net"></div>
+      </div>
     </section>
   </main>
   <script type="module" src="app.js"></script>
