@@ -1,2 +1,0 @@
-host,client_id,ca,cert,key,topic_pub,topic_system,dashboard_url,data_bucket,web_bucket
-a2zzu55sjawy4x-ats.iot.us-east-1.amazonaws.com,AKVO_Akvo,./certs/AmazonRootCA1.pem,./certs/certificate.pem.crt,./certs/private.pem.key,VENKO/akvo/data,VENKO/akvo/system,https://dsm04m3n65m8j.cloudfront.net,venko-akvo-884520769610-us-east-1,venko-akvo-web-884520769610

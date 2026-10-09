@@ -18,7 +18,6 @@ The full procedure covers the AWS IoT certificate and policy, the AWS stack and 
 | Site | Client id | Topics | Pi | Modbus | Local dashboard |
 |---|---|---|---|---|---|
 | (root) site 1 | `AKVO_Gateway` | `AKVO/data`, `AKVO/system` | 192.168.68.131 | real sensors | off |
-| `akvo` | `AKVO_Akvo` | `VENKO/akvo/data`, `VENKO/akvo/system` | not installed yet | real sensors | off |
 | `cmd4` | `AKVO_cmd4` | `VENKO/cmd4/data`, `VENKO/cmd4/system` | 192.168.68.129 | **simulated** (`simulate_enabled=1`) | http://192.168.68.129:8080 |
 
 AWS side of each site:
@@ -26,7 +25,6 @@ AWS side of each site:
 | Site | Web page (cloud dashboard) | S3 data bucket | S3 web bucket |
 |---|---|---|---|
 | (root) site 1 | https://ddlxtxblzvu22.cloudfront.net | `venko-demo-884520769610-us-east-1` | `venko-demo-web-884520769610` |
-| `akvo` | https://dsm04m3n65m8j.cloudfront.net | `venko-akvo-884520769610-us-east-1` | `venko-akvo-web-884520769610` |
 | `cmd4` | https://d29127v2virrqh.cloudfront.net | `venko-cmd4-884520769610-us-east-1` | `venko-cmd4-web-884520769610` |
 
 Everything else about a site (IoT certificate and policy, API, Lambdas, Athena, live status, commands) is in its summary page in VenkoDemo: `docs/sites/README.md` (all sites) and `docs/sites/<key>.md`. Regenerate with `python3 tools/site_summary.py <key> --pi pi@<address>`, and add a row to both tables above for every new site.
