@@ -350,6 +350,16 @@ class ConfigManager:
                 except ValueError:
                     raise ValueError(f"system.csv: web_port must be an integer, got {port!r}")
 
+        # Optional WiFi networks the Pi should join, in order of preference:
+        # wifi1_ssid is preferred, wifi2_ssid the fallback. Only the SSIDs
+        # live here (config.json is committed); the passwords stay in the
+        # git-ignored sites/<key>/wifi.csv, and tools/push_site.sh writes
+        # both into NetworkManager on the Pi. Absent columns = WiFi left as
+        # set up in Raspberry Pi Imager; present but blank = no managed WiFi.
+        if "wifi1_ssid" in s or "wifi2_ssid" in s:
+            networks = [(s.get(k) or "").strip() for k in ("wifi1_ssid", "wifi2_ssid")]
+            config["wifi"] = {"networks": [n for n in networks if n]}
+
         # Loaded generically (not restricted to a fixed set of keys) so any
         # column present in aws.csv - now or in the future - survives the
         # build/export round trip.
@@ -463,6 +473,11 @@ class ConfigManager:
             row["web_enabled"] = int(bool(web.get("enabled", False)))
             if "port" in web:
                 row["web_port"] = web["port"]
+        wifi = config.get("wifi")
+        if wifi is not None:
+            networks = list(wifi.get("networks", []))
+            row["wifi1_ssid"] = networks[0] if len(networks) > 0 else ""
+            row["wifi2_ssid"] = networks[1] if len(networks) > 1 else ""
         self._write_single_row_csv(SYSTEM_CSV, row)
 
     def export_aws(self, config: Dict[str, Any]) -> None:

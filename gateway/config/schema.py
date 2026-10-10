@@ -89,6 +89,7 @@ def validate(config: dict) -> tuple[list[str], list[str]]:
     errors += _validate_database(config)
     errors += _validate_modbus_simulate(config)
     errors += _validate_web(config)
+    errors += _validate_wifi(config)
 
     device_errors, device_warnings = _validate_devices(config.get("devices", []))
     errors += device_errors
@@ -149,6 +150,29 @@ def _validate_web(config: dict) -> list[str]:
         isinstance(port, int) and not isinstance(port, bool) and 1 <= port <= 65535
     ):
         errors.append(f"web.port must be an int between 1 and 65535, got {port!r}")
+    return errors
+
+
+def _validate_wifi(config: dict) -> list[str]:
+    """'wifi' is optional - absent means the Pi's WiFi is left as set up in
+    Raspberry Pi Imager. networks: up to two SSIDs, preferred first. Only
+    SSIDs: passwords never go in config.json (see tools/push_site.sh)."""
+    data = config.get("wifi")
+    if data is None:
+        return []
+    if not isinstance(data, dict):
+        return ["'wifi' section must be an object if present"]
+    networks = data.get("networks", [])
+    if not isinstance(networks, list) or len(networks) > 2:
+        return [f"wifi.networks must be a list of at most 2 SSIDs, got {networks!r}"]
+    errors = []
+    for ssid in networks:
+        if not isinstance(ssid, str) or not ssid.strip() or len(ssid.encode()) > 32:
+            errors.append(f"wifi.networks: SSIDs must be non-empty strings of at most 32 bytes, got {ssid!r}")
+    if len(set(networks)) != len(networks):
+        errors.append(f"wifi.networks: the two SSIDs must differ, got {networks!r}")
+    if "password" in data or "passwords" in data:
+        errors.append("wifi: passwords don't belong in config.json - put them in the site's wifi.csv")
     return errors
 
 

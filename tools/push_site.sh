@@ -12,6 +12,10 @@
 # gateway/certs/ or .venv/. config.json is copied into config_data/ (the gateway
 # live-reloads it); the akvo-green service is restarted only when code changed,
 # the akvo-history-web dashboard (if installed) on every push.
+# WiFi: when the site's config.json has a "wifi" section (system.csv's
+# wifi1_ssid/wifi2_ssid), writes those networks into NetworkManager as profiles
+# akvo-wifi1 (preferred) / akvo-wifi2, with passwords from the git-ignored
+# sites/<site>/wifi.csv (config_data/wifi.csv for root) - see tools/wifi_profiles.py.
 # Also installs the AKVO Modbus Tool (desktop app for scanning/reading/writing
 # Modbus registers on site, from ../Tools/AkvoModbus or $AKVO_MODBUS_DIR) as a
 # .deb - only when its source changed since the last install on that Pi.
@@ -39,9 +43,11 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 if [ "$SITE" = "root" ]; then
   CONFIG="$ROOT/config_data/config.json"
   CERT_DIR="$ROOT/gateway/certs"
+  WIFI_CSV="$ROOT/config_data/wifi.csv"
 else
   CONFIG="$ROOT/sites/$SITE/config_data/config.json"
   CERT_DIR="$ROOT/sites/$SITE/certs"
+  WIFI_CSV="$ROOT/sites/$SITE/wifi.csv"
 fi
 [ -f "$CONFIG" ] || { echo "error: $CONFIG not found - build it first (config_manager.py build --config-dir ...)" >&2; exit 1; }
 
@@ -53,11 +59,17 @@ print(f"site config: gateway {c['gateway']['gateway_id']}, client {c['aws']['cli
       f"topics {c['aws']['topic_pub']} / {c['aws']['topic_system']}, {n} sensors")
 PY
 
+# WiFi profiles are built locally before anything is sent, so a missing
+# password stops the push before the Pi is touched. 2 = no "wifi" section.
+set +e; WIFI_SCRIPT="$(python3 "$ROOT/tools/wifi_profiles.py" "$CONFIG" "$WIFI_CSV")"; WIFI_RC=$?; set -e
+[ "$WIFI_RC" = 0 ] || [ "$WIFI_RC" = 2 ] || exit 1
+
 echo "== code -> $PI:$REMOTE_DIR"
 ssh "$PI" "mkdir -p '$REMOTE_DIR/config_data' '$REMOTE_DIR/gateway/certs'"
 CHANGES="$(rsync -rlptz --delete --itemize-changes \
   --exclude .git/ --exclude .venv/ --exclude config_data/ --exclude data/ --exclude logs/ \
   --exclude reports/ --exclude sites/ --exclude gateway/certs/ --exclude __pycache__/ \
+  --exclude gateway/requirements.txt \
   "$ROOT/" "$PI:$REMOTE_DIR/")"
 [ -n "$CHANGES" ] && echo "$CHANGES" | sed 's/^/   /' || echo "   code already up to date"
 
@@ -70,6 +82,15 @@ if [ "$CERTS" = 1 ]; then
   scp -q "$CERT_DIR"/{AmazonRootCA1.pem,certificate.pem.crt,private.pem.key} "$PI:$REMOTE_DIR/gateway/certs/"
   ssh "$PI" "chmod 600 '$REMOTE_DIR/gateway/certs/private.pem.key'"
 fi
+
+if [ "$WIFI_RC" = 0 ]; then
+  echo "== WiFi -> NetworkManager on $PI: $(python3 -c 'import json,sys; print(", ".join(json.load(open(sys.argv[1]))["wifi"]["networks"]) or "none (akvo-wifi* profiles removed)")' "$CONFIG")"
+  # Piped on stdin, never on a command line, so the passwords don't show up in ps.
+  printf '%s' "$WIFI_SCRIPT" | ssh "$PI" "sudo bash -s" \
+    || { echo "error: installing the WiFi profiles failed (passwordless sudo on the Pi?)" >&2; exit 1; }
+  echo "   saved; the Pi switches to them when its current network drops or on reboot"
+fi
+unset WIFI_SCRIPT
 
 if [ -n "$CHANGES" ] && ssh "$PI" "systemctl is-enabled --quiet akvo-green" 2>/dev/null; then
   echo "== code changed: restarting akvo-green"

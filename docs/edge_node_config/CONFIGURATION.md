@@ -142,8 +142,10 @@ One header row + one data row — gateway identity and timing.
 | `database_retention_days` | int (optional) | Days of readings/telemetry to keep (default `30` when blank). Becomes `database.retention_days`. Must be a positive integer — a non-integer fails `build` with a clear message. |
 | `web_enabled` | bool (optional) | `1` turns on the local web dashboard over that database (`gateway/history_web.py`, service `akvo-history-web`); `0`/blank/absent leaves it off. Becomes `web.enabled`. See [Local web dashboard](#local-web-dashboard-optional-web-section). |
 | `web_port` | int (optional) | Port of that dashboard (default `8080` when blank). Becomes `web.port`; must be 1-65535. |
+| `wifi1_ssid` | text (optional) | Preferred WiFi network. Becomes `wifi.networks[0]`. Its password goes in the site's git-ignored `wifi.csv`, never here. See [WiFi networks](#wifi-networks-optional-wifi-section). |
+| `wifi2_ssid` | text (optional) | Fallback WiFi network. Becomes `wifi.networks[1]`. |
 
-The `database_*` and `web_*` columns are optional: a `system.csv` without them builds
+The `database_*`, `web_*` and `wifi*_ssid` columns are optional: a `system.csv` without them builds
 exactly as before, with the database off. The other columns are still required —
 a missing one isn't caught with a friendly error, it surfaces as a raw
 `KeyError` during `build`.
@@ -384,6 +386,51 @@ How it runs:
   Boot / Auto Login). Alt+F4 closes it until the next boot.
 - Local testing against a copy of a database:
   `python3 gateway/history_web.py --force --db copy.db --config config.json --host 127.0.0.1 --port 8081`.
+
+## WiFi networks (optional `wifi` section)
+
+Up to two WiFi networks the Pi should join, preferred first, so a site's WiFi can be
+changed from the dev machine instead of re-imaging the SD card.
+
+```csv
+...,web_enabled,web_port,wifi1_ssid,wifi2_ssid
+...,1,8080,Planta,Oficina
+```
+
+builds to
+
+```json
+"wifi": { "networks": ["Planta", "Oficina"] }
+```
+
+- **Passwords are never in `system.csv` or `config.json`** (both are committed to git).
+  They go in the site's own `wifi.csv`, which is git-ignored like the certificates:
+  `sites/<key>/wifi.csv`, or `config_data/wifi.csv` for root. One row per network;
+  an empty password means an open network:
+
+  ```csv
+  ssid,password
+  Planta,clave-de-la-planta
+  Oficina,otra-clave
+  ```
+
+- **Applied by `tools/push_site.sh`, not by the gateway.** On every push, when
+  `config.json` has a `wifi` section, it writes NetworkManager profiles `akvo-wifi1`
+  (priority 20) and `akvo-wifi2` (priority 10) on the Pi, through `sudo` over SSH. The
+  profiles are root-only keyfiles (mode 600) in `/etc/NetworkManager/system-connections/`,
+  sent on stdin, so a password never appears on a command line. The gateway service
+  gets no new privileges. `tools/wifi_profiles.py` builds the script; a missing or
+  invalid password (WPA: 8-63 characters) stops the push before anything is sent.
+- **Saved, not switched.** The Pi doesn't drop its current connection, which may be the
+  SSH session doing the push. NetworkManager picks the new networks when the current one
+  goes away, or at the next reboot.
+- **Columns absent** = WiFi is left as set up in Raspberry Pi Imager; `push_site.sh`
+  doesn't touch it. **Columns present but blank** (`"networks": []`) = no managed
+  networks: `akvo-wifi1`/`akvo-wifi2` are removed. The Imager's own profile
+  (`preconfigured`) and anything made by hand are never touched, so keep a network the
+  Pi can always reach until the new ones are confirmed working.
+- `WifiManager` in the gateway is unchanged: it only checks that the internet is
+  reachable, whichever network or cable provides it.
 
 ## Validation (`config/schema.py`)
 

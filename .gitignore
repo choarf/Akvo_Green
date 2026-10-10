@@ -13,3 +13,6 @@ reports/
 
 # Local SQLite history database (gateway/storage.py) - runtime data, incl. -wal/-shm files
 data/
+
+# WiFi passwords (sites/<key>/wifi.csv, config_data/wifi.csv) - read by tools/push_site.sh only
+wifi.csv

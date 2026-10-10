@@ -289,3 +289,44 @@ def test_export_writes_web_columns_back_to_system_csv(workspace):
     cm.ConfigManager().export_config()
     row = read_system_row(workspace)
     assert row["web_enabled"] == "1" and row["web_port"] == "8081"
+
+
+# ---------------------------------------------------------------------------
+# build/export: system.csv's optional wifi*_ssid columns -> config["wifi"]
+# ---------------------------------------------------------------------------
+
+def test_build_maps_wifi_columns_preferred_first(workspace):
+    write_system(workspace, wifi1_ssid="Planta", wifi2_ssid="Oficina")
+    config = build()
+    assert config["wifi"] == {"networks": ["Planta", "Oficina"]}
+    assert "wifi1_ssid" not in config["gateway"]
+
+
+def test_build_without_wifi_columns_leaves_wifi_unmanaged(workspace):
+    write_system(workspace)
+    assert "wifi" not in build()
+
+
+def test_build_blank_wifi_columns_mean_no_managed_networks(workspace):
+    write_system(workspace, wifi1_ssid="", wifi2_ssid=" ")
+    assert build()["wifi"] == {"networks": []}
+
+
+def test_build_only_second_wifi_becomes_the_only_network(workspace):
+    write_system(workspace, wifi1_ssid="", wifi2_ssid="Oficina")
+    assert build()["wifi"] == {"networks": ["Oficina"]}
+
+
+def test_build_rejects_the_same_ssid_twice(workspace):
+    write_system(workspace, wifi1_ssid="Planta", wifi2_ssid="Planta")
+    with pytest.raises(ValueError):
+        build()
+
+
+def test_export_writes_wifi_columns_back_to_system_csv(workspace):
+    write_system(workspace, wifi1_ssid="Planta", wifi2_ssid="")
+    build()
+    write_system(workspace)
+    cm.ConfigManager().export_config()
+    row = read_system_row(workspace)
+    assert row["wifi1_ssid"] == "Planta" and row["wifi2_ssid"] == ""

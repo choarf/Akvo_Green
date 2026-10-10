@@ -6,11 +6,13 @@ One folder per **additional** gateway site (another Raspberry Pi). The code is s
 sites/<key>/
   config_data/   devices.csv, modbus.csv, system.csv, aws.csv  →  config.json
   certs/         AmazonRootCA1.pem, certificate.pem.crt, private.pem.key  (git-ignored)
+  wifi.csv       WiFi passwords: ssid,password  (git-ignored, optional)
 ```
 
 - **Build a site's config.** Run from `gateway/`: `python3 config_manager.py build --config-dir ../sites/<key>/config_data`. `export` takes the same option.
 - **Deploy to its Pi:** `tools/push_site.sh <key> pi@<address> [--certs]`. This copies the code, the site's `config.json` and, with `--certs`, its certificates. It never touches the Pi's own `config_data/`, `data/`, `logs/` or `.venv/`. For site 1, use `root` as the key.
   It also installs the **AKVO Modbus Tool** (desktop app to scan, read and write Modbus registers on site; menu entry "AKVO Modbus Tool" or `akvo-modbus` on the Pi's desktop). It's built into a `.deb` from `../Tools/AkvoModbus` (or `$AKVO_MODBUS_DIR`) by `tools/build_modbus_tool.sh`, and reinstalled only when its source changed. Skip it with `--no-modbus-tool`. Stop the `akvo-green` service while using it on the same RS-485 port.
+- **WiFi:** put the networks' names in `system.csv` (`wifi1_ssid` preferred, `wifi2_ssid` fallback) and their passwords in `sites/<key>/wifi.csv` (`ssid,password`), rebuild, then `push_site.sh`. It saves them on the Pi as NetworkManager profiles `akvo-wifi1`/`akvo-wifi2`. Details: `docs/edge_node_config/CONFIGURATION.md`, "WiFi networks".
 - **Unique `client_id` per site** (`aws.csv`), plus the site's own topics. Two Pis connecting with the same client id disconnect each other.
 
 The full procedure covers the AWS IoT certificate and policy, the AWS stack and the dashboard. It's in the VenkoDemo README, section **Adding a site**.

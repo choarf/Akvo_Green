@@ -1,11 +1,11 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-10-10T13:19:22.644209+00:00",
-        "hash": "dc173eaee58c9ea0927b2bbd4991897c"
+        "generated_at": "2026-10-10T13:19:22.756867+00:00",
+        "hash": "7d137783100aeab9e8e9cd08363bedd6"
     },
     "gateway": {
-        "gateway_id": "AKVO_cmd4",
+        "gateway_id": "AKVO_Demo",
         "city": "America/Mexico_City",
         "poll_interval": 20,
         "system_interval": 60,
@@ -22,15 +22,15 @@
     },
     "aws": {
         "host": "a2zzu55sjawy4x-ats.iot.us-east-1.amazonaws.com",
-        "client_id": "AKVO_cmd4",
+        "client_id": "AKVO_Demo",
         "ca": "./certs/AmazonRootCA1.pem",
         "cert": "./certs/certificate.pem.crt",
         "key": "./certs/private.pem.key",
-        "topic_pub": "VENKO/cmd4/data",
-        "topic_system": "VENKO/cmd4/system",
-        "dashboard_url": "https://d29127v2virrqh.cloudfront.net",
-        "data_bucket": "venko-cmd4-884520769610-us-east-1",
-        "web_bucket": "venko-cmd4-web-884520769610"
+        "topic_pub": "VENKO/demo/data",
+        "topic_system": "VENKO/demo/system",
+        "dashboard_url": "https://d1f1ymj0tb4k52.cloudfront.net",
+        "data_bucket": "venko-demo-884520769610-us-east-1",
+        "web_bucket": "venko-demo-web-884520769610"
     },
     "devices": [
         {

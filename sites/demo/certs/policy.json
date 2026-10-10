@@ -1,0 +1,3 @@
+{ "Version": "2012-10-17", "Statement": [
+  { "Effect": "Allow", "Action": "iot:Connect", "Resource": "arn:aws:iot:us-east-1:884520769610:client/AKVO_Demo" },
+  { "Effect": "Allow", "Action": "iot:Publish", "Resource": "arn:aws:iot:us-east-1:884520769610:topic/VENKO/demo/*" } ] }

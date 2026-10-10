@@ -150,3 +150,26 @@ def test_invalid_web_section_is_an_error(web, needle):
     config["web"] = web
     errors, _ = validate(config)
     assert any(needle in e for e in errors)
+
+
+@pytest.mark.parametrize("wifi", [{"networks": ["Planta", "Oficina"]}, {"networks": ["Planta"]}, {"networks": []}, {}])
+def test_valid_wifi_section(wifi):
+    config = copy.deepcopy(VALID_CONFIG)
+    config["wifi"] = wifi
+    assert validate(config)[0] == []
+
+
+@pytest.mark.parametrize("wifi, needle", [
+    ("on", "'wifi' section"),
+    ({"networks": "Planta"}, "wifi.networks"),
+    ({"networks": ["a", "b", "c"]}, "wifi.networks"),
+    ({"networks": [""]}, "wifi.networks"),
+    ({"networks": ["x" * 33]}, "wifi.networks"),
+    ({"networks": ["Planta", "Planta"]}, "must differ"),
+    ({"networks": ["Planta"], "password": "secret"}, "passwords don't belong"),
+])
+def test_invalid_wifi_section_is_an_error(wifi, needle):
+    config = copy.deepcopy(VALID_CONFIG)
+    config["wifi"] = wifi
+    errors, _ = validate(config)
+    assert any(needle in e for e in errors)
