@@ -85,9 +85,13 @@ fi
 
 if [ "$WIFI_RC" = 0 ]; then
   echo "== WiFi -> NetworkManager on $PI: $(python3 -c 'import json,sys; print(", ".join(json.load(open(sys.argv[1]))["wifi"]["networks"]) or "none (akvo-wifi* profiles removed)")' "$CONFIG")"
-  # Piped on stdin, never on a command line, so the passwords don't show up in ps.
-  printf '%s' "$WIFI_SCRIPT" | ssh "$PI" "sudo bash -s" \
-    || { echo "error: installing the WiFi profiles failed (passwordless sudo on the Pi?)" >&2; exit 1; }
+  # Never on a command line, so the passwords don't show up in ps: copied into a
+  # private (mode 600) temp file on the Pi, run with a terminal so sudo can ask
+  # for a password if this Pi needs one, and removed straight after.
+  REMOTE_TMP="$(ssh "$PI" 'umask 077; mktemp')"
+  printf '%s' "$WIFI_SCRIPT" | ssh "$PI" "cat > '$REMOTE_TMP'"
+  ssh -t "$PI" "sudo bash '$REMOTE_TMP'; rc=\$?; rm -f '$REMOTE_TMP'; exit \$rc" \
+    || { ssh "$PI" "rm -f '$REMOTE_TMP'"; echo "error: installing the WiFi profiles failed" >&2; exit 1; }
   echo "   saved; the Pi switches to them when its current network drops or on reboot"
 fi
 unset WIFI_SCRIPT

@@ -417,8 +417,10 @@ builds to
 - **Applied by `tools/push_site.sh`, not by the gateway.** On every push, when
   `config.json` has a `wifi` section, it writes NetworkManager profiles `akvo-wifi1`
   (priority 20) and `akvo-wifi2` (priority 10) on the Pi, through `sudo` over SSH. The
-  profiles are root-only keyfiles (mode 600) in `/etc/NetworkManager/system-connections/`,
-  sent on stdin, so a password never appears on a command line. The gateway service
+  profiles are root-only keyfiles (mode 600) in `/etc/NetworkManager/system-connections/`.
+  The script that writes them is copied to a private temp file on the Pi (mode 600) and
+  removed right after, so a password never appears on a command line; `sudo` may ask for
+  the Pi user's password. The gateway service
   gets no new privileges. `tools/wifi_profiles.py` builds the script; a missing or
   invalid password (WPA: 8-63 characters) stops the push before anything is sent.
 - **Saved, not switched.** The Pi doesn't drop its current connection, which may be the
