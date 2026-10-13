@@ -399,7 +399,7 @@ How it runs:
 A 1.54" 128×64 OLED (SSD1309, I2C) on the Pi that shows the gateway's status and
 the latest sensor values, for someone standing at the cabinet with no phone or
 laptop. The visual spec (and a browser simulator of it) is
-`VenkoDemo/docs/OLED/oled_simulator.html`.
+`docs/OLED/oled_simulator.html`.
 
 ```csv
 ...,web_enabled,web_port,display_enabled,display_driver,display_address,display_font,display_sensor_repeats
@@ -411,13 +411,29 @@ laptop. The visual spec (and a browser simulator of it) is
 ```
 
 - **Screens:**
-  - at start-up only, the GHOTRIX logo: the "Venko → Akvo" line writes itself on 3 times (100%), then flashes 3 times (5.1 s);
+  - at start-up only, the GHOTRIX logo: the "Venko → Akvo" line writes itself on 3 times (100%), then flashes 3 times (5.1 s), with the gateway name (`gateway_id`) as a third row under it;
   - then forever: **Sistema** (5 s) → **Sensores** × `sensor_repeats` → Sistema → …
-- **Sistema** shows the same rows as the local web dashboard's Sistema page: gateway
-  active/stopped, network + the Pi's IP, AWS + last send, Modbus, active alarms. A fault
-  is drawn as an inverted (lit) bar.
+- **Sistema** has one line per item (spec: `docs/OLED/init.md`):
+
+  ```
+  GATEWAY ACTIVO > 16 S              ✕INACTIVO > 00:05:12
+  SSID    VOCHO                      SIN WIFI (on a cable only; not a fault)
+  RED     ACTIVO > 192.168.68.129    ✕INACTIVO > 00:05:12
+  AWS     ACTIVO > 16 S              ✕INACTIVO > 00:05:12
+  DATABASE 59 MB - 78%               DESACTIVADA
+  MODBUS  ACTIVO > 15 SENS           !SIMULADO, ✕PTO CERRADO, ✕NO RESPONDE, !ERRORES 3/15
+  ALARMAS ▲ 5 ACTIVAS                NINGUNA
+    SENSORES FUERA DE LIMITES
+  ```
+
+  - `ACTIVO >` shows how recent the last sign of life is (status-file age, last AWS send) or
+    the Pi's IP. `INACTIVO >` shows how long it has been down (HH:MM:SS).
+  - SSID is the WiFi network the Pi is joined to, from NetworkManager (`nmcli`, no rescan).
+  - DATABASE is the size of `data/history.db` and how full its disk is. Over 90% full, it
+    turns into a fault bar.
+  - A fault is drawn as an inverted (lit) bar.
 - **Sensores** lists every sensor of the enabled devices: name, value, unit and a flag.
-  - The flags are `•` normal, `▲`/`▼` high/low alarm (blinking), `✕` read error.
+  - The flags are `■` normal, `▲`/`▼` high/low alarm (blinking), `✕` read error.
   - The list scrolls one pixel at a time (about one row per second), waiting 1.5 s at
     the top and at the bottom.
   - Names drop a trailing `Sensor`, and units are shortened (`uS/cm` → `µS`).
@@ -445,7 +461,8 @@ laptop. The visual spec (and a browser simulator of it) is
   lit). Its last row of ink is the boot line that animates; a logo with only one row
   gets a plain progress bar under it instead. Without the file, a text logo is drawn.
   Rebuild it with `python3 tools/make_oled_logo.py` (wordmark from
-  `VenkoDemo/docs/OLED/ghotrix_logo.png` + the "Venko → Akvo" line; `--line` changes it).
+  `docs/OLED/ghotrix_logo.png` + the "Venko → Akvo" line; `--line` changes it) The PNG leaves room
+  at the bottom for the gateway name, which the service draws itself.
 
 ## WiFi networks (optional `wifi` section)
 

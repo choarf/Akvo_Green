@@ -6,6 +6,8 @@ Builds the OLED boot logo, gateway/oled_logo.png (128x60, 1 bit):
          and teal letters are lit - the display has one colour)
   row 2  "Venko → Akvo" in DejaVu Sans Bold - oled_display.py animates this
          last row at boot (writes itself on 3 times, then flashes 3 times)
+  row 3  left empty here: oled_display.py writes the site's gateway_id
+         there at run time (GATEWAY_ROW px reserved below row 2)
 
   python3 tools/make_oled_logo.py                       # defaults below
   python3 tools/make_oled_logo.py --source logo.png --line "Venko → Akvo" --out /tmp/x.png
@@ -22,10 +24,13 @@ from pathlib import Path
 from PIL import Image, ImageChops, ImageDraw, ImageFont
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_SOURCE = REPO_ROOT.parent / "VenkoDemo" / "docs" / "OLED" / "ghotrix_logo.png"
+DEFAULT_SOURCE = REPO_ROOT / "docs" / "OLED" / "ghotrix_logo.png"
 DEFAULT_OUT = REPO_ROOT / "gateway" / "oled_logo.png"
 DEFAULT_FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 W, H = 128, 60          # oled_display.py fits the logo into 128x60
+SCREEN_H = 64
+GAP = 8                 # px between rows
+GATEWAY_ROW = GAP + 7   # row 3: gap + one 5x7 text line, drawn by oled_display.py
 
 
 def wordmark(source: Path, width: int) -> Image.Image:
@@ -53,12 +58,13 @@ def text_row(text: str, font_path: str, size: int) -> Image.Image:
     return img.crop(img.getbbox())
 
 
-def build(source: Path, line: str, font_path: str, size: int, gap: int = 9) -> Image.Image:
+def build(source: Path, line: str, font_path: str, size: int, gap: int = GAP) -> Image.Image:
     top = wordmark(source, 122)
     bottom = text_row(line, font_path, size)
     if bottom.width > W:
         raise SystemExit(f"'{line}' is {bottom.width} px wide at size {size}; max {W} - use a smaller --size")
-    y0 = (H - (top.height + gap + bottom.height)) // 2
+    # the three rows together are centred on the 64-px screen
+    y0 = (SCREEN_H - (top.height + gap + bottom.height + GATEWAY_ROW)) // 2
     canvas = Image.new("L", (W, H))
     canvas.paste(top, ((W - top.width) // 2, y0))
     canvas.paste(bottom, ((W - bottom.width) // 2, y0 + top.height + gap))

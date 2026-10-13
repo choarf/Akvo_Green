@@ -46,9 +46,9 @@ def lefts(lines):
 
 @pytest.mark.parametrize("font", [F35, F57])
 def test_every_character_the_screens_use_has_a_glyph(font):
-    text = ("SISTEMA SENSORES Gateway Activo Detenido Red Conectado Sin conexión AWS Desconectado "
-            "envío hace desde días Modbus Simulado Pto cerrado No responde Errores Alarmas activas "
-            "Ninguna sensores fuera de límites prueba IP 0123456789 .:/-%°µ ●•▲▼✕⚠ GHOTRIX AKVO Green")
+    text = ("SISTEMA SENSORES Gateway Activo Inactivo Sin estado Red AWS Database Desactivada sin archivo "
+            "MB GB sens días Modbus Simulado Pto cerrado No responde Errores Alarmas activas Ninguna "
+            "SSID Sin WiFi sensores fuera de límites 0123456789 .:/-%°µ> ●•■▲▼✕⚠ GHOTRIX AKVO Green")
     question = font.glyphs["?"]
     assert [ch for ch in text if font.glyph(ch) is question] == []
 
@@ -65,16 +65,27 @@ def test_font_grids():
 # Sistema rows (same states as web/app.js connectionRows)
 # ---------------------------------------------------------------------------
 
+DB = {"enabled": True, "size": 59_000_000, "disk_pct": 78.4}
+
+
 def test_system_lines_all_ok():
-    lines = od.system_lines(status(), NOW, "192.168.1.5", wide=True)
-    assert lefts(lines) == ["Gateway ●Activo", "Red     ●Conectado", "  IP 192.168.1.5", "AWS     ●Conectado",
-                            "  envío hace 16 s", "Modbus  ●OK", "Alarmas ●Ninguna"]
-    assert lines[0][1] == "hace 16 s" and lines[5][1] == "3 sens"
+    lines = od.system_lines(status(), NOW, "192.168.1.5", wide=True, db=DB, ssid="Vocho")
+    assert lefts(lines) == ["Gateway Activo > 16 s", "SSID    Vocho", "Red     Activo > 192.168.1.5",
+                            "AWS     Activo > 16 s", "Database 59 MB - 78%", "Modbus  Activo > 3 sens",
+                            "Alarmas Ninguna"]
     assert not any(fault for _, _, fault in lines)
 
 
-def test_system_lines_narrow_font_uses_short_age():
-    assert od.system_lines(status(), NOW, None, wide=False)[0][1] == "16s"
+def test_system_lines_no_db_row_without_db_info():
+    assert not [ln for ln in lefts(od.system_lines(status(), NOW, None, wide=True)) if ln.startswith("Database")]
+
+
+def test_system_lines_narrow_font_short_labels_and_right_detail():
+    lines = od.system_lines(status(), NOW, "192.168.1.5", wide=False, db=DB, ssid="Vocho")
+    assert lines[0] == ("GW  Activo", "16s", False)
+    assert lines[1] == ("Red Activo", "Vocho", False) and lines[2][0] == "  192.168.1.5"
+    assert od.system_lines(status(), NOW, "192.168.1.5", wide=False)[1][1] == "cable"
+    assert ("DB  59 MB", "78%", False) in lines
 
 
 def test_system_lines_missing_status_file():
@@ -82,40 +93,99 @@ def test_system_lines_missing_status_file():
     assert lines[0] == ("Gateway ✕Sin estado", "", True)
 
 
-def test_system_lines_faults_are_inverted_rows():
-    st = status(stale=True, network={"connected": False, "check": "8.8.8.8:53"},
+def test_system_lines_faults_are_inverted_rows_with_downtime():
+    st = status(stale=True, age_s=312, network={"connected": False, "since": NOW - 3725, "check": "8.8.8.8:53"},
                 mqtt={"connected": False, "since": NOW - 120})
     lines = od.system_lines(st, NOW, None, wide=True)
-    assert lines[0] == ("Gateway ✕Detenido", "hace 16 s", True)
-    assert lines[1] == ("Red     ✕Sin conexión", "", True) and lines[2][0] == "  prueba a 8.8.8.8:53"
-    assert lines[3] == ("AWS     ✕Desconectado", "", True) and lines[4][0] == "  desde hace 2 min"
+    assert lines[0] == ("Gateway ✕Inactivo > 00:05:12", "", True)
+    assert lines[1] == ("SSID    Sin WiFi", "", False)    # no WiFi is not a fault: the Pi may be on a cable
+    assert lines[2] == ("Red     ✕Inactivo > 01:02:05", "", True)
+    assert lines[3] == ("AWS     ✕Inactivo > 00:02:00", "", True)
 
 
-@pytest.mark.parametrize("modbus, left, right", [
-    ({"simulated": True, "connected": True}, "Modbus  ⚠Simulado", ""),
-    ({"connected": False}, "Modbus  ✕Pto cerrado", ""),
-    ({"connected": True, "sensors": 3, "read_errors": 3}, "Modbus  ✕No responde", ""),
-    ({"connected": True, "sensors": 3, "read_errors": 1}, "Modbus  ⚠Errores", "1/3"),
+def test_system_lines_down_without_since_has_no_duration():
+    st = status(network={"connected": False, "check": "8.8.8.8:53"})
+    assert od.system_lines(st, NOW, None, wide=True)[2] == ("Red     ✕Inactivo", "", True)
+
+
+def test_system_lines_aws_without_a_send_yet():
+    st = status(mqtt={"connected": True, "since": NOW - 5})
+    assert od.system_lines(st, NOW, None, wide=True)[3][0] == "AWS     Activo"
+
+
+@pytest.mark.parametrize("db, left, fault", [
+    ({"enabled": False}, "Database Desactivada", False),
+    ({"enabled": True, "size": 3_400_000, "disk_pct": 41.0}, "Database 3.4 MB - 41%", False),
+    ({"enabled": True, "size": None, "disk_pct": 41.0}, "Database sin archivo - 41%", False),
+    ({"enabled": True, "size": 1_250_000_000, "disk_pct": 93.6}, "Database ✕1.2 GB - 94%", True),
 ])
-def test_system_lines_modbus_states(modbus, left, right):
+def test_system_lines_database(db, left, fault):
+    row = [ln for ln in od.system_lines(status(), NOW, None, wide=True, db=db) if ln[0].startswith("Database")]
+    assert row == [(left, "", fault)]
+
+
+@pytest.mark.parametrize("modbus, left, fault", [
+    ({"simulated": True, "connected": True}, "Modbus  ⚠Simulado", False),
+    ({"connected": False}, "Modbus  ✕Pto cerrado", True),
+    ({"connected": True, "sensors": 3, "read_errors": 3}, "Modbus  ✕No responde", True),
+    ({"connected": True, "sensors": 3, "read_errors": 1}, "Modbus  ⚠Errores > 1/3", False),
+])
+def test_system_lines_modbus_states(modbus, left, fault):
     row = [ln for ln in od.system_lines(status(modbus=modbus), NOW, None, wide=True) if ln[0].startswith("Modbus")]
-    assert row[0][:2] == (left, right)
+    assert row[0] == (left, "", fault)
 
 
 def test_system_lines_alarms_add_a_detail_row_and_blink():
     st = status(modbus={"connected": True, "sensors": 3, "read_errors": 0, "alarms": 2})
     on = lefts(od.system_lines(st, NOW, None, wide=True, blink_on=True))
     off = lefts(od.system_lines(st, NOW, None, wide=True, blink_on=False))
-    assert on[-2:] == ["Alarmas ▲2 activas", "  sensores fuera de límites"]
-    assert off[-2] == "Alarmas  2 activas"
+    assert on[-2:] == ["Alarmas ▲ 2 activas", "  sensores fuera de límites"]
+    assert off[-2] == "Alarmas   2 activas"
 
 
-def test_every_system_line_fits_the_3x5_width():
-    # (a longer check host would just be cut at the edge by Frame.row_at)
-    st = status(stale=True, network={"connected": False, "check": "8.8.8.8:53"},
+@pytest.mark.parametrize("font, wide", [(F35, True), (F57, False)])
+def test_every_system_line_fits_the_width(font, wide):
+    st = status(stale=True, age_s=360000, network={"connected": False, "since": NOW - 360000, "check": "8.8.8.8:53"},
+                mqtt={"connected": False, "since": NOW - 360000},
                 modbus={"connected": True, "sensors": 15, "read_errors": 4, "alarms": 12})
-    for left, right, _ in od.system_lines(st, NOW, "192.168.100.200", wide=True):
-        assert len(left) + (len(right) + 1 if right else 0) <= F35.cols, left
+    ok = status(modbus={"connected": True, "sensors": 15, "read_errors": 0, "alarms": 0})
+    big = {"enabled": True, "size": 999_000_000, "disk_pct": 100.0}
+    for s in (st, ok):
+        for left, right, _ in od.system_lines(s, NOW, "192.168.100.200", wide=wide, db=big, ssid="Planta"):
+            assert len(left) + (len(right) + 1 if right else 0) <= font.cols, left
+    alarms = status(modbus={"connected": True, "sensors": 15, "read_errors": 0, "alarms": 3})
+    for s in (st, alarms):
+        assert len(od.system_lines(s, NOW, "192.168.100.200", wide=wide, db=big, ssid="Planta")) <= font.rows
+
+
+def test_wifi_ssid_reads_the_active_network(monkeypatch):
+    class Done:
+        stdout = "no:Oficina\nyes:Planta\\: 2\nno:Vecino\n"
+    monkeypatch.setattr(od.subprocess, "run", lambda *a, **k: Done())
+    assert od.wifi_ssid() == "Planta: 2"
+    Done.stdout = "no:Oficina\n"
+    assert od.wifi_ssid() is None
+
+
+def test_wifi_ssid_without_nmcli(monkeypatch):
+    def missing(*a, **k):
+        raise FileNotFoundError("nmcli")
+    monkeypatch.setattr(od.subprocess, "run", missing)
+    assert od.wifi_ssid() is None
+
+
+def test_hms_and_size():
+    assert od.hms(0) == "00:00:00" and od.hms(3725) == "01:02:05" and od.hms(100 * 3600) == "100:00:00"
+    assert od.size_mb(950_000) == "0.9 MB" and od.size_mb(59_400_000) == "59 MB"
+
+
+def test_database_info(tmp_path):
+    db = tmp_path / "history.db"
+    assert od.database_info({}, db)["size"] is None
+    db.write_bytes(b"x" * 100)
+    (tmp_path / "history.db-wal").write_bytes(b"x" * 20)
+    info = od.database_info({"database": {"enabled": True}}, db)
+    assert info["enabled"] and info["size"] == 120 and 0 < info["disk_pct"] <= 100
 
 
 # ---------------------------------------------------------------------------
@@ -128,7 +198,7 @@ def test_sensors_from_config_skips_disabled_devices_and_shortens_labels():
 
 
 @pytest.mark.parametrize("reading, val, flag", [
-    ({"val": 24.0, "status": "OK", "alarm": "NORMAL"}, "24.0", "•"),
+    ({"val": 24.0, "status": "OK", "alarm": "NORMAL"}, "24.0", "■"),
     ({"val": 57.25, "status": "OK", "alarm": "HIGH"}, "57.2", "▲"),
     ({"val": -12.0, "status": "OK", "alarm": "LOW"}, "-12.0", "▼"),
     ({"status": "EXCEPTION"}, "----", "✕"),
@@ -251,6 +321,18 @@ def test_logo_line_is_drawn_up_to_the_written_part():
     assert lit(half, x0, y0, mid - 2, y1) > 0 and lit(half, mid + 2, y0, x1, y1) == 0
     assert lit(full, mid + 2, y0, x1, y1) > 0 and lit(off, x0, y0, x1, y1) == 0
     assert lit(off, 0, 0, od.W, y0) == lit(full, 0, 0, od.W, y0)   # GHOTRIX never changes
+
+
+def test_logo_third_row_is_the_gateway_name():
+    v = view()
+    v.logo = od.load_logo(od.LOGO_PATH)
+    _, _, _, y1 = od.boot_line_band(v.logo)
+    rows = lambda fr: lit(fr, 0, y1 + 8, od.W, y1 + 16)
+    named = od.render("logo", 0.6, v)
+    v.gateway_id = ""
+    unnamed = od.render("logo", 0.6, v)
+    assert rows(named) > 0 and rows(unnamed) == 0
+    assert y1 + 8 + 7 <= od.H                                      # fits on the screen
 
 
 def test_shifted_moves_pixels_right_and_down():

@@ -375,8 +375,15 @@ class WifiManager:
         self.check_timeout = cfg.get("wifi_check_timeout", 2.0)
         self._check_fn = check_fn or self._default_check
         self.connected = False
+        self.last_change = None    # epoch s of the last connected/disconnected change
         self.lock = threading.RLock()
         self._reboot = _RebootEscalator(cfg.get("wifi_reboot_timeout"), reboot_fn)
+
+    def _set(self, connected):
+        with self.lock:
+            if connected != self.connected or self.last_change is None:
+                self.last_change = time.time()
+            self.connected = connected
 
     def _default_check(self):
         try:
@@ -395,11 +402,12 @@ class WifiManager:
         self._reboot.reset()
         while True:
             if self.is_reachable():
-                with self.lock:
-                    self.connected = True
+                self._set(True)
                 logger.info("WiFi connected")
                 return
 
+            if self.last_change is None:
+                self._set(False)   # down from the start: "since" = first failed check
             delay = _retry_delay(attempt)
             logger.error(f"WiFi unreachable - retrying in {delay:.1f}s")
             self._reboot.check("WiFi")
@@ -408,15 +416,15 @@ class WifiManager:
 
     def status(self):
         """For the status file (EdgeNode.write_status)."""
-        return {"connected": self.connected, "check": f"{self.check_host}:{self.check_port}"}
+        return {"connected": self.connected, "since": self.last_change,
+                "check": f"{self.check_host}:{self.check_port}"}
 
     def disconnect(self):
         """Marks the link as down. There's no socket to close at this level
         (see class docstring) - this exists for symmetry with
         Modbus/MQTTManager.disconnect() and so EdgeNode.stop() can report a
         clean state instead of a stale 'connected' one."""
-        with self.lock:
-            self.connected = False
+        self._set(False)
         logger.info("WiFi disconnected")
 
     def monitor(self, stop_event, interval=5):
@@ -428,8 +436,7 @@ class WifiManager:
         while not stop_event.is_set():
             try:
                 if self.connected and not self.is_reachable():
-                    with self.lock:
-                        self.connected = False
+                    self._set(False)
                     logger.warning("WiFi disconnected")
                     self.connect()
             except Exception as e:

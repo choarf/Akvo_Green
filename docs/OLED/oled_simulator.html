@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador OLED</title>
+<style>
+  :root {
+    --bg: #14171c; --panel: #1d2128; --line: #2d333d; --text: #e6e9ee; --muted: #9aa3af;
+    --accent: #5fb3ff; --warn: #ffb347; --bad: #ff6b6b; --good: #63d68b;
+    --pcb: #1f4f8f; --pcb-edge: #163a6a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { padding: 18px 24px 4px; }
+  h1 { margin: 0; font-size: 20px; font-weight: 600; }
+  header p { margin: 4px 0 0; color: var(--muted); }
+  main { display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 20px; padding: 16px 24px 32px; }
+  @media (max-width: 1100px) { main { grid-template-columns: 1fr; } }
+  @media (max-width: 600px) { main, header { padding-left: 16px; padding-right: 16px; } }
+
+  /* --- module ------------------------------------------------------------ */
+  .stage { display: flex; flex-direction: column; align-items: center; gap: 16px; min-width: 0; }
+  .module { position: relative; background: var(--pcb); border: 2px solid var(--pcb-edge); border-radius: 10px;
+    padding: 34px 26px 26px; box-shadow: 0 10px 30px rgba(0,0,0,.45); max-width: 100%; }
+  .module .hole { position: absolute; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--bg); border: 3px solid #c9a94a; }
+  .hole.tl { top: 8px; left: 8px; } .hole.tr { top: 8px; right: 8px; }
+  .hole.bl { bottom: 8px; left: 8px; } .hole.br { bottom: 8px; right: 8px; }
+  .pins { position: absolute; top: 6px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; }
+  .pins span { display: flex; flex-direction: column; align-items: center; font: 600 9px/1 ui-monospace, monospace; color: #dfe8f5; }
+  .pins span::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: #c9a94a;
+    margin-bottom: 3px; box-shadow: inset 0 0 0 3px #3a3020; }
+  .glass { background: #050607; padding: 10px; border-radius: 3px; border: 1px solid #000;
+    box-shadow: inset 0 0 0 1px #22262c; max-width: 100%; }
+  canvas#oled { display: block; image-rendering: pixelated; max-width: 100%; height: auto; }
+  .chip-label { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+    font: 600 10px/1 ui-monospace, monospace; color: #b9c9e0; letter-spacing: .05em; white-space: nowrap; }
+
+  /* --- timeline + transport --------------------------------------------- */
+  .timeline { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+  .timeline .step { position: relative; overflow: hidden; padding: 4px 10px; border-radius: 999px;
+    border: 1px solid var(--line); color: var(--muted); font-size: 12px; cursor: pointer; background: var(--panel); }
+  .timeline .step.on { color: var(--text); border-color: var(--accent); }
+  .timeline .step .bar { position: absolute; left: 0; bottom: 0; height: 2px; background: var(--accent); }
+  .transport { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  button, select, input[type=text], input[type=number] { font: inherit; color: var(--text); background: var(--panel);
+    border: 1px solid var(--line); border-radius: 6px; padding: 5px 9px; }
+  button { cursor: pointer; } button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); color: #0b1220; border-color: var(--accent); font-weight: 600; }
+  .hint { color: var(--muted); font-size: 12px; text-align: center; max-width: 640px; }
+  kbd { font: 11px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+
+  /* --- controls ---------------------------------------------------------- */
+  .controls { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  fieldset { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); margin: 0; padding: 10px 14px 12px; min-width: 0; }
+  legend { padding: 0 6px; font-weight: 600; }
+  .grid { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 7px 10px; align-items: center; }
+  .grid label { color: var(--muted); }
+  .grid input[type=text] { width: 100%; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .table-wrap { max-height: 420px; overflow: auto; margin-top: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { padding: 3px 4px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+  th { color: var(--muted); font-weight: 500; position: sticky; top: 0; background: var(--panel); }
+  td input[type=text] { width: 76px; padding: 2px 5px; font: 12px ui-monospace, monospace; }
+  td.unit input[type=text] { width: 52px; }
+  td select { padding: 2px 4px; font-size: 12px; }
+  td.val { font: 12px ui-monospace, monospace; text-align: right; }
+  td.dev { color: var(--muted); font-size: 11px; }
+  .flag-HIGH, .flag-LOW { color: var(--bad); } .flag-ERR { color: var(--warn); }
+  .legend { color: var(--muted); font-size: 12px; margin: 8px 0 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Simulador OLED · gateway AKVO Green</h1>
+  <p>Módulo 1.54" I2C, 128×64 px, controlador SSD1309. Vista previa píxel a píxel de las pantallas (fuente 3×5: 32 columnas × 10 filas, o 5×7: 21 × 8).</p>
+</header>
+
+<main>
+  <section class="stage">
+    <div class="module" id="module">
+      <span class="hole tl"></span><span class="hole tr"></span><span class="hole bl"></span><span class="hole br"></span>
+      <div class="pins"><span>GND</span><span>VCC</span><span>SCL</span><span>SDA</span></div>
+      <div class="glass"><canvas id="oled"></canvas></div>
+      <div class="chip-label">SSD1309 · 128×64 · 0x3C</div>
+    </div>
+    <div class="timeline" id="timeline"></div>
+    <div class="transport">
+      <button id="b-boot" title="Reinicia la secuencia mostrando el logo">⟲ Arranque</button>
+      <button id="b-prev" title="Pantalla anterior (←)">◀ Anterior</button>
+      <button id="b-play" class="primary" title="Pausa / reproducir (espacio)">❚❚ Pausa</button>
+      <button id="b-next" title="Pantalla siguiente (→)">Siguiente ▶</button>
+      <button id="b-png" title="Descarga la pantalla actual como PNG 128×64 de 1 bit">Exportar PNG</button>
+    </div>
+    <p class="hint">Ciclo: logo (solo al arrancar; «Venko → Akvo» se escribe 3 veces hasta 100% y parpadea 3 veces; debajo, el Gateway ID) → Sistema → Sensores → Sensores → Sistema → Sensores → Sensores… La lista de sensores se desplaza (o va en páginas 1…n). La lista dura lo que tarda en recorrerse; las demás pantallas, el tiempo configurado.
+      Atajos: <kbd>espacio</kbd> pausa, <kbd>←</kbd> <kbd>→</kbd> cambiar pantalla, <kbd>b</kbd> arranque.</p>
+  </section>
+
+  <aside class="controls">
+    <fieldset>
+      <legend>Secuencia</legend>
+      <div class="grid">
+        <label for="c-dur">Duración (s)</label>
+        <input type="number" id="c-dur" min="1" max="60" value="5">
+        <label for="c-logo">Logo</label>
+        <select id="c-logo">
+          <option value="boot" selected>solo al arrancar</option>
+          <option value="cycle">al arrancar y cada N ciclos</option>
+          <option value="never">nunca</option>
+        </select>
+        <label for="c-logo-n">Ciclos entre logos</label>
+        <input type="number" id="c-logo-n" min="1" max="10" value="2" title="Vueltas de Sistema + Sensores antes de volver a mostrar el logo">
+        <label for="c-logo-file">Logo propio</label>
+        <div class="row">
+          <input type="file" id="c-logo-file" accept="image/*">
+          <label><input type="checkbox" id="c-logo-inv"> invertir</label>
+          <button id="c-logo-clear" type="button" title="Volver al logo GHOTRIX">Quitar</button>
+        </div>
+        <label for="c-sens-rep">Sensores por vuelta</label>
+        <input type="number" id="c-sens-rep" min="1" max="5" value="2" title="Veces que se recorre la lista de sensores antes de volver a Sistema">
+        <label for="c-list">Lista de sensores</label>
+        <select id="c-list">
+          <option value="scroll">Desplazamiento</option>
+          <option value="pages">Páginas</option>
+        </select>
+        <label for="c-speed">Velocidad (px/s)</label>
+        <input type="number" id="c-speed" min="1" max="60" value="6" title="Con la fuente 3×5 una fila mide 6 px">
+        <label for="c-per-page">Sensores / página</label>
+        <input type="number" id="c-per-page" min="1" max="9" placeholder="auto (todas las filas)">
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Pantalla</legend>
+      <div class="grid">
+        <label for="c-font">Fuente</label>
+        <select id="c-font">
+          <option value="f35">3×5 mayúsculas (32 × 10)</option>
+          <option value="f57">5×7 (21 × 8)</option>
+        </select>
+        <label for="c-color">Color</label>
+        <select id="c-color">
+          <option value="white">Blanco</option>
+          <option value="blue">Azul</option>
+          <option value="yellow">Amarillo</option>
+          <option value="green">Verde</option>
+          <option value="duo">Bicolor (amarillo / azul)</option>
+        </select>
+        <label for="c-zoom">Zoom</label>
+        <select id="c-zoom">
+          <option value="real">Tamaño real aprox. (35 × 17.5 mm)</option>
+          <option value="3">3×</option>
+          <option value="4">4×</option>
+          <option value="5" selected>5×</option>
+          <option value="6">6×</option>
+        </select>
+        <label for="c-bright">Contraste</label>
+        <input type="range" id="c-bright" min="10" max="100" value="100">
+        <label>Opciones</label>
+        <div class="row">
+          <label><input type="checkbox" id="c-grid" checked> rejilla</label>
+          <label><input type="checkbox" id="c-glow" checked> brillo</label>
+          <label><input type="checkbox" id="c-blink" checked> parpadeo de alarmas</label>
+          <label title="Mueve el contenido 1 px en cada ciclo para evitar quemado"><input type="checkbox" id="c-shift"> anti‑quemado</label>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Estado del gateway</legend>
+      <div class="grid">
+        <label for="c-gwid">Gateway ID</label>
+        <input type="text" id="c-gwid" value="AKVO_cmd4">
+        <label for="c-ip">IP</label>
+        <input type="text" id="c-ip" value="192.168.68.129">
+        <label for="c-ssid">WiFi (SSID)</label>
+        <input type="text" id="c-ssid" value="Vocho" placeholder="vacío = sin WiFi (cable)">
+        <label for="c-poll">Intervalo lectura (s)</label>
+        <input type="number" id="c-poll" min="1" max="600" value="20">
+        <label for="c-gw">Gateway</label>
+        <select id="c-gw"><option value="1">Activo</option><option value="0">Detenido</option></select>
+        <label for="c-net">Red / Internet</label>
+        <select id="c-net"><option value="1">Conectado</option><option value="0">Sin conexión</option></select>
+        <label for="c-aws">AWS IoT (MQTT)</label>
+        <select id="c-aws"><option value="1">Conectado</option><option value="0">Desconectado</option></select>
+        <label for="c-db">Base de datos</label>
+        <select id="c-db"><option value="1">Activa</option><option value="0">Desactivada</option></select>
+        <label for="c-db-mb">Tamaño history.db (MB)</label>
+        <input type="number" id="c-db-mb" min="0" max="100000" step="0.1" value="59">
+        <label for="c-disk">Disco usado (%)</label>
+        <input type="number" id="c-disk" min="0" max="100" value="78" title="Desde 90% la fila DATABASE se muestra como falla">
+        <label for="c-modbus">Modbus</label>
+        <select id="c-modbus">
+          <option value="sim">Simulado</option>
+          <option value="ok">Puerto abierto (/dev/ttySC0)</option>
+          <option value="closed">Puerto cerrado</option>
+        </select>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Sensores</legend>
+      <div class="row">
+        <label for="c-config">Cargar config.json del gateway:</label>
+        <input type="file" id="c-config" accept=".json,application/json">
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button type="button" id="c-all-normal">Todos normales</button>
+        <button type="button" id="c-random-alarm">Alarma aleatoria</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Dispositivo</th><th>Nombre</th><th>Unidad</th><th>Valor</th><th>Estado</th></tr></thead>
+          <tbody id="sensor-rows"></tbody>
+        </table>
+      </div>
+      <p class="legend">Indicador en pantalla: • normal · ▲ alto (sobre máx.) · ▼ bajo (bajo mín.) · ✕ error de lectura / fuera de rango.
+        Nombre máx. 12 caracteres (8 con fuente 5×7), unidad máx. 6 (4).</p>
+    </fieldset>
+  </aside>
+</main>
+
+<script>
+"use strict";
+// ============================================================ framebuffer
+const W = 128, H = 64;
+const fb = new Uint8Array(W * H);
+
+// Classic 5x7 font, ASCII 0x20-0x7E, 5 column bytes per glyph, LSB = top row.
+// Bit 7 is used as a descender row (g j p q y).
+const ASCII = (
+  "0000000000 00005F0000 0007000700 147F147F14 242A7F2A12 2313086462 3649552250 0005030000 " +
+  "001C224100 0041221C00 082A1C2A08 08083E0808 0050300000 0808080808 0060600000 2010080402 " +
+  "3E5149453E 00427F4000 4261514946 2141454B31 1814127F10 2745454539 3C4A494930 0171090503 " +
+  "3649494936 064949291E 0036360000 0056360000 0814224100 1414141414 0041221408 0201510906 " +
+  "324979413E 7E1111117E 7F49494936 3E41414122 7F4141221C 7F49494941 7F09090101 3E41415132 " +
+  "7F0808087F 00417F4100 2040413F01 7F08142241 7F40404040 7F0204027F 7F0408107F 3E4141413E " +
+  "7F09090906 3E4151215E 7F09192946 4649494931 01017F0101 3F4040403F 1F2040201F 7F2018207F " +
+  "6314081463 0304780403 6151494543 007F414100 0204081020 0041417F00 0402010204 4040404040 " +
+  "0001020400 2054545478 7F48444438 3844444420 384444487F 3854545418 087E090102 18A4A4A47C " +
+  "7F08040478 00447D4000 4080847D00 007F102844 00417F4000 7C04180478 7C08040478 3844444438 " +
+  "FC24242418 18242424FC 7C08040408 4854545420 043F444020 3C4040207C 1C2040201C 3C4030403C " +
+  "4428102844 1CA0A0A07C 4464544C44 0008364100 00007F0000 0041360800 0804081008"
+).split(" ");
+const EXTRA = {
+  "°": "0006090906", "µ": "FC4040207C", "á": "2054565578", "é": "3854565518", "í": "00447E4100",
+  "ó": "3844464538", "ú": "3C4042217C", "ñ": "7C0A050679", "Á": "7C1213117C", "É": "7C54565544",
+  "▲": "60787E7860", "▼": "030F3F0F03", "●": "1C3E3E3E1C", "•": "001C1C1C00", "■": "001C1C1C00", "✕": "2214081422",
+  "⚠": "6078527860", "·": "0000180000", "…": "4000400040",
+};
+const F57MAP = {};
+const hexBytes = h => [0, 2, 4, 6, 8].map(i => parseInt(h.slice(i, i + 2), 16));
+ASCII.forEach((h, i) => { F57MAP[String.fromCharCode(0x20 + i)] = hexBytes(h); });
+for (const [ch, h] of Object.entries(EXTRA)) F57MAP[ch] = hexBytes(h);
+
+// 3x5 small-caps font: 5 octal digits per glyph = rows top to bottom, 3 bits each (MSB = left).
+// Lowercase and accented letters fall back to plain uppercase (á -> A, ñ -> N).
+const SMALL = {
+  " ": "00000", "0": "75557", "1": "26227", "2": "71747", "3": "71317", "4": "55711", "5": "74717",
+  "6": "74757", "7": "71122", "8": "75757", "9": "75717", "A": "25755", "B": "65656", "C": "34443",
+  "D": "65556", "E": "74647", "F": "74644", "G": "34553", "H": "55755", "I": "72227", "J": "11152",
+  "K": "55655", "L": "44447", "M": "57755", "N": "65555", "O": "25552", "P": "65644", "Q": "25573",
+  "R": "65655", "S": "34216", "T": "72222", "U": "55557", "V": "55552", "W": "55572", "X": "55255",
+  "Y": "55222", "Z": "71247", ".": "00002", ",": "00024", ":": "02020", "-": "00700", "+": "02720",
+  "/": "11244", "%": "51245", "(": "12221", ")": "42224", "_": "00007", "!": "22202", "?": "71202",
+  "'": "22000", "\"": "55000", "=": "07070", "<": "12421", ">": "42124", "°": "25200", "µ": "55574",
+  "▲": "00270", "▼": "00720", "●": "07770", "•": "07770", "■": "07770", "✕": "05250", "⚠": "22202", "·": "00200",
+};
+const F35MAP = {};
+for (const [ch, o] of Object.entries(SMALL)) {
+  const rows = [...o].map(d => parseInt(d, 8));
+  F35MAP[ch] = [0, 1, 2].map(c => rows.reduce((b, r, i) => b | (((r >> (2 - c)) & 1) << i), 0));
+}
+
+// cw = cell width, gw/gh = glyph size, rowH = text row pitch, headH = header bar height.
+// Sensor row widths in columns: name, value, unit, spacer.
+const FONTS = {
+  f35: { map: F35MAP, cw: 4, gw: 3, gh: 5, rowH: 6, headH: 7, headY: 1, sens: [12, 8, 6, "  "] },
+  f57: { map: F57MAP, cw: 6, gw: 5, gh: 8, rowH: 8, headH: 8, headY: 0, sens: [8, 6, 4, " "] },
+};
+let F = FONTS.f35;
+
+function px(x, y, v = 1) { if (x >= 0 && x < W && y >= 0 && y < H) fb[y * W + x] = v; }
+function fill(x, y, w, h, v = 1) { for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) px(i, j, v); }
+function frame(x, y, w, h) { fill(x, y, w, 1); fill(x, y + h - 1, w, 1); fill(x, y, 1, h); fill(x + w - 1, y, 1, h); }
+const chars = s => Array.from(s);
+function glyph(f, ch) {
+  if (f.map[ch]) return f.map[ch];
+  const base = ch.normalize("NFD")[0];
+  return f.map[base] || f.map[base.toUpperCase()] || f.map["?"];
+}
+function textW(s, scale = 1, f = F) { const n = chars(s).length; return n ? n * f.cw * scale - scale * (f.cw - f.gw) : 0; }
+function text(x, y, s, { inv = false, scale = 1, f = F } = {}) {
+  for (const ch of chars(s)) {
+    const g = glyph(f, ch);
+    for (let c = 0; c < f.gw; c++)
+      for (let r = 0; r < f.gh; r++)
+        if ((g[c] >> r) & 1) fill(x + c * scale, y + r * scale, scale, scale, inv ? 0 : 1);
+    x += f.cw * scale;
+  }
+  return x;
+}
+const centerX = (s, scale = 1, f = F) => Math.round((W - textW(s, scale, f)) / 2);
+const cols = () => Math.floor(W / F.cw);                              // 21 (5x7) or 32 (3x5)
+const textRows = () => Math.floor((H - F.headH) / F.rowH);            // rows under the header: 7 or 9
+const fit = (s, n) => { const c = chars(s); return c.length > n ? c.slice(0, n).join("") : s; };
+const padE = (s, n) => fit(s, n) + " ".repeat(Math.max(0, n - chars(fit(s, n)).length));
+const padS = (s, n) => " ".repeat(Math.max(0, n - chars(fit(s, n)).length)) + fit(s, n);
+
+// Text row r (1 = first row under the header). inv = lit bar with dark text (used for faults).
+function row(r, left, right = "", inv = false) { rowAt(F.headH + (r - 1) * F.rowH, left, right, inv); }
+function rowAt(y, left, right = "", inv = false) {
+  if (inv) fill(0, y, W, F.rowH, 1);
+  const ty = y + (F === FONTS.f35 ? 1 : 0);
+  text(1, ty, fit(left, cols()), { inv });
+  if (right) text(W - 1 - textW(right), ty, right, { inv });
+}
+function header(title, now) {
+  fill(0, 0, W, F.headH, 1);
+  text(1, F.headY, fit(title, cols() - 9), { inv: true });
+  const t = clock(now);
+  text(W - 1 - textW(t), F.headY, t, { inv: true });
+}
+const two = n => String(n).padStart(2, "0");
+const clock = d => `${two(d.getHours())}:${two(d.getMinutes())}:${two(d.getSeconds())}`;
+const agoShort = s => s < 90 ? `${s}s` : s < 5400 ? `${Math.round(s / 60)}m` : s < 172800 ? `${Math.round(s / 3600)}h` : `${Math.round(s / 86400)}d`;
+const agoLong = s => s < 90 ? `${s} s` : s < 5400 ? `${Math.round(s / 60)} min` : s < 172800 ? `${Math.round(s / 3600)} h` : `${Math.round(s / 86400)} días`;
+
+// ============================================================ simulated gateway
+const DEFAULT_DEVICES = [  // sites/cmd4/config_data/config.json
+  ["DEV_1", "Pt100Sensor", "°C", 0, 55], ["DEV_2", "Ambient", "°C", 0, 55], ["DEV_3", "Humedad", "%HR", 0, 80],
+  ["DEV_4", "ORPSensor", "mV", -1500, 1500], ["DEV_5", "PhSensor", "unit", 0, 14], ["DEV_6", "TempPhSensor", "°C", 0, 55],
+  ["DEV_7", "DOSensor", "mg/L", 0, 2500], ["DEV_8", "CODSensor", "mg/L", 0, 1500], ["DEV_9", "TempCODSensor", "°C", 0, 55],
+  ["DEV_10", "TurbCODSensort", "NTU", 0, 100], ["DEV_11", "BODSensor", "mg/L", 0, 40], ["DEV_12", "TOCSensor", "mg/L", 0, 300],
+  ["DEV_13", "CondSensor", "uc/cm", 0, 200], ["DEV_14", "TempCondSensor", "°C", 0, 55], ["DEV_15", "TDSCondSensor", "uS/cm", 10, 5000],
+].map(([device, name, unit, min, max]) => ({ device, name, unit, min, max }));
+
+const UNIT_SHORT = { "unit": "pH", "uS/cm": "µS", "uc/cm": "µS", "us/cm": "µS", "mS/cm": "mS" };
+const shortName = n => fit(n.replace(/Sensort?$/i, "") || n, 12);
+const shortUnit = (u, name) => fit(u === "unit" && !/ph/i.test(name) ? "" : (UNIT_SHORT[u] ?? u), 6);
+
+let sensors = [];
+function loadSensors(list) {
+  sensors = list.map(s => {
+    const span = s.max - s.min || 1;
+    return { ...s, label: shortName(s.name), ushort: shortUnit(s.unit, s.name), force: "auto",
+      value: s.min + span * (0.35 + Math.random() * 0.3), reading: null };
+  });
+  sensors.forEach(readSensor);
+  buildSensorTable();
+}
+
+const sim = { gw: true, net: true, aws: true, modbus: "sim",
+  lastWrite: Date.now(), lastPublish: Date.now(), gwStoppedAt: null, netSince: Date.now(), awsSince: Date.now() };
+
+function readSensor(s) {
+  if (sim.modbus === "closed" || s.force === "error") { s.reading = { status: "ERR" }; return; }
+  const span = s.max - s.min || 1;
+  if (s.force === "high") s.value = s.max + span * (0.04 + Math.random() * 0.06);
+  else if (s.force === "low") s.value = s.min - span * (0.04 + Math.random() * 0.06);
+  else {
+    if (s.force === "normal" && (s.value > s.max || s.value < s.min)) s.value = s.min + span * 0.5;
+    // random walk, pulled back to mid-range
+    s.value += (s.min + span * 0.5 - s.value) * 0.05 + span * (Math.random() - 0.5) * 0.04;
+    if (s.force === "normal") s.value = Math.min(s.max, Math.max(s.min, s.value));
+  }
+  const alarm = s.value > s.max ? "HIGH" : s.value < s.min ? "LOW" : null;
+  s.reading = { status: "OK", val: s.value, alarm };
+}
+
+function pollCycle() {  // one gateway poll: read all sensors, write status, publish
+  if (!sim.gw) return;
+  sensors.forEach(readSensor);
+  sim.lastWrite = Date.now();
+  if (sim.aws) sim.lastPublish = Date.now();
+  refreshSensorValues();
+}
+
+function status(nowMs) {
+  const poll = +$("#c-poll").value || 20;
+  const age = Math.max(0, Math.round((nowMs - sim.lastWrite) / 1000));
+  let total = 0, errors = 0, alarms = 0;
+  for (const s of sensors) {
+    total++;
+    if (!s.reading || s.reading.status !== "OK") errors++;
+    else if (s.reading.alarm) alarms++;
+  }
+  return { age, stale: !sim.gw || age > 3 * poll, total, errors, alarms };
+}
+
+// ============================================================ screens
+// Sistema: one line per item (init.md). ACTIVO > how recent / the IP; ✕INACTIVO > how long down.
+// The 3x5 font (32 columns) puts the detail inline after ">"; the 5x7 one (21) right-aligns it
+// after a short label. Faults are inverted bars and say INACTIVO in words.
+const LABELS = { Gateway: "GW", Red: "Red", AWS: "AWS", Database: "DB", Modbus: "Mod", Alarmas: "Alm" };
+const DISK_FULL_PCT = 90;
+const hms = s => { s = Math.max(0, Math.round(s)); return `${two(Math.floor(s / 3600))}:${two(Math.floor(s / 60) % 60)}:${two(s % 60)}`; };
+const sizeMb = mb => mb >= 1000 ? `${(mb / 1000).toFixed(1)} GB` : mb < 10 ? `${mb.toFixed(1)} MB` : `${Math.round(mb)} MB`;
+
+function drawSystem(now) {
+  const t = now.getTime(), st = status(t), wide = F === FONTS.f35;
+  const secs = ms => Math.round((t - ms) / 1000);
+  const line = (label, state, detail = "", bad = false, icon = "") => wide
+    ? [label.padEnd(7) + " " + icon + state + (detail ? ` > ${detail}` : ""), "", bad]
+    : [LABELS[label].padEnd(4) + (bad ? "" : icon) + state, detail, bad];
+  const down = (label, s) => line(label, "Inactivo", wide ? hms(s) : agoShort(s), true, "✕");
+  header("SISTEMA", now);
+  const L = [];
+  L.push(st.stale ? down("Gateway", st.age) : line("Gateway", "Activo", wide ? agoLong(st.age) : agoShort(st.age)));
+  const ip = $("#c-ip").value.trim(), ssid = $("#c-ssid").value.trim();
+  if (wide) L.push(line("SSID", ssid || "Sin WiFi"));  // no WiFi isn't a fault: the Pi may be on a cable
+  if (!sim.net) L.push(down("Red", secs(sim.netSince)));
+  else if (wide) L.push(line("Red", "Activo", ip));
+  else { L.push(line("Red", "Activo", fit(ssid || "cable", 9))); if (ip) L.push(["  " + ip, "", false]); }
+  L.push(sim.aws ? line("AWS", "Activo", wide ? agoLong(secs(sim.lastPublish)) : agoShort(secs(sim.lastPublish)))
+                 : down("AWS", secs(sim.awsSince)));
+  if ($("#c-db").value === "1") {
+    const pct = Math.min(100, Math.max(0, +$("#c-disk").value || 0)), full = pct >= DISK_FULL_PCT;
+    const size = sizeMb(Math.max(0, +$("#c-db-mb").value || 0));
+    L.push(line("Database", wide ? `${size} - ${Math.round(pct)}%` : size, wide ? "" : `${Math.round(pct)}%`, full, full ? "✕" : ""));
+  } else L.push(line("Database", "Desactivada"));
+  if (sim.modbus === "sim") L.push(line("Modbus", "Simulado", "", false, "⚠"));
+  else if (sim.modbus === "closed") L.push(line("Modbus", "Pto cerrado", "", true, "✕"));
+  else if (st.total && st.errors === st.total) L.push(line("Modbus", "No responde", "", true, "✕"));
+  else if (st.errors) L.push(line("Modbus", "Errores", `${st.errors}/${st.total}`, false, "⚠"));
+  else L.push(line("Modbus", "Activo", `${st.total} sens`));
+  if (st.alarms) {
+    L.push(line("Alarmas", `${st.alarms} activas`, "", false, blinkOn(t) ? "▲ " : "  "));
+    if (wide) L.push(["  sensores fuera de límites", "", false]);
+  } else L.push(line("Alarmas", "Ninguna"));
+  L.slice(0, textRows()).forEach(([left, r, inv], i) => row(i + 1, left, r, inv));
+}
+
+function fmtVal(v) {
+  let s = v.toFixed(1);
+  const n = F.sens[1];
+  if (s.length > n) s = v.toFixed(0);
+  if (s.length > n) s = v.toExponential(0);
+  return s;
+}
+const blinkOn = t => !$("#c-blink").checked || (t % 1000) < 650;
+
+// name value unit flag: 8+6+1+4+1+1 = 21 columns (5x7) or 12+8+2+6+2+1 = 31 (3x5)
+function sensorLine(s, t) {
+  const r = s.reading;
+  let val = "----", flag = "✕";
+  if (r && r.status === "OK") {
+    val = fmtVal(r.val);
+    flag = r.alarm === "HIGH" ? "▲" : r.alarm === "LOW" ? "▼" : "■";
+    if (r.alarm && !blinkOn(t)) flag = " ";
+  }
+  const [nw, vw, uw, sp] = F.sens;
+  return padE(s.label, nw) + padS(val, vw) + sp + padE(s.ushort, uw) + sp + flag;
+}
+
+function drawSensors(now, page, pages) {
+  const per = Math.ceil(sensors.length / pages), t = now.getTime();  // spread evenly: 15 -> 8/7
+  header(`SENSORES ${page + 1}/${pages}`, now);
+  sensors.slice(page * per, page * per + per).forEach((s, i) => row(i + 1, sensorLine(s, t)));
+}
+
+// Scrolling list: wait SCROLL_PAUSE at the top, scroll at c-speed px/s, wait SCROLL_PAUSE at the bottom.
+const SCROLL_PAUSE = 1500;
+const scrollSpeed = () => Math.max(1, +$("#c-speed").value || 6);
+function scrollMetrics() {
+  const listH = sensors.length * F.rowH, view = H - F.headH;
+  return { listH, view, max: Math.max(0, listH - view) };
+}
+function drawSensorScroll(now) {
+  const t = now.getTime(), { listH, view, max } = scrollMetrics();
+  const off = Math.round(Math.min(max, Math.max(0, (elapsed - SCROLL_PAUSE) / 1000 * scrollSpeed())));
+  sensors.forEach((s, i) => {
+    const y = F.headH + i * F.rowH - off;
+    if (y + F.rowH > F.headH && y < H) rowAt(y, sensorLine(s, t));
+  });
+  if (max) {  // scrollbar in the free columns at the right edge
+    const used = F.sens[0] + F.sens[1] + F.sens[2] + 2 * F.sens[3].length + 1;
+    const x = Math.max(1 + used * F.cw, W - 2);
+    const thumb = Math.max(4, Math.round(view * view / listH));
+    for (let y = F.headH; y < H; y += 2) px(W - 1, y);
+    fill(x, F.headH + Math.round((view - thumb) * off / max), W - x, thumb);
+  }
+  // header last: it covers rows scrolled up past the top
+  const first = Math.floor(off / F.rowH) + 1, last = Math.min(sensors.length, Math.floor((off + view) / F.rowH));
+  header(cols() >= 30 ? `SENSORES ${first}-${last}/${sensors.length}` : "SENSORES", now);
+}
+
+// GHOTRIX / Venko → Akvo logo, 128x60 1-bit, one hex string of 32 digits per row (MSB = left).
+// Same image as Akvo_Green/gateway/oled_logo.png, which the real display shows.
+const LOGO_HEX = (
+  "00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 " +
+  "00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 007c01f03e007c01fffc3ff00f83e0f8 " +
+  "01ff01f03e01ff01fffc3ffc0f83e1f0 07ff81f03e03ffc1fffc3ffe0f81f1f0 0fffc1f03e07ffc00fc03e7e0f81f3e0 0f87c1f03e0fc3e00f803e3e0f80ffc0 " +
+  "0f83c1f03e0f83e00f803e1e0f80ffc0 1f0001f83e0f81f00f803e1e0f807fc0 1f0001fffe0f01f00f803e3e0f807f80 1f1fe1fffe0f01f00f803ffe0f803f80 " +
+  "1f1fe1fffe0f01f00f803ffc0f807f80 1f1fe1f87e0f81f00f803ff80f807fc0 0f83c1f03e0f83e00f803efc0f80ffc0 0f83c1f03e0fc3e00f803e7c0f80fbe0 " +
+  "07ffc1f03e07ffe00f803e7e0f81f3e0 07ff81f03e07ffc00f803e3e0f81f1f0 03ff01f03e01ff800f803e3e0f83e1f0 00fc01f03e007c000f803e1f0f83e0f8 " +
+  "00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 " +
+  "00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 " +
+  "00000000000600000000060000000000 00000618000600000001c60000000000 00000318000600000003c60000000000 00000339e7c667800403c678c7800000 " +
+  "000003333666ccc0060366cc8cc00000 000001b3f6678cc0ff06678d8cc00000 000001e306678cc00607f7878cc00000 000001e30666ccc0040636c70cc00000 " +
+  "000000e1f6666780000c366707800000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 " +
+  "00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 " +
+  "00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 " +
+  "00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 " +
+  "00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 00000000000000000000000000000000 "
+).split(" ").filter(Boolean);
+const DEFAULT_LOGO = new Uint8Array(W * H);
+LOGO_HEX.forEach((h, y) => {
+  for (let x = 0; x < W; x++) DEFAULT_LOGO[y * W + x] = (parseInt(h[x >> 2], 16) >> (3 - (x & 3))) & 1;
+});
+
+let customLogo = DEFAULT_LOGO;  // Uint8Array(W*H); null = the old text logo
+// Boot: the logo's last row of ink (the "Venko → Akvo" line) writes itself on left to
+// right BOOT_PASSES times (the last pass ends at 100%), then flashes BOOT_FLASHES times.
+const BOOT_PASSES = 3, BOOT_PASS_MS = 1200, BOOT_FLASHES = 3, BOOT_FLASH_MS = 500;
+const BOOT_MS = BOOT_PASSES * BOOT_PASS_MS + BOOT_FLASHES * BOOT_FLASH_MS;  // 5.1 s
+
+function bootLineBand(logo) {  // [x0, y0, x1, y1] of the last block of inked rows, or null
+  const rows = H - 4, bands = [];
+  let start = null;
+  for (let y = 0; y <= rows; y++) {
+    let ink = false;
+    if (y < rows) for (let x = 0; x < W && !ink; x++) ink = !!logo[y * W + x];
+    if (ink && start === null) start = y;
+    else if (!ink && start !== null) { bands.push([start, y]); start = null; }
+  }
+  if (bands.length < 2) return null;
+  const [y0, y1] = bands[bands.length - 1];
+  let x0 = W, x1 = 0;
+  for (let y = y0; y < y1; y++) for (let x = 0; x < W; x++) if (logo[y * W + x]) { x0 = Math.min(x0, x); x1 = Math.max(x1, x + 1); }
+  return [x0, y0, x1, y1];
+}
+function bootLineState(ms) {  // [written 0..1, lit]
+  const write = BOOT_PASSES * BOOT_PASS_MS;
+  if (ms < write) return [(ms % BOOT_PASS_MS) / BOOT_PASS_MS, true];
+  const t = ms - write;
+  if (t >= BOOT_FLASHES * BOOT_FLASH_MS) return [1, true];
+  return [1, (t % BOOT_FLASH_MS) >= BOOT_FLASH_MS / 2];
+}
+
+function drawLogo(now, ms) {
+  const progress = ms / BOOT_MS;
+  if (customLogo) {
+    for (let i = 0; i < W * (H - 4); i++) fb[i] = customLogo[i];
+    const band = bootLineBand(customLogo);
+    if (band) {
+      const [x0, y0, x1, y1] = band, [written, lit] = bootLineState(ms);
+      const cut = lit ? x0 + Math.round((x1 - x0) * written) : x0;
+      fill(cut, y0, x1 - cut, y1 - y0, 0);  // erase the part not written yet
+      // row 3: this site's gateway name, steady under the animated line
+      const name = fit($("#c-gwid").value.trim(), 21);
+      text(centerX(name, 1, FONTS.f57), y1 + 8, name, { f: FONTS.f57 });
+      return;
+    }
+  } else {
+    const name = "GHOTRIX";
+    text(centerX(name, 2, FONTS.f57), 4, name, { scale: 2, f: FONTS.f57 });
+    fill(18, 22, W - 36, 1);
+    text(centerX("AKVO Green"), 28, "AKVO Green");
+    const sub = fit(`Gateway ${$("#c-gwid").value.trim()}`, cols());
+    text(centerX(sub), 38, sub);
+  }
+  // boot progress bar
+  const y = customLogo ? H - 3 : 50, h = customLogo ? 3 : 7, x = 14, w = W - 28;
+  if (!customLogo) frame(x, y, w, h);
+  const inner = Math.round((w - (customLogo ? 0 : 4)) * Math.min(1, progress));
+  fill(x + (customLogo ? 0 : 2), y + (customLogo ? 0 : 2), inner, customLogo ? h : h - 4);
+}
+
+// ============================================================ sequence
+const perPage = () => Math.min(textRows(), Math.max(1, +$("#c-per-page").value || textRows()));
+let booting = true, idx = 0, elapsed = 0, playing = true, cyclesDone = 0;
+
+function cycle() {
+  const mode = $("#c-logo").value;
+  const list = [];
+  if (mode === "cycle" || (mode === "boot" && booting)) list.push({ kind: "logo", name: "Logo" });
+  list.push({ kind: "system", name: "Sistema" });
+  // the sensor list is shown c-sens-rep times per round: Sistema -> Sensores -> Sensores -> Sistema…
+  const reps = Math.max(1, Math.min(5, +$("#c-sens-rep").value || 1));
+  for (let k = 0; k < reps; k++) {
+    if ($("#c-list").value === "scroll") list.push({ kind: "sensors", scroll: true, name: "Sensores" });
+    else {
+      const pages = Math.max(1, Math.ceil(sensors.length / perPage()));
+      for (let p = 0; p < pages; p++) list.push({ kind: "sensors", page: p, pages, name: `Sensores ${p + 1}/${pages}` });
+    }
+  }
+  // "cycle": the logo comes back after N rounds of Sistema + Sensores
+  if (mode !== "cycle") return list;
+  const round = list.slice(1), n = Math.max(1, Math.min(10, +$("#c-logo-n").value || 2));
+  for (let k = 1; k < n; k++) list.push(...round);
+  return list;
+}
+function current() { const l = cycle(); if (idx >= l.length) idx = 0; return l[idx]; }
+function go(delta) {
+  const l = cycle(), cur = l[idx];
+  elapsed = 0;
+  if (cur && cur.kind === "logo" && booting && $("#c-logo").value === "boot" && delta > 0) {
+    booting = false;  // the logo leaves the list: index 0 is now Sistema
+    idx = 0;
+  } else {
+    const n = idx + delta;
+    if (n >= l.length) cyclesDone++;
+    idx = (n + l.length) % l.length;
+  }
+  buildTimeline();
+}
+function boot() { booting = true; idx = 0; elapsed = 0; cyclesDone = 0; buildTimeline(); }
+
+// How long a screen stays up (ms): the scrolling list takes as long as its scroll needs.
+function screenDur(cur) {
+  const base = (+$("#c-dur").value || 5) * 1000;
+  if (cur.kind === "logo") return BOOT_MS;
+  if (cur.kind !== "sensors" || !cur.scroll) return base;
+  const { max } = scrollMetrics();
+  return max ? 2 * SCROLL_PAUSE + max / scrollSpeed() * 1000 : base;
+}
+
+function renderFrame(now) {
+  fb.fill(0);
+  const cur = current();
+  if (cur.kind === "logo") drawLogo(now, elapsed);
+  else if (cur.kind === "system") drawSystem(now);
+  else if (cur.scroll) drawSensorScroll(now);
+  else drawSensors(now, cur.page, cur.pages);
+}
+
+// ============================================================ canvas output
+const canvas = $("#oled"), ctx = canvas.getContext("2d");
+const glowCanvas = document.createElement("canvas"); glowCanvas.width = W; glowCanvas.height = H;
+const gctx = glowCanvas.getContext("2d");
+const COLORS = { white: "#eaf4ff", blue: "#45c8ff", yellow: "#ffd640", green: "#5cff8f" };
+function $(s) { return document.querySelector(s); }
+
+let lastScale = 0;
+function blit() {
+  const z = $("#c-zoom").value, real = z === "real";
+  const S = real ? 6 : +z;
+  if (S !== lastScale) { canvas.width = W * S; canvas.height = H * S; lastScale = S; }
+  canvas.style.width = real ? "35.05mm" : W * S + "px";
+
+  const shift = $("#c-shift").checked ? [[0, 0], [1, 0], [1, 1], [0, 1]][cyclesDone % 4] : [0, 0];
+  const colorMode = $("#c-color").value;
+  const colorAt = y => colorMode === "duo" ? (y < 16 ? COLORS.yellow : COLORS.blue) : COLORS[colorMode];
+  const alpha = +$("#c-bright").value / 100;
+  const grid = $("#c-grid").checked && S >= 3, gap = grid ? 1 : 0;
+
+  ctx.fillStyle = "#050607";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  if (grid) {  // unlit pixel matrix
+    ctx.fillStyle = "#0e1013";
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) ctx.fillRect(x * S, y * S, S - gap, S - gap);
+  }
+  const lit = (x, y) => {
+    const sx = x - shift[0], sy = y - shift[1];
+    return sx >= 0 && sy >= 0 && fb[sy * W + sx];
+  };
+  if ($("#c-glow").checked && "filter" in ctx) {
+    const img = gctx.createImageData(W, H);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (lit(x, y)) {
+      const c = colorAt(y), i = (y * W + x) * 4;
+      img.data[i] = parseInt(c.slice(1, 3), 16); img.data[i + 1] = parseInt(c.slice(3, 5), 16);
+      img.data[i + 2] = parseInt(c.slice(5, 7), 16); img.data[i + 3] = 255;
+    }
+    gctx.putImageData(img, 0, 0);
+    ctx.save();
+    ctx.imageSmoothingEnabled = true;
+    ctx.globalAlpha = 0.55 * alpha;
+    ctx.filter = `blur(${Math.max(1, S * 0.8)}px)`;
+    ctx.drawImage(glowCanvas, 0, 0, canvas.width, canvas.height);
+    ctx.restore();
+  }
+  ctx.globalAlpha = alpha;
+  for (let y = 0; y < H; y++) {
+    ctx.fillStyle = colorAt(y);
+    for (let x = 0; x < W; x++) if (lit(x, y)) ctx.fillRect(x * S, y * S, S - gap, S - gap);
+  }
+  ctx.globalAlpha = 1;
+}
+
+// ============================================================ UI
+function buildTimeline() {
+  const box = $("#timeline");
+  box.replaceChildren();
+  cycle().forEach((it, i) => {
+    const b = document.createElement("span");
+    b.className = "step" + (i === idx ? " on" : "");
+    b.textContent = it.name;
+    b.addEventListener("click", () => { idx = i; elapsed = 0; buildTimeline(); });
+    if (i === idx) { const bar = document.createElement("span"); bar.className = "bar"; b.appendChild(bar); }
+    box.appendChild(b);
+  });
+}
+function updateTimelineBar() {
+  const bar = document.querySelector("#timeline .step.on .bar");
+  if (bar) bar.style.width = Math.min(100, elapsed / screenDur(current()) * 100) + "%";
+}
+
+const FORCE = [["auto", "Auto"], ["normal", "Normal"], ["high", "▲ Alto"], ["low", "▼ Bajo"], ["error", "✕ Error"]];
+function buildSensorTable() {
+  const body = $("#sensor-rows");
+  body.replaceChildren();
+  for (const s of sensors) {
+    const tr = document.createElement("tr");
+    const td = (cls, child) => { const c = document.createElement("td"); if (cls) c.className = cls; c.append(child); tr.appendChild(c); return c; };
+    td("dev", `${s.device} · ${s.min}…${s.max}`).title = `${s.device}.${s.name} (${s.unit})`;
+    const nm = Object.assign(document.createElement("input"), { type: "text", value: s.label, maxLength: 12 });
+    nm.addEventListener("input", () => { s.label = nm.value; });
+    td("", nm);
+    const un = Object.assign(document.createElement("input"), { type: "text", value: s.ushort, maxLength: 6 });
+    un.addEventListener("input", () => { s.ushort = un.value; });
+    td("unit", un);
+    s.cell = td("val", "");
+    const sel = document.createElement("select");
+    for (const [v, t] of FORCE) sel.appendChild(Object.assign(document.createElement("option"), { value: v, textContent: t }));
+    sel.value = s.force;
+    sel.addEventListener("change", () => { s.force = sel.value; readSensor(s); refreshSensorValues(); });
+    s.select = sel;
+    td("", sel);
+    body.appendChild(tr);
+  }
+  refreshSensorValues();
+}
+function refreshSensorValues() {
+  for (const s of sensors) {
+    if (!s.cell) continue;
+    const r = s.reading;
+    s.cell.className = "val " + (!r || r.status !== "OK" ? "flag-ERR" : r.alarm ? "flag-" + r.alarm : "");
+    s.cell.textContent = !r || r.status !== "OK" ? "error" : `${fmtVal(r.val)} ${r.alarm === "HIGH" ? "▲" : r.alarm === "LOW" ? "▼" : ""}`;
+  }
+}
+
+function setPlaying(p) { playing = p; $("#b-play").textContent = p ? "❚❚ Pausa" : "▶ Reproducir"; }
+$("#b-play").addEventListener("click", () => setPlaying(!playing));
+$("#b-next").addEventListener("click", () => go(1));
+$("#b-prev").addEventListener("click", () => go(-1));
+$("#b-boot").addEventListener("click", boot);
+$("#b-png").addEventListener("click", () => {
+  const c = document.createElement("canvas"); c.width = W; c.height = H;
+  const x = c.getContext("2d"), img = x.createImageData(W, H);
+  for (let i = 0; i < W * H; i++) { const v = fb[i] ? 255 : 0; img.data.set([v, v, v, 255], i * 4); }
+  x.putImageData(img, 0, 0);
+  const a = document.createElement("a");
+  a.download = `oled_${current().name.toLowerCase().replace(/[^a-z0-9]+/g, "_")}.png`;
+  a.href = c.toDataURL("image/png");
+  a.click();
+});
+document.addEventListener("keydown", e => {
+  if (e.target.closest("input, select, textarea")) return;
+  if (e.key === " ") { e.preventDefault(); setPlaying(!playing); }
+  else if (e.key === "ArrowRight") go(1);
+  else if (e.key === "ArrowLeft") go(-1);
+  else if (e.key === "b") boot();
+});
+$("#c-font").addEventListener("change", e => { F = FONTS[e.target.value]; });
+for (const id of ["#c-logo", "#c-logo-n", "#c-sens-rep", "#c-per-page", "#c-font", "#c-list"]) $(id).addEventListener("change", () => { idx = 0; elapsed = 0; buildTimeline(); });
+
+$("#c-gw").addEventListener("change", e => { sim.gw = e.target.value === "1"; if (sim.gw) pollCycle(); });
+$("#c-net").addEventListener("change", e => {
+  sim.net = e.target.value === "1"; sim.netSince = Date.now();
+  if (!sim.net && sim.aws) { $("#c-aws").value = "0"; $("#c-aws").dispatchEvent(new Event("change")); }
+});
+$("#c-aws").addEventListener("change", e => { sim.aws = e.target.value === "1"; sim.awsSince = Date.now(); if (sim.aws) sim.lastPublish = Date.now(); });
+$("#c-modbus").addEventListener("change", e => { sim.modbus = e.target.value; sensors.forEach(readSensor); refreshSensorValues(); });
+
+$("#c-all-normal").addEventListener("click", () => {
+  for (const s of sensors) { s.force = "auto"; s.select.value = "auto"; if (s.value > s.max || s.value < s.min) s.value = (s.min + s.max) / 2; readSensor(s); }
+  refreshSensorValues();
+});
+$("#c-random-alarm").addEventListener("click", () => {
+  const s = sensors[Math.floor(Math.random() * sensors.length)];
+  if (!s) return;
+  s.force = Math.random() < 0.5 ? "high" : "low"; s.select.value = s.force; readSensor(s); refreshSensorValues();
+});
+
+$("#c-config").addEventListener("change", async e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  try {
+    const cfg = JSON.parse(await f.text());
+    const list = [];
+    for (const d of cfg.devices || []) {
+      if (d.enabled === false) continue;
+      for (const s of d.sensors || []) list.push({ device: d.id, name: s.name, unit: s.unit || "", min: +s.min, max: +s.max });
+    }
+    if (!list.length) throw new Error("el archivo no tiene 'devices' con sensores");
+    if (cfg.gateway?.gateway_id) $("#c-gwid").value = cfg.gateway.gateway_id;
+    if (cfg.gateway?.poll_interval) $("#c-poll").value = cfg.gateway.poll_interval;
+    loadSensors(list);
+    idx = 0; elapsed = 0; buildTimeline();
+  } catch (err) {
+    console.error(err);
+    e.target.value = "";
+    $(".legend").textContent = "No se pudo leer el config.json: " + err.message;
+  }
+});
+
+function loadLogo(file) {
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement("canvas"); c.width = W; c.height = H - 4;
+    const x = c.getContext("2d");
+    x.fillStyle = "#000"; x.fillRect(0, 0, c.width, c.height);
+    const k = Math.min(c.width / img.width, c.height / img.height);
+    const w = img.width * k, h = img.height * k;
+    x.drawImage(img, (c.width - w) / 2, (c.height - h) / 2, w, h);
+    const d = x.getImageData(0, 0, c.width, c.height).data, inv = $("#c-logo-inv").checked;
+    customLogo = new Uint8Array(W * H);
+    for (let i = 0; i < c.width * c.height; i++) {
+      const lum = (d[i * 4] * 0.299 + d[i * 4 + 1] * 0.587 + d[i * 4 + 2] * 0.114) * d[i * 4 + 3] / 255;
+      customLogo[i] = (lum > 127) !== inv ? 1 : 0;
+    }
+    URL.revokeObjectURL(img.src);
+  };
+  img.src = URL.createObjectURL(file);
+}
+$("#c-logo-file").addEventListener("change", e => { if (e.target.files[0]) { loadLogo(e.target.files[0]); boot(); } });
+$("#c-logo-inv").addEventListener("change", () => { const f = $("#c-logo-file").files[0]; if (f) loadLogo(f); });
+$("#c-logo-clear").addEventListener("click", () => { customLogo = DEFAULT_LOGO; $("#c-logo-file").value = ""; });
+
+// ============================================================ main loop
+let prev = performance.now(), lastPoll = Date.now();
+function loop(ts) {
+  const dt = ts - prev; prev = ts;
+  if (playing) {
+    elapsed += dt;
+    if (elapsed >= screenDur(current())) go(1);
+  }
+  const now = new Date();
+  if (now - lastPoll >= (+$("#c-poll").value || 20) * 1000) { lastPoll = now.getTime(); pollCycle(); }
+  renderFrame(now);
+  blit();
+  updateTimelineBar();
+  requestAnimationFrame(loop);
+}
+
+loadSensors(DEFAULT_DEVICES);
+sensors[1].force = "high"; sensors[7].force = "high"; sensors[11].force = "low";  // a few alarms to start with
+sensors.forEach(readSensor);
+buildSensorTable();
+boot();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

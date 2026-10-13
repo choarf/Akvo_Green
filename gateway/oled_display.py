@@ -7,9 +7,10 @@ gateway's status file (rewritten every poll cycle, see
 EdgeNode.write_status()) and config.json, so a display or I2C problem can
 never stall Modbus polling or MQTT publishing.
 
-Screens (visual spec: VenkoDemo/docs/OLED/oled_simulator.html):
+Screens (visual spec: docs/OLED/oled_simulator.html):
   at start-up   GHOTRIX logo; its "Venko -> Akvo" line writes itself on 3
-                times (100%) and then flashes 3 times (5.1 s)
+                times (100%) and then flashes 3 times (5.1 s); the
+                gateway_id below it
   then forever  Sistema (5 s) -> Sensores (scrolling list) x sensor_repeats
 
 Everything is drawn in plain Python into a 128x64 framebuffer (same fonts
@@ -30,8 +31,10 @@ import functools
 import json
 import logging
 import math
+import shutil
 import signal
 import socket
+import subprocess
 import sys
 import time
 import unicodedata
@@ -40,7 +43,7 @@ from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from history_web import DEFAULT_CONFIG, DEFAULT_STATUS, read_status
+from history_web import DEFAULT_CONFIG, DEFAULT_DB, DEFAULT_STATUS, read_status
 
 BASE_DIR = Path(__file__).resolve().parent
 LOGO_PATH = BASE_DIR / "oled_logo.png"   # optional 1-bit artwork; text logo when absent
@@ -84,7 +87,7 @@ _F57_ASCII = (
 _F57_EXTRA = {
     "°": "0006090906", "µ": "FC4040207C", "á": "2054565578", "é": "3854565518", "í": "00447E4100", "ó": "3844464538",
     "ú": "3C4042217C", "ñ": "7C0A050679", "Á": "7C1213117C", "É": "7C54565544", "▲": "60787E7860", "▼": "030F3F0F03",
-    "●": "1C3E3E3E1C", "•": "001C1C1C00", "✕": "2214081422", "⚠": "6078527860", "·": "0000180000", "…": "4000400040",
+    "●": "1C3E3E3E1C", "•": "001C1C1C00", "■": "001C1C1C00", "✕": "2214081422", "⚠": "6078527860", "·": "0000180000", "…": "4000400040",
 }
 # 3x5 small caps: 5 octal digits per glyph = rows top to bottom, 3 bits each (MSB = left).
 _F35_ROWS = {
@@ -95,7 +98,7 @@ _F35_ROWS = {
     "V": "55552", "W": "55572", "X": "55255", "Y": "55222", "Z": "71247", ".": "00002", ",": "00024", ":": "02020",
     "-": "00700", "+": "02720", "/": "11244", "%": "51245", "(": "12221", ")": "42224", "_": "00007", "!": "22202",
     "?": "71202", "'": "22000", "\"": "55000", "=": "07070", "<": "12421", ">": "42124", "°": "25200", "µ": "55574",
-    "▲": "00270", "▼": "00720", "●": "07770", "•": "07770", "✕": "05250", "⚠": "22202", "·": "00200",
+    "▲": "00270", "▼": "00720", "●": "07770", "•": "07770", "■": "07770", "✕": "05250", "⚠": "22202", "·": "00200",
 }
 
 
@@ -264,67 +267,106 @@ def ago_short(s: float) -> str:
     return f"{round(s / 86400)}d"
 
 
-# (icon, text, fault) - never by inverse video alone: icon + label too
-def _ok(text="Conectado"):
-    return ("●", text, False)
+def hms(s: float) -> str:
+    """A duration as HH:MM:SS (hours keep counting past 24)."""
+    s = max(0, round(s))
+    return f"{s // 3600:02d}:{s // 60 % 60:02d}:{s % 60:02d}"
 
 
-def _bad(text):
-    return ("✕", text, True)
+def size_mb(b: int) -> str:
+    mb = b / 1e6
+    if mb >= 1000:
+        return f"{mb / 1000:.1f} GB"
+    return f"{mb:.1f} MB" if mb < 10 else f"{round(mb)} MB"
 
 
-def _warn(text):
-    return ("⚠", text, False)
+DISK_FULL_PCT = 90   # the DATABASE row turns into a fault bar from here
+# Row labels: the 3x5 font has room for the full word, the 5x7 one doesn't.
+LABELS = {"Gateway": "GW", "Red": "Red", "AWS": "AWS", "Database": "DB", "Modbus": "Mod", "Alarmas": "Alm"}
 
 
-def _state(label, st, right=""):
-    icon, text, fault = st
-    return (label.ljust(8) + icon + text, right, fault)
+def system_lines(st: dict, now: float, ip: str | None, wide: bool, blink_on: bool = True,
+                 db: dict | None = None, ssid: str | None = None) -> list[tuple]:
+    """Sistema rows as (left, right, fault), one line per item (docs/OLED/init.md):
 
+      GATEWAY ACTIVO > 16 S                 / ✕INACTIVO > HH:MM:SS
+      SSID    VOCHO                         / SIN WIFI (cable only, or WiFi not joined)
+      RED     ACTIVO > 192.168.68.129       / ✕INACTIVO > HH:MM:SS
+      AWS     ACTIVO > 16 S                 / ✕INACTIVO > HH:MM:SS
+      DATABASE 59 MB - 78%                  (history.db size - disk use)
+      MODBUS  ACTIVO > 15 SENS              / ⚠SIMULADO / ✕PTO CERRADO ...
+      ALARMAS ▲ 5 ACTIVAS + SENSORES FUERA DE LIMITES
 
-def _detail(text):
-    return ("  " + text, "", False)
+    ACTIVO shows how recent the last sign of life is (status file age, last
+    AWS send) or the Pi's IP; INACTIVO how long it has been down. Fault rows
+    are inverted bars and say INACTIVO in words, never by inverse video
+    alone. wide = the 3x5 font's 32 columns: the detail goes inline after
+    ">"; with the 21-column 5x7 font it's right-aligned after a short label.
+    st is history_web.read_status()'s result, now epoch seconds, db
+    database_info()'s result (None = no DATABASE row), ssid wifi_ssid()'s."""
+    def line(label, state, detail="", fault=False, icon=""):
+        if wide:   # "DATABASE" fills the 8-column label: one space before its value
+            return (f"{label:<7} " + icon + state + (f" > {detail}" if detail else ""), "", fault)
+        return (LABELS[label].ljust(4) + ("" if fault else icon) + state, detail, fault)
 
+    def down(label, since):
+        dur = (hms(now - since) if wide else ago_short(now - since)) if since else ""
+        return line(label, "Inactivo", dur, True, "✕")
 
-def system_lines(st: dict, now: float, ip: str | None, wide: bool, blink_on: bool = True) -> list[tuple]:
-    """Sistema rows as (left, right, fault) - the same states and wording as
-    connectionRows() in web/app.js. st is history_web.read_status()'s result;
-    now is epoch seconds. More rows than fit are simply not drawn."""
+    lines = []
     if not st.get("available"):
-        return [_state("Gateway", _bad("Sin estado")), _detail("sin archivo de estado")]
-    lines = [_state("Gateway", _bad("Detenido") if st.get("stale") else _ok("Activo"),
-                    f"hace {ago_long(st['age_s'])}" if wide else ago_short(st["age_s"]))]
+        lines.append(line("Gateway", "Sin estado", "", True, "✕"))
+    elif st.get("stale"):
+        lines.append(line("Gateway", "Inactivo", hms(st["age_s"]) if wide else ago_short(st["age_s"]), True, "✕"))
+    else:
+        lines.append(line("Gateway", "Activo", ago_long(st["age_s"]) if wide else ago_short(st["age_s"])))
+    if wide:   # the WiFi the Pi is on; none isn't a fault (a Pi on a cable has none)
+        lines.append(line("SSID", ssid or "Sin WiFi"))
     n = st.get("network")
     if n:
-        lines.append(_state("Red", _ok() if n.get("connected") else _bad("Sin conexión")))
-        lines.append(_detail(f"IP {ip}" if n.get("connected") and ip else f"prueba a {n.get('check', '?')}"))
+        if not n.get("connected"):
+            lines.append(down("Red", n.get("since")))
+        elif wide:
+            lines.append(line("Red", "Activo", ip or ""))
+        else:   # 5x7: the SSID goes on the state row, the IP on a row of its own
+            lines.append(line("Red", "Activo", fit(ssid or "cable", 9)))
+            if ip:
+                lines.append(("  " + ip, "", False))
     m = st.get("mqtt")
     if m:
-        lines.append(_state("AWS", _ok() if m.get("connected") else _bad("Desconectado")))
         if m.get("connected"):
-            lines.append(_detail(f"envío hace {ago_long(now - m['last_publish'])}" if m.get("last_publish")
-                                 else "sin envíos todavía"))
-        elif m.get("since"):
-            lines.append(_detail(f"desde hace {ago_long(now - m['since'])}"))
+            age = now - m["last_publish"] if m.get("last_publish") else None
+            lines.append(line("AWS", "Activo", "" if age is None else ago_long(age) if wide else ago_short(age)))
+        else:
+            lines.append(down("AWS", m.get("since")))
+    if db is not None:
+        if not db.get("enabled"):
+            lines.append(line("Database", "Desactivada"))
+        else:
+            pct = db.get("disk_pct")
+            size = size_mb(db["size"]) if db.get("size") is not None else "sin archivo"
+            full = pct is not None and pct >= DISK_FULL_PCT
+            pct_s = f"{round(pct)}%" if pct is not None else ""
+            lines.append(line("Database", size + (f" - {pct_s}" if wide and pct_s else ""),
+                              "" if wide else pct_s, full, "✕" if full else ""))
     b = st.get("modbus")
     if b:
-        right = ""
         if b.get("simulated"):
-            s = _warn("Simulado")
+            lines.append(line("Modbus", "Simulado", icon="⚠"))
         elif not b.get("connected"):
-            s = _bad("Pto cerrado")
+            lines.append(line("Modbus", "Pto cerrado", "", True, "✕"))
         elif b.get("sensors") and b.get("read_errors") == b.get("sensors"):
-            s = _bad("No responde")
+            lines.append(line("Modbus", "No responde", "", True, "✕"))
         elif b.get("read_errors"):
-            s, right = _warn("Errores"), f"{b['read_errors']}/{b.get('sensors', '?')}"
+            lines.append(line("Modbus", "Errores", f"{b['read_errors']}/{b.get('sensors', '?')}", icon="⚠"))
         else:
-            s, right = _ok("OK"), f"{b.get('sensors', 0)} sens"
-        lines.append(_state("Modbus", s, right))
+            lines.append(line("Modbus", "Activo", f"{b.get('sensors', 0)} sens"))
         if b.get("alarms"):
-            lines.append(_state("Alarmas", ("▲" if blink_on else " ", f"{b['alarms']} activas", False)))
-            lines.append(_detail("sensores fuera de límites"))
+            lines.append(line("Alarmas", f"{b['alarms']} activas", icon="▲ " if blink_on else "  "))
+            if wide:   # the 5x7 font has neither the width nor a spare row for it
+                lines.append(("  sensores fuera de límites", "", False))
         else:
-            lines.append(_state("Alarmas", _ok("Ninguna")))
+            lines.append(line("Alarmas", "Ninguna"))
     return lines
 
 
@@ -369,7 +411,7 @@ def fmt_val(v, width: int) -> str:
 
 def sensor_line(sensor: dict, reading: dict | None, font: Font, blink_on: bool = True) -> str:
     """name value unit flag: 12+8+2+6+2+1 columns (3x5) or 8+6+1+4+1+1 (5x7).
-    Flag: • normal, ▲/▼ high/low alarm (blinks), ✕ read error, blank = no data yet."""
+    Flag: ■ normal, ▲/▼ high/low alarm (blinks), ✕ read error, blank = no data yet."""
     nw, vw, uw, sp = font.sens
     if reading is None:
         val, flag = "--", " "
@@ -378,7 +420,7 @@ def sensor_line(sensor: dict, reading: dict | None, font: Font, blink_on: bool =
     else:
         val = fmt_val(reading.get("val"), vw)
         alarm = reading.get("alarm")
-        flag = {"HIGH": "▲", "LOW": "▼"}.get(alarm, "•")
+        flag = {"HIGH": "▲", "LOW": "▼"}.get(alarm, "■")
         if alarm in ("HIGH", "LOW") and not blink_on:
             flag = " "
     return pad_end(sensor["label"], nw) + pad_start(val, vw) + sp + pad_end(sensor["unit"], uw) + sp + flag
@@ -436,6 +478,8 @@ class View:
     now: float              # epoch s
     ip: str | None = None
     logo: bytes | None = None   # W * (H - 4) pixels from oled_logo.png
+    db: dict | None = None      # database_info()
+    ssid: str | None = None     # wifi_ssid()
 
 
 def blink_on(now: float) -> bool:
@@ -488,6 +532,10 @@ def draw_logo(fr: Frame, v: View, elapsed: float) -> None:
         written, lit = boot_line_state(elapsed)
         cut = x0 + round((x1 - x0) * written) if lit else x0
         fr.fill(cut, y0, x1 - cut, y1 - y0, 0)   # erase the part not written yet
+        # row 3: this site's gateway name, steady under the animated line
+        f57 = FONTS["5x7"]
+        name = fit(v.gateway_id, f57.cols)
+        fr.text(fr.center_x(name, font=f57), y1 + 8, name, font=f57)
         return
     f57 = FONTS["5x7"]
     fr.text(fr.center_x("GHOTRIX", 2, f57), 4, "GHOTRIX", scale=2, font=f57)
@@ -501,7 +549,8 @@ def draw_logo(fr: Frame, v: View, elapsed: float) -> None:
 
 def draw_system(fr: Frame, v: View) -> None:
     fr.header("SISTEMA", v.clock)
-    lines = system_lines(v.status, v.now, v.ip, wide=fr.font.cols >= 30, blink_on=blink_on(v.now))
+    lines = system_lines(v.status, v.now, v.ip, wide=fr.font.cols >= 30, blink_on=blink_on(v.now), db=v.db,
+                         ssid=v.ssid)
     for i, (left, right, fault) in enumerate(lines[: fr.font.rows]):
         fr.row(i + 1, left, right, fault)
 
@@ -563,6 +612,35 @@ def local_ip() -> str | None:
         return None
 
 
+def wifi_ssid() -> str | None:
+    """The SSID the Pi's WiFi is joined to, from NetworkManager's cached scan
+    (--rescan no: never triggers a scan). None when not on WiFi (a Pi on a
+    cable only, WiFi off) or nmcli isn't there."""
+    try:
+        out = subprocess.run(["nmcli", "-t", "-f", "ACTIVE,SSID", "device", "wifi", "list", "--rescan", "no"],
+                             capture_output=True, text=True, timeout=3).stdout
+    except (OSError, subprocess.SubprocessError):
+        return None
+    for ln in out.splitlines():
+        if ln.startswith("yes:"):
+            return ln[4:].replace("\\:", ":").replace("\\\\", "\\") or None   # nmcli -t escapes ':' and '\\'
+    return None
+
+
+def database_info(config: dict, path: Path = DEFAULT_DB) -> dict:
+    """The DATABASE row: is the history on (system.csv database_enabled),
+    how big history.db is (plus its -wal file; None = not created yet) and
+    how full the disk holding it is (the real risk on an SD card)."""
+    files = [f for f in (path, path.with_name(path.name + "-wal")) if f.exists()]
+    try:
+        du = shutil.disk_usage(path.parent if path.parent.exists() else BASE_DIR)
+        pct = 100 * du.used / (du.used + du.free)   # as df and psutil count it (root's reserve left out)
+    except OSError:
+        pct = None
+    return {"enabled": bool(config.get("database", {}).get("enabled")),
+            "size": sum(f.stat().st_size for f in files) if files else None, "disk_pct": pct}
+
+
 def load_logo(path: Path = LOGO_PATH) -> bytes | None:
     """oled_logo.png fitted into 128x60, 1 bit: light pixels are lit. Its
     last row of ink (if it has two) is the animated boot line."""
@@ -585,8 +663,9 @@ def open_device(driver: str, address: int):
 class Display:
     """The screen sequence over time. tick() draws the current frame."""
 
-    def __init__(self, config: dict, status_path: Path, font: Font, repeats: int):
+    def __init__(self, config: dict, status_path: Path, font: Font, repeats: int, db_path: Path = DEFAULT_DB):
         gw = config.get("gateway", {})
+        self.config, self.db_path = config, db_path
         self.status_path = status_path
         self.poll_interval = int(gw.get("poll_interval") or 20)
         self.tz = ZoneInfo(gw.get("city") or "UTC")
@@ -595,7 +674,7 @@ class Display:
         self.font, self.repeats = font, max(1, repeats)
         self.logo = load_logo()
         self.kind, self.k, self.started, self.rounds = "logo", 0, time.monotonic(), 0
-        self.status, self.status_read, self.ip, self.ip_read = {}, -1e9, None, -1e9
+        self.status, self.status_read, self.ip, self.ip_read, self.db, self.ssid = {}, -1e9, None, -1e9, None, None
 
     def tick(self) -> Frame:
         mono, now = time.monotonic(), time.time()
@@ -603,13 +682,15 @@ class Display:
             self.status, self.status_read = read_status(self.status_path, self.poll_interval), mono
         if mono - self.ip_read >= 10:
             self.ip, self.ip_read = local_ip(), mono
+            self.db, self.ssid = database_info(self.config, self.db_path), wifi_ssid()
         if mono - self.started >= screen_seconds(self.kind, len(self.sensors), self.font):
             self.kind, self.k = next_screen(self.kind, self.k, self.repeats)
             self.started = mono
             if self.kind == "system":
                 self.rounds += 1
         clock = datetime.fromtimestamp(now, self.tz).strftime("%H:%M:%S")
-        view = View(self.font, self.status, self.sensors, self.gateway_id, clock, now, self.ip, self.logo)
+        view = View(self.font, self.status, self.sensors, self.gateway_id, clock, now, self.ip, self.logo, self.db,
+                    self.ssid)
         return render(self.kind, mono - self.started, view)
 
     @property
@@ -641,7 +722,8 @@ def write_pngs(config: dict, status_path: Path, font: Font, out: Path, scale: in
     poll = d.poll_interval
     now = time.time()
     view = View(font, read_status(status_path, poll), d.sensors, d.gateway_id,
-                datetime.fromtimestamp(now, d.tz).strftime("%H:%M:%S"), now, local_ip(), d.logo)
+                datetime.fromtimestamp(now, d.tz).strftime("%H:%M:%S"), now, local_ip(), d.logo,
+                database_info(config, d.db_path), wifi_ssid())
     end = screen_seconds("sensors", len(d.sensors), font)
     shots = [("logo", "logo", BOOT_PASS_SECONDS * 2.5), ("logo_100", "logo", LOGO_SECONDS), ("sistema", "system", 0),
              ("sensores_inicio", "sensors", 0), ("sensores_medio", "sensors", end / 2),

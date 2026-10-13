@@ -8,7 +8,7 @@ optional contrast/night-off settings.
 Goal: a 1.54" I2C OLED (128×64, monochrome, **SSD1309**) on the Pi showing the gateway status
 (the same rows as the local web dashboard's *Sistema* page) and the latest sensor values.
 
-**Visual spec:** `VenkoDemo/docs/OLED/oled_simulator.html` (spec notes in `docs/OLED/init.md`
+**Visual spec:** `docs/OLED/oled_simulator.html` (spec notes in `init.md`
 next to it). It's a browser simulator of this exact screen, pixel for pixel. Open it to see
 the screens, timing and failure states. The Python drawing code should copy its layout,
 font tables and row formats instead of redesigning them.
@@ -17,7 +17,7 @@ font tables and row formats instead of redesigning them.
 
 **Order:**
 
-1. At start-up only, the **GHOTRIX logo**: the "Venko → Akvo" line writes itself on 3 times (100%), then flashes 3 times (5.1 s).
+1. At start-up only, the **GHOTRIX logo**: the "Venko → Akvo" line writes itself on 3 times (100%), then flashes 3 times (5.1 s), with the gateway name (`gateway_id`) as a third row under it.
 2. Then this repeats forever: **Sistema** (5 s) → **Sensores** → **Sensores** → Sistema → …
 
 The sensor list is shown twice per round, because it changes more often than the status does.
@@ -30,13 +30,13 @@ the alarm detail line or for 9 sensors on screen. Uppercase only, so accents are
 ```
 ┌────────────────────────────────┐   ┌────────────────────────────────┐
 │█SISTEMA████████████████17:42:10│   │█SENSORES 1-9/15████████17:42:15│
-│GATEWAY ●ACTIVO       HACE 16 S │   │PT100           24.0  °C      ■ │
-│RED     ●CONECTADO              │   │AMBIENT         57.0  °C      ▲ │
-│  IP 192.168.68.129             │   │HUMEDAD         32.0  %HR     ■ │
-│AWS     ●CONECTADO              │   │ORP           -356.0  MV      ■ │
-│  ENVIO HACE 16 S               │   │PH               7.7  PH      ■ │
+│GATEWAY ACTIVO > 16 S           │   │PT100           24.0  °C      ■ │
+│SSID    VOCHO                   │   │AMBIENT         57.0  °C      ▲ │
+│RED     ACTIVO > 192.168.68.129 │   │HUMEDAD         32.0  %HR     ■ │
+│AWS     ACTIVO > 16 S           │   │ORP           -356.0  MV      ■ │
+│DATABASE 59 MB - 78%            │   │PH               7.7  PH      ■ │
 │MODBUS  !SIMULADO               │   │TEMPPH          30.4  °C      ■ │
-│ALARMAS ▲3 ACTIVAS              │   │DO            1374.4  MG/L    ■ │
+│ALARMAS ▲ 3 ACTIVAS             │   │DO            1374.4  MG/L    ■ │
 │  SENSORES FUERA DE LIMITES     │   │COD           1623.7  MG/L    ▲ │
 │                                │   │TEMPCOD         24.0  °C      ✕ │
 └────────────────────────────────┘   └────────────────────────────────┘
@@ -44,18 +44,21 @@ the alarm detail line or for 9 sensors on screen. Uppercase only, so accents are
 
 ### Sistema
 
-The rows, states and wording are the same as `connectionRows()` in `gateway/web/app.js`:
+One line per item (layout and wording: `docs/OLED/init.md`), from the same status data as
+`connectionRows()` in `gateway/web/app.js`:
 
-- **Gateway:** `ACTIVO` + "hace N s" (age of the status file), or `DETENIDO` when the file is
-  stale (older than 3 poll intervals, as `history_web.read_status()` decides). A missing
-  file shows `SIN ESTADO`.
-- **Red:** `CONECTADO`/`SIN CONEXION`. The detail line is the Pi's own IP address, or
-  "desde hace …" when the network is down.
-- **AWS:** `CONECTADO`/`DESCONECTADO`. The detail line is "envío hace N s" (from
-  `mqtt.last_publish`), or "desde hace …" (from `mqtt.since`).
-- **Modbus:** one of `SIMULADO`, `PTO CERRADO`, `NO RESPONDE`, `ERRORES` (+ `n/total`), or
-  `OK` (+ sensor count).
-- **Alarmas:** `N ACTIVAS` + "sensores fuera de límites", or `NINGUNA`.
+- **Gateway / Red / AWS:** `ACTIVO > …` (status-file age, the Pi's IP, last AWS send) or
+  `INACTIVO > HH:MM:SS`, how long it has been down. The gateway is down when the status file
+  is stale (older than 3 poll intervals, as `history_web.read_status()` decides); the network
+  and AWS from their `since` in the status file (`WifiManager`/`MQTTManager.last_change`). A
+  missing file shows `SIN ESTADO`.
+- **SSID:** the WiFi network the Pi is joined to, from `nmcli` (cached scan, no rescan), read
+  every 10 s; `SIN WIFI` on a cable only, which is not a fault.
+- **Database:** size of `data/history.db` (+ `-wal`) and how full its disk is, read by the
+  display itself every 10 s; `DESACTIVADA` when `database.enabled` is off. ≥ 90% full is a fault.
+- **Modbus:** `ACTIVO` (+ sensor count), `!SIMULADO`, `!ERRORES n/total`, or the faults
+  `PTO CERRADO`, `NO RESPONDE`.
+- **Alarmas:** `▲ N ACTIVAS` + "sensores fuera de límites", or `NINGUNA`.
 
 A fault row (✕) is drawn as an **inverted bar** so it can be seen from across the room.
 

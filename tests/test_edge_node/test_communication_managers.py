@@ -253,6 +253,21 @@ def test_wifi_disconnect_marks_not_connected():
     assert mgr.connected is False
 
 
+def test_wifi_status_since_moves_only_on_a_change(monkeypatch):
+    clock = {"t": 100.0}
+    monkeypatch.setattr(en.time, "time", lambda: clock["t"])
+    mgr = en.WifiManager({}, check_fn=make_flaky_check_fn([True]))
+    assert mgr.status()["since"] is None
+    mgr.connect()
+    assert mgr.status() == {"connected": True, "since": 100.0, "check": "8.8.8.8:53"}
+    clock["t"] = 150.0
+    mgr._set(True)                       # still up: unchanged
+    assert mgr.status()["since"] == 100.0
+    clock["t"] = 200.0
+    mgr.disconnect()
+    assert mgr.status()["since"] == 200.0
+
+
 def test_wifi_monitor_detects_drop_and_reconnects():
     reconnected = threading.Event()
     state = {"n": 0}
