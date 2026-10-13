@@ -102,6 +102,25 @@ The gateway talks to one Modbus RTU bus through one serial port - `port` in `mod
 
 Using **both** channels at once (two independent buses) isn't supported yet: the gateway has a single `modbus` section and one Modbus connection shared by every device. It would need a `bus` column in `modbus.csv`/`devices.csv` and one connection per bus.
 
+### Power budget
+
+Three separate supplies - don't power one load from another's supply. Figures are typical; check each device's label/datasheet for its maximum current.
+
+| Load | Supply | Typical current |
+|---|---|---|
+| Pi 4, headless, running the gateway (Pi 3B+: 0.5-1 A) | Pi, 5 V | 0.6-1.3 A |
+| Pi 4 driving a monitor (desktop/Chromium on HDMI) | Pi, 5 V | 1.0-1.6 A |
+| Waveshare 2-CH isolated RS485 HAT | Pi, 5 V (from the header) | 0.05-0.1 A |
+| USB-RS485 adapter (instead of the HAT) | Pi, 5 V (USB) | ~0.1 A |
+| 1.54" I2C OLED | Pi, 5 V (from the header) | 0.01-0.04 A |
+| **Pi supply, worst case with monitor** | | **~1.75 A** |
+| 15.6" FHD portable monitor (USB-C power, HDMI video) | **own** 5 V 3 A or 15-20 W USB-C PD charger | 1.6-2.4 A, ~3 A peaks |
+| Modbus sensors (site cmd4: 7 devices on the bus) | **own** 12 V supply | ~0.4-0.7 A steady, up to ~1.2 A peaks |
+
+- **Pi:** 5 V 2.4 A is enough for every row above, the monitor included (~70% load). The official 5.1 V 3 A (Pi 4) / 5.1 V 2.5 A (Pi 3B+) supply gives more margin. Problems come from voltage drop, not amps: use a short, thick cable and check with `vcgencmd get_throttled` - `0x0` is fine, `0x50000`/`0x50005` means under-voltage since boot / now.
+- **Monitor:** never from a Pi USB port (Pi 4: 1.2 A shared by all four ports) or the Pi's supply - it would brown out the Pi. The Pi 4 is the one for a screen; a Pi 3B+ is slow running a Chromium kiosk.
+- **Sensors:** size the 12 V supply so the sum of the sensors' **maximum** currents is ≤ 80% of its rating. Probes with a UV lamp or cleaning wiper (e.g. the COD/BOD/TOC probe, optical DO with brush) peak at 0.5-1 A each, so a 1.2 A supply is too tight for cmd4's bus - use 12 V 2.5-3 A (DIN-rail, e.g. Mean Well HDR-30-12/HDR-60-12). Never connect the 12 V to the Pi or the HAT's power pins; tie the HAT channel's isolated GND to the sensors' 0 V as the RS-485 reference.
+
 ## Installation
 
 ```bash
@@ -392,6 +411,33 @@ python3 -m pytest --cov=edge_node_improved --cov-report=term-missing -q
 - [Modbus Client API V3](docs/Modbus_client/AKVO_Modbus_Client_API_V3.md) — full reference for connection handling, supported function codes, error handling, statistics, and thread safety.
 - [Edge Node Configuration Reference](docs/edge_node_config/CONFIGURATION.md) — every column in `devices.csv`/`modbus.csv`/`system.csv`/`aws.csv` and every field in the generated `config.json`, plus the optional `database` and virtual-Modbus settings and non-obvious behaviors (disabled devices, sensor-type scaling, live-reload semantics).
 - [Testing Guide](docs/testing/TESTING.md) — the three test levels (unit/mocked/real-hardware) across all four test suites, a decision table for which to run, and setup for each.
+
+## Running the AKVO Modbus Tool
+
+Desktop app (scan, read and write Modbus registers on site), installed on the Pi by `tools/push_site.sh` (see `sites/README.md`). It needs the Pi's desktop - run it on the Pi's screen or through VNC, not from a plain SSH session.
+
+1. **Free the RS-485 port** - the gateway holds it open:
+   ```bash
+   sudo systemctl stop akvo-green
+   ```
+2. **Start the tool**, either:
+   - menu → **AKVO Modbus Tool**, or
+   - a terminal *on the Pi's desktop* (Ctrl+Alt+T, also inside a VNC session): `akvo-modbus`
+   - from SSH, showing it on the Pi's screen (seen in VNC): `DISPLAY=:0 akvo-modbus`
+   - from SSH, showing it on your own PC: `ssh -X pi@<pi> akvo-modbus`
+3. **In the tool:** port `/dev/ttyUSB0` (USB adapter) or `/dev/ttySC0`/`/dev/ttySC1` (Waveshare HAT), and the same serial settings as the site's `modbus.csv` (e.g. 9600, N, 8, 1). Then scan for slaves or read/write registers.
+4. **Give the port back** when done:
+   ```bash
+   sudo systemctl start akvo-green
+   ```
+
+| Problem | Fix |
+|---|---|
+| `TclError: no display name and no $DISPLAY environment variable` | Started from SSH - use the desktop terminal, `DISPLAY=:0` or `ssh -X` (step 2) |
+| `akvo-modbus: command not found` | Not installed on this Pi - run `tools/push_site.sh <key> pi@<pi>` (without `--no-modbus-tool`) |
+| Missing Python packages at start | Run `akvo-modbus-setup` once |
+| Port busy / no answers from any slave | `akvo-green` still running (step 1), or wrong port/baud rate |
+| The dashboard kiosk covers the screen | In TigerVNC: F8 → tick **Alt** → Tab (switch) or F4 (close) → F8 → untick **Alt**; or `tools/setup_kiosk.sh --window` for a normal window |
 
 ## License
 
