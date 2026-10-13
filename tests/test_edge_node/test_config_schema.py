@@ -152,6 +152,32 @@ def test_invalid_web_section_is_an_error(web, needle):
     assert any(needle in e for e in errors)
 
 
+@pytest.mark.parametrize("display", [
+    {"enabled": True}, {}, {"enabled": False, "driver": "sh1106", "address": 0x3D, "font": "5x7", "sensor_repeats": 1},
+])
+def test_valid_display_section(display):
+    config = copy.deepcopy(VALID_CONFIG)
+    config["display"] = display
+    assert validate(config)[0] == []
+
+
+@pytest.mark.parametrize("display, needle", [
+    ("on", "'display' section"),
+    ({"enabled": 1}, "display.enabled"),
+    ({"driver": "ssd1351"}, "display.driver"),
+    ({"address": "0x3C"}, "display.address"),
+    ({"address": 0x80}, "display.address"),
+    ({"font": "8x8"}, "display.font"),
+    ({"sensor_repeats": 0}, "display.sensor_repeats"),
+    ({"sensor_repeats": True}, "display.sensor_repeats"),
+])
+def test_invalid_display_section_is_an_error(display, needle):
+    config = copy.deepcopy(VALID_CONFIG)
+    config["display"] = display
+    errors, _ = validate(config)
+    assert any(needle in e for e in errors)
+
+
 @pytest.mark.parametrize("wifi", [{"networks": ["Planta", "Oficina"]}, {"networks": ["Planta"]}, {"networks": []}, {}])
 def test_valid_wifi_section(wifi):
     config = copy.deepcopy(VALID_CONFIG)

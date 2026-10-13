@@ -31,6 +31,7 @@ CERTS_DIR="$GATEWAY_DIR/certs"
 SERVICE_USER="$(whoami)"
 SERVICE_NAME="akvo-green"
 WEB_SERVICE_NAME="akvo-history-web"
+OLED_SERVICE_NAME="akvo-oled"
 
 SKIP_CERTS=0
 for arg in "$@"; do
@@ -88,11 +89,11 @@ fi
 # 1. System packages
 # ---------------------------------------------------------------------------
 
-log "Installing system packages (python3-venv, python3-pip, socat)"
+log "Installing system packages (python3-venv, python3-pip, socat, i2c-tools)"
 
 if [[ $APT_AVAILABLE -eq 1 ]]; then
     sudo apt-get update -qq
-    sudo apt-get install -y python3-venv python3-pip socat
+    sudo apt-get install -y python3-venv python3-pip socat i2c-tools
 else
     echo "Skipped (no apt-get)."
 fi
@@ -126,6 +127,10 @@ fi
 echo "Installing into the venv..."
 "$VENV_DIR/bin/pip" install --upgrade pip -q
 "$VENV_DIR/bin/pip" install -r "$REQUIREMENTS_FILE" -q
+# OLED display driver (oled_display.py), installed on its own rather than via
+# requirements.txt: that file is only written when missing, so existing Pis
+# would never get it. A failure here only affects the display, not the gateway.
+"$VENV_DIR/bin/pip" install luma.oled -q || warn "luma.oled didn't install - the OLED display (akvo-oled) won't start"
 echo "Done. Installed versions:"
 "$VENV_DIR/bin/pip" show pymodbus pyserial psutil awsiotsdk 2>/dev/null | grep -E "^(Name|Version):"
 
@@ -143,6 +148,16 @@ if [[ "$SERVICE_USER" != "root" ]]; then
         echo "Added $SERVICE_USER to the dialout group."
         echo "NOTE: this only takes effect on your NEXT login (or run 'newgrp dialout')" \
              " - the systemd service picks it up immediately since it starts a fresh session."
+    fi
+fi
+
+# The OLED display (akvo-oled) opens /dev/i2c-1, which belongs to the i2c group.
+if [[ "$SERVICE_USER" != "root" ]] && getent group i2c >/dev/null; then
+    if id -nG "$SERVICE_USER" | grep -qw i2c; then
+        echo "$SERVICE_USER is already in the i2c group."
+    else
+        sudo usermod -aG i2c "$SERVICE_USER"
+        echo "Added $SERVICE_USER to the i2c group (for the OLED display)."
     fi
 fi
 
@@ -264,11 +279,39 @@ EOF
     sudo install -m 0644 -o root -g root "$SERVICE_TMP" "$WEB_SERVICE_FILE"
     rm -f "$SERVICE_TMP"
 
+    # OLED status display (gateway/oled_display.py). Same idea: its own
+    # service that only reads the status file and config.json, and exits 0
+    # at start unless system.csv has display_enabled=1. RestartSec=30: with
+    # no display wired (or I2C off) it fails and retries slowly.
+    OLED_SERVICE_FILE="/etc/systemd/system/${OLED_SERVICE_NAME}.service"
+    SERVICE_TMP="$(mktemp)"
+    cat > "$SERVICE_TMP" <<EOF
+[Unit]
+Description=Akvo Green OLED status display
+After=${SERVICE_NAME}.service
+
+[Service]
+Type=simple
+User=$SERVICE_USER
+WorkingDirectory=$GATEWAY_DIR
+ExecStart=$VENV_DIR/bin/python3 $GATEWAY_DIR/oled_display.py
+Restart=on-failure
+RestartSec=30
+Nice=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    sudo install -m 0644 -o root -g root "$SERVICE_TMP" "$OLED_SERVICE_FILE"
+    rm -f "$SERVICE_TMP"
+
     sudo systemctl daemon-reload
-    sudo systemctl enable "$SERVICE_NAME" "$WEB_SERVICE_NAME" >/dev/null 2>&1
+    sudo systemctl enable "$SERVICE_NAME" "$WEB_SERVICE_NAME" "$OLED_SERVICE_NAME" >/dev/null 2>&1
     echo "Installed and enabled $SERVICE_FILE (starts on boot; not started now)."
     echo "Installed and enabled $WEB_SERVICE_FILE (local dashboard on port 8080 when" \
          "system.csv has web_enabled=1; otherwise it exits at start)."
+    echo "Installed and enabled $OLED_SERVICE_FILE (OLED display when system.csv has" \
+         "display_enabled=1 and I2C is on; otherwise it exits at start)."
     echo "Restart=on-failure: systemd restarts the process on an unexpected crash," \
          "on top of the gateway's own OS-level reboot escalation for a communication" \
          "layer that stays stuck (see CLAUDE.md's Architecture section)."
@@ -284,13 +327,14 @@ fi
 log "Done"
 
 echo "Installed:"
-echo "  - System packages (python3-venv, python3-pip, socat)"
+echo "  - System packages (python3-venv, python3-pip, socat, i2c-tools)"
 echo "  - Python venv: ${VENV_DIR#$HERE/}"
 echo "  - dialout group membership for $SERVICE_USER"
 [[ $SKIP_CERTS -eq 0 ]] && echo "  - AWS IoT certs (whichever you provided) under ${CERTS_DIR#$HERE/}/"
 echo "  - Passwordless 'reboot' sudo rule (if validation succeeded above)"
 echo "  - systemd service '$SERVICE_NAME' (enabled, not started)"
 echo "  - systemd service '$WEB_SERVICE_NAME' (enabled, not started; needs web_enabled=1)"
+echo "  - systemd service '$OLED_SERVICE_NAME' (enabled, not started; needs display_enabled=1 and I2C on)"
 echo ""
 echo "Next steps:"
 echo "  1. Edit config_data/{devices,modbus,system,aws}.csv" \

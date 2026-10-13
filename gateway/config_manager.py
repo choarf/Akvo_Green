@@ -350,6 +350,25 @@ class ConfigManager:
                 except ValueError:
                     raise ValueError(f"system.csv: web_port must be an integer, got {port!r}")
 
+        # Optional OLED status display (oled_display.py, its own systemd
+        # service) - same pattern again: its own "display" section, every
+        # column optional, absent = off. Blank columns are left out so
+        # oled_display.py's defaults apply (ssd1309, 0x3C, 3x5, 2 repeats).
+        if any(k.startswith("display_") for k in s):
+            display = {"enabled": _parse_bool(s.get("display_enabled"), default=False)}
+            for key in ("driver", "font"):
+                value = (s.get(f"display_{key}") or "").strip()
+                if value:
+                    display[key] = value
+            for key, base in (("address", 0), ("sensor_repeats", 10)):
+                value = (s.get(f"display_{key}") or "").strip()
+                if value:
+                    try:
+                        display[key] = int(value, base)   # address: "0x3C" or "60"
+                    except ValueError:
+                        raise ValueError(f"system.csv: display_{key} must be an integer, got {value!r}")
+            config["display"] = display
+
         # Optional WiFi networks the Pi should join, in order of preference:
         # wifi1_ssid is preferred, wifi2_ssid the fallback. Only the SSIDs
         # live here (config.json is committed); the passwords stay in the
@@ -473,6 +492,14 @@ class ConfigManager:
             row["web_enabled"] = int(bool(web.get("enabled", False)))
             if "port" in web:
                 row["web_port"] = web["port"]
+        display = config.get("display")
+        if display is not None:
+            row["display_enabled"] = int(bool(display.get("enabled", False)))
+            for key in ("driver", "font", "sensor_repeats"):
+                if key in display:
+                    row[f"display_{key}"] = display[key]
+            if "address" in display:
+                row["display_address"] = f"0x{display['address']:02X}"
         wifi = config.get("wifi")
         if wifi is not None:
             networks = list(wifi.get("networks", []))

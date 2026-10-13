@@ -142,10 +142,15 @@ One header row + one data row — gateway identity and timing.
 | `database_retention_days` | int (optional) | Days of readings/telemetry to keep (default `30` when blank). Becomes `database.retention_days`. Must be a positive integer — a non-integer fails `build` with a clear message. |
 | `web_enabled` | bool (optional) | `1` turns on the local web dashboard over that database (`gateway/history_web.py`, service `akvo-history-web`); `0`/blank/absent leaves it off. Becomes `web.enabled`. See [Local web dashboard](#local-web-dashboard-optional-web-section). |
 | `web_port` | int (optional) | Port of that dashboard (default `8080` when blank). Becomes `web.port`; must be 1-65535. |
+| `display_enabled` | bool (optional) | `1` turns on the OLED status display (`gateway/oled_display.py`, service `akvo-oled`); `0`/blank/absent leaves it off. Becomes `display.enabled`. See [OLED status display](#oled-status-display-optional-display-section). |
+| `display_driver` | text (optional) | Display controller: `ssd1309` (default, the 1.54" module), `ssd1306` or `sh1106`. Becomes `display.driver`. |
+| `display_address` | int (optional) | I2C address, `0x3C` (default) or `60`; some boards use `0x3D`. Becomes `display.address` (an int). |
+| `display_font` | text (optional) | `3x5` (default, 32 columns × 10 rows) or `5x7` (21 × 8, larger but fewer rows). Becomes `display.font`. |
+| `display_sensor_repeats` | int (optional) | How many times the sensor list scrolls through before going back to the Sistema screen (1-5, default `2`). Becomes `display.sensor_repeats`. |
 | `wifi1_ssid` | text (optional) | Preferred WiFi network. Becomes `wifi.networks[0]`. Its password goes in the site's git-ignored `wifi.csv`, never here. See [WiFi networks](#wifi-networks-optional-wifi-section). |
 | `wifi2_ssid` | text (optional) | Fallback WiFi network. Becomes `wifi.networks[1]`. |
 
-The `database_*`, `web_*` and `wifi*_ssid` columns are optional: a `system.csv` without them builds
+The `database_*`, `web_*`, `display_*` and `wifi*_ssid` columns are optional: a `system.csv` without them builds
 exactly as before, with the database off. The other columns are still required —
 a missing one isn't caught with a friendly error, it surfaces as a raw
 `KeyError` during `build`.
@@ -389,6 +394,56 @@ How it runs:
 - Local testing against a copy of a database:
   `python3 gateway/history_web.py --force --db copy.db --config config.json --host 127.0.0.1 --port 8081`.
 
+## OLED status display (optional `display` section)
+
+A 1.54" 128×64 OLED (SSD1309, I2C) on the Pi that shows the gateway's status and
+the latest sensor values, for someone standing at the cabinet with no phone or
+laptop. The visual spec (and a browser simulator of it) is
+`VenkoDemo/docs/OLED/oled_simulator.html`.
+
+```csv
+...,web_enabled,web_port,display_enabled,display_driver,display_address,display_font,display_sensor_repeats
+...,1,8080,1,ssd1309,0x3C,3x5,2
+```
+
+```json
+"display": { "enabled": true, "driver": "ssd1309", "address": 60, "font": "3x5", "sensor_repeats": 2 }
+```
+
+- **Screens:**
+  - at start-up only, the GHOTRIX logo with a boot bar (5 s);
+  - then forever: **Sistema** (5 s) → **Sensores** × `sensor_repeats` → Sistema → …
+- **Sistema** shows the same rows as the local web dashboard's Sistema page: gateway
+  active/stopped, network + the Pi's IP, AWS + last send, Modbus, active alarms. A fault
+  is drawn as an inverted (lit) bar.
+- **Sensores** lists every sensor of the enabled devices: name, value, unit and a flag.
+  - The flags are `•` normal, `▲`/`▼` high/low alarm (blinking), `✕` read error.
+  - The list scrolls one pixel at a time (about one row per second), waiting 1.5 s at
+    the top and at the bottom.
+  - Names drop a trailing `Sensor`, and units are shortened (`uS/cm` → `µS`).
+- **Where the data comes from:** the gateway's status file
+  (`/dev/shm/akvo-green-status.json`, which has each sensor's last reading in `readings`)
+  and `config.json`. The display never talks to the gateway process, Modbus or AWS, so
+  a display problem can't affect them.
+- **Burn-in:** the whole image moves 1 px each round.
+- **Hardware:** VCC → 3.3 V (pin 1), GND → pin 6, SDA → GPIO 2 (pin 3), SCL → GPIO 3
+  (pin 5).
+  - Turn I2C on once per Pi: `sudo raspi-config` > Interface Options > I2C, then reboot.
+  - Check that the display shows up: `i2cdetect -y 1` should show `3c`.
+  - `install.sh` installs `luma.oled` and `i2c-tools` and adds the service user to the
+    `i2c` group.
+- **Restart to apply.** `display.*` and the sensor list are read at service start;
+  `tools/push_site.sh` restarts `akvo-oled` on every push.
+- When `display_enabled` is off, the service logs `OLED display is off` and exits 0.
+- **If the display can't be opened** (I2C off, nothing at the address, `luma.oled`
+  missing), the service logs the error and exits 1; systemd retries every 30 s.
+- Check it on the Pi: `systemctl status akvo-oled`, `journalctl -u akvo-oled -n 20`.
+- **Preview without the hardware:**
+  `python3 gateway/oled_display.py --png /tmp/oled` writes each screen as a PNG from the
+  current status file. `--font 5x7` and `--config` work there too.
+- **Logo:** put a black-and-white `gateway/oled_logo.png` to replace the text logo. It
+  is fitted into 128×60; light pixels are lit.
+
 ## WiFi networks (optional `wifi` section)
 
 Up to two WiFi networks the Pi should join, preferred first, so a site's WiFi can be
@@ -456,6 +511,9 @@ whichever thread hits the missing/malformed field first:
 - `database` is optional; if present it must be an object, `enabled` a
   boolean, and `retention_days` a positive integer.
 - `modbus.simulate` is optional; if present it must be a boolean.
+- `display` is optional; if present: `enabled` a boolean, `driver` one of
+  `ssd1309`/`ssd1306`/`sh1106`, `address` an int 0x03-0x77, `font` `3x5` or `5x7`,
+  `sensor_repeats` an int 1-5.
 - Two devices sharing one `slave` ID is a *warning*, not an error (the
   normal way to model two sensors on one physical unit).
 - A `config.json` edit that fails validation while the gateway is already

@@ -11,7 +11,7 @@
 # Code is synced with rsync, never touching the Pi's config_data/, data/, logs/,
 # gateway/certs/ or .venv/. config.json is copied into config_data/ (the gateway
 # live-reloads it); the akvo-green service is restarted only when code changed,
-# the akvo-history-web dashboard (if installed) on every push.
+# the akvo-history-web dashboard and akvo-oled display (if installed) on every push.
 # WiFi: when the site's config.json has a "wifi" section (system.csv's
 # wifi1_ssid/wifi2_ssid), writes those networks into NetworkManager as profiles
 # akvo-wifi1 (preferred) / akvo-wifi2, with passwords from the git-ignored
@@ -107,6 +107,11 @@ if ssh "$PI" "systemctl is-enabled --quiet akvo-history-web" 2>/dev/null; then
   ssh -t "$PI" "sudo systemctl restart akvo-history-web"
 elif [ -n "$CHANGES" ]; then
   echo "   note: akvo-history-web is not installed on this Pi - run ./install.sh --skip-certs there once"
+fi
+# Same for the OLED display: it reads display.* and the sensor list only at start.
+if ssh "$PI" "systemctl is-enabled --quiet akvo-oled" 2>/dev/null; then
+  echo "== restarting akvo-oled (OLED display)"
+  ssh -t "$PI" "sudo systemctl restart akvo-oled"
 fi
 
 if [ "$MODBUS_TOOL" = 1 ]; then

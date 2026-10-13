@@ -89,6 +89,7 @@ def validate(config: dict) -> tuple[list[str], list[str]]:
     errors += _validate_database(config)
     errors += _validate_modbus_simulate(config)
     errors += _validate_web(config)
+    errors += _validate_display(config)
     errors += _validate_wifi(config)
 
     device_errors, device_warnings = _validate_devices(config.get("devices", []))
@@ -150,6 +151,40 @@ def _validate_web(config: dict) -> list[str]:
         isinstance(port, int) and not isinstance(port, bool) and 1 <= port <= 65535
     ):
         errors.append(f"web.port must be an int between 1 and 65535, got {port!r}")
+    return errors
+
+
+# Duplicated from oled_display.py (DRIVERS, FONTS) so validating a config
+# never imports the display code.
+DISPLAY_DRIVERS = ("ssd1309", "ssd1306", "sh1106")
+DISPLAY_FONTS = ("3x5", "5x7")
+
+
+def _validate_display(config: dict) -> list[str]:
+    """'display' (the OLED status display, oled_display.py) is optional like
+    'web' - absent means off. Loosely type-checked for the same reason."""
+    data = config.get("display")
+    if data is None:
+        return []
+    if not isinstance(data, dict):
+        return ["'display' section must be an object if present"]
+
+    def is_int(v):
+        return isinstance(v, int) and not isinstance(v, bool)
+
+    errors = []
+    if "enabled" in data and not isinstance(data["enabled"], bool):
+        errors.append(f"display.enabled must be a boolean, got {data['enabled']!r}")
+    if "driver" in data and data["driver"] not in DISPLAY_DRIVERS:
+        errors.append(f"display.driver must be one of {list(DISPLAY_DRIVERS)}, got {data['driver']!r}")
+    address = data.get("address")
+    if "address" in data and not (is_int(address) and 0x03 <= address <= 0x77):
+        errors.append(f"display.address must be a 7-bit I2C address (0x03-0x77), got {address!r}")
+    if "font" in data and data["font"] not in DISPLAY_FONTS:
+        errors.append(f"display.font must be one of {list(DISPLAY_FONTS)}, got {data['font']!r}")
+    repeats = data.get("sensor_repeats")
+    if "sensor_repeats" in data and not (is_int(repeats) and 1 <= repeats <= 5):
+        errors.append(f"display.sensor_repeats must be an int between 1 and 5, got {repeats!r}")
     return errors
 
 

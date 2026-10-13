@@ -292,6 +292,44 @@ def test_export_writes_web_columns_back_to_system_csv(workspace):
 
 
 # ---------------------------------------------------------------------------
+# build/export: system.csv's optional display_* columns -> config["display"]
+# ---------------------------------------------------------------------------
+
+def test_build_maps_display_columns_into_their_own_section(workspace):
+    write_system(workspace, display_enabled="1", display_driver="ssd1309", display_address="0x3D",
+                 display_font="3x5", display_sensor_repeats="2")
+    config = build()
+    assert config["display"] == {"enabled": True, "driver": "ssd1309", "address": 0x3D,
+                                 "font": "3x5", "sensor_repeats": 2}
+    assert not any(k.startswith("display_") for k in config["gateway"])
+
+
+def test_build_display_blank_columns_are_left_out_so_defaults_apply(workspace):
+    write_system(workspace, display_enabled="1", display_driver="", display_address="60")
+    assert build()["display"] == {"enabled": True, "address": 60}
+
+
+def test_build_without_display_columns_leaves_it_off(workspace):
+    write_system(workspace)
+    assert "display" not in build()
+
+
+def test_build_rejects_bad_display_address(workspace):
+    write_system(workspace, display_enabled="1", display_address="3C")
+    with pytest.raises(ValueError, match="display_address"):
+        build()
+
+
+def test_export_writes_display_columns_back_to_system_csv(workspace):
+    write_system(workspace, display_enabled="1", display_address="0x3c", display_sensor_repeats="3")
+    build()
+    write_system(workspace)
+    cm.ConfigManager().export_config()
+    row = read_system_row(workspace)
+    assert (row["display_enabled"], row["display_address"], row["display_sensor_repeats"]) == ("1", "0x3C", "3")
+
+
+# ---------------------------------------------------------------------------
 # build/export: system.csv's optional wifi*_ssid columns -> config["wifi"]
 # ---------------------------------------------------------------------------
 

@@ -1,7 +1,9 @@
 # Plan: 1.54" I2C OLED status display
 
-Status: **proposed, display not started** (written 2026-10-07, updated 2026-10-13). The gateway
-status file it reads is done, including per-sensor readings (step 4); the display service is not.
+Status: **code done, not yet on hardware** (written 2026-10-07, updated 2026-10-13).
+`gateway/oled_display.py`, the `akvo-oled` unit, the `display_*` config, install/push support,
+tests and docs are in. Still to do: steps 1-2 on a real Pi, the GHOTRIX logo artwork, and the
+optional contrast/night-off settings.
 
 Goal: a 1.54" I2C OLED (128×64, monochrome, **SSD1309**) on the Pi showing the gateway status
 (the same rows as the local web dashboard's *Sistema* page) and the latest sensor values.
