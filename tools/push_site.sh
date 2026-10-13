@@ -9,8 +9,10 @@
 #   --no-modbus-tool  skip the AKVO Modbus Tool (see below)
 #
 # Code is synced with rsync, never touching the Pi's config_data/, data/, logs/,
-# gateway/certs/ or .venv/. config.json is copied into config_data/ (the gateway
-# live-reloads it); the akvo-green service is restarted only when code changed,
+# gateway/certs/ or .venv/; when gateway/requirements*.txt changed, the Pi's
+# .venv gets the new pinned packages (pip, no sudo). config.json is copied
+# into config_data/ (the gateway live-reloads it); the akvo-green service is
+# restarted only when code changed,
 # the akvo-history-web dashboard and akvo-oled display (if installed) on every push.
 # WiFi: when the site's config.json has a "wifi" section (system.csv's
 # wifi1_ssid/wifi2_ssid), writes those networks into NetworkManager as profiles
@@ -69,7 +71,6 @@ ssh "$PI" "mkdir -p '$REMOTE_DIR/config_data' '$REMOTE_DIR/gateway/certs'"
 CHANGES="$(rsync -rlptz --delete --itemize-changes \
   --exclude .git/ --exclude .venv/ --exclude config_data/ --exclude data/ --exclude logs/ \
   --exclude reports/ --exclude sites/ --exclude gateway/certs/ --exclude __pycache__/ \
-  --exclude gateway/requirements.txt \
   "$ROOT/" "$PI:$REMOTE_DIR/")"
 [ -n "$CHANGES" ] && echo "$CHANGES" | sed 's/^/   /' || echo "   code already up to date"
 
@@ -95,6 +96,16 @@ if [ "$WIFI_RC" = 0 ]; then
   echo "   saved; the Pi switches to them when its current network drops or on reboot"
 fi
 unset WIFI_SCRIPT
+
+# New pinned Python packages: update the Pi's venv before the restart below.
+# Only on a Pi that install.sh already set up (it has .venv); no sudo needed.
+if echo "$CHANGES" | grep -q 'gateway/requirements' && ssh "$PI" "test -x '$REMOTE_DIR/.venv/bin/pip'"; then
+  echo "== Python packages changed: updating $REMOTE_DIR/.venv"
+  ssh "$PI" "cd '$REMOTE_DIR' && .venv/bin/pip install -q -r gateway/requirements.txt" \
+    || { echo "error: installing gateway/requirements.txt on the Pi failed" >&2; exit 1; }
+  ssh "$PI" "cd '$REMOTE_DIR' && .venv/bin/pip install -q -r gateway/requirements-oled.txt" \
+    || echo "   warning: luma.oled didn't install - only the OLED display is affected"
+fi
 
 if [ -n "$CHANGES" ] && ssh "$PI" "systemctl is-enabled --quiet akvo-green" 2>/dev/null; then
   echo "== code changed: restarting akvo-green"

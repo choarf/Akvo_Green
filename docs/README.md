@@ -65,7 +65,8 @@ Akvo_Green/
 
 ## Requirements
 
-- Python 3.10+ (3.12/3.14 tested)
+- Python 3.10+ (3.12/3.14 tested; the Pis run 3.13)
+- Python packages, pinned in [`gateway/requirements.txt`](gateway/requirements.txt): `pymodbus`, `pyserial`, `psutil`, `awsiotsdk` (+ `awscrt`); for the optional OLED, [`gateway/requirements-oled.txt`](gateway/requirements-oled.txt): `luma.oled` (+ `Pillow`, `smbus2`). `install.sh` installs both into `.venv`, and `tools/push_site.sh` updates a Pi's venv when either file changes. The local dashboard and `config_manager.py` need only the standard library
 - `socat` for the virtual-serial mock environment (Linux/macOS)
 - An AWS IoT Core thing with certificates if running the full edge gateway
 - An RS-485 interface for the Modbus RTU bus - see below (not needed with [virtual Modbus](#virtual-modbus-optional))

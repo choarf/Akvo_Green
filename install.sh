@@ -110,29 +110,16 @@ else
     echo "Already exists, reusing it."
 fi
 
-REQUIREMENTS_FILE="$GATEWAY_DIR/requirements.txt"
-if [[ ! -f "$REQUIREMENTS_FILE" ]]; then
-    cat > "$REQUIREMENTS_FILE" <<'REQS'
-# Runtime dependencies for edge_node_improved.py / config_manager.py.
-# Pin versions here once a known-good combination is confirmed; left
-# unpinned for now to match what this repo has been developed against.
-pymodbus
-pyserial
-psutil
-awsiotsdk
-REQS
-    echo "Created $REQUIREMENTS_FILE (didn't exist before)."
-fi
-
+# Pinned versions, committed in gateway/requirements*.txt.
 echo "Installing into the venv..."
 "$VENV_DIR/bin/pip" install --upgrade pip -q
-"$VENV_DIR/bin/pip" install -r "$REQUIREMENTS_FILE" -q
-# OLED display driver (oled_display.py), installed on its own rather than via
-# requirements.txt: that file is only written when missing, so existing Pis
-# would never get it. A failure here only affects the display, not the gateway.
-"$VENV_DIR/bin/pip" install luma.oled -q || warn "luma.oled didn't install - the OLED display (akvo-oled) won't start"
+"$VENV_DIR/bin/pip" install -r "$GATEWAY_DIR/requirements.txt" -q
+# OLED display driver (oled_display.py): its own file, so a failure here only
+# affects the display, not the gateway.
+"$VENV_DIR/bin/pip" install -r "$GATEWAY_DIR/requirements-oled.txt" -q \
+    || warn "luma.oled didn't install - the OLED display (akvo-oled) won't start"
 echo "Done. Installed versions:"
-"$VENV_DIR/bin/pip" show pymodbus pyserial psutil awsiotsdk 2>/dev/null | grep -E "^(Name|Version):"
+"$VENV_DIR/bin/pip" show pymodbus pyserial psutil awsiotsdk luma.oled 2>/dev/null | grep -E "^(Name|Version):"
 
 # ---------------------------------------------------------------------------
 # 3. Serial port access (dialout group)

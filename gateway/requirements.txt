@@ -1,0 +1,9 @@
+# Gateway runtime dependencies (edge_node_improved.py, config_manager.py;
+# history_web.py needs only the standard library). install.sh installs them
+# into ../.venv, and tools/push_site.sh reinstalls them when this file changes.
+# Pinned to the set running on site cmd4 (Raspberry Pi OS trixie, Python 3.13).
+pymodbus==3.15.0      # Modbus RTU client
+pyserial==3.5         # serial port under pymodbus
+psutil==7.2.2         # CPU / RAM / disk for the system topic
+awsiotsdk==1.31.0     # MQTT to AWS IoT Core
+awscrt==0.36.1        # AWS CRT, the native layer under awsiotsdk

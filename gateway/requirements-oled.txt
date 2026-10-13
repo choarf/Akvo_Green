@@ -1,0 +1,4 @@
+# OLED status display (oled_display.py, service akvo-oled) - optional.
+# Kept apart from requirements.txt so a failed install here only affects the
+# display, never the gateway. Brings Pillow and smbus2 with it.
+luma.oled==3.16.0

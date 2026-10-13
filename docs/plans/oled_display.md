@@ -111,10 +111,9 @@ A fault row (✕) is drawn as an **inverted bar** so it can be seen from across 
   - It works on Pi 5/CM5.
 - **No font package is needed.** The 3×5 and 5×7 fonts are small bitmap tables in the code,
   copied from the simulator.
-- **Commit a real `gateway/requirements.txt`.**
-  - Today `install.sh` only creates it when it's missing, so Pis that already have it never
-    get new packages.
-  - It also isn't in git, so `tools/push_site.sh` (rsync `--delete`) removes it from the Pi.
+- **Commit a real `gateway/requirements.txt`** (done 2026-10-13): pinned `gateway/requirements.txt`
+  + `gateway/requirements-oled.txt` (`luma.oled`) are in git; `install.sh` installs both, and
+  `tools/push_site.sh` updates the Pi's venv whenever either changes.
 
 ## 4. Gateway status file (done)
 
