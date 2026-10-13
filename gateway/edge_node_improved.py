@@ -1026,13 +1026,17 @@ class EdgeNode:
 
     def write_status(self, cfg, payload, path=None):
         """Writes the gateway's live connection state (network, AWS/MQTT,
-        Modbus) and the last cycle's read counts to STATUS_PATH, for local
-        readers in other processes (history_web.py's Sistema page). Atomic
-        (temp file + rename) so a reader never sees half a file; in RAM
-        (/dev/shm) so it costs no SD-card writes."""
+        Modbus), the last cycle's read counts and each sensor's last reading
+        (val/status/alarm, without the error text) to STATUS_PATH, for local
+        readers in other processes (history_web.py's Sistema page, the OLED
+        display). Atomic (temp file + rename) so a reader never sees half a
+        file; in RAM (/dev/shm) so it costs no SD-card writes."""
         total = errors = alarms = 0
-        for sensors in payload["devices"].values():
-            for r in sensors.values():
+        readings = {}
+        for device_id, sensors in payload["devices"].items():
+            readings[device_id] = {}
+            for name, r in sensors.items():
+                readings[device_id][name] = {k: r[k] for k in ("val", "status", "alarm") if k in r}
                 total += 1
                 if r.get("status") != "OK":
                     errors += 1
@@ -1046,6 +1050,7 @@ class EdgeNode:
             "mqtt": self.mqtt.status() if self.mqtt else None,
             "modbus": {**(self.modbus.status() if self.modbus else {}),
                        "sensors": total, "read_errors": errors, "alarms": alarms},
+            "readings": readings,
         }
         path = Path(path or STATUS_PATH)
         path.parent.mkdir(parents=True, exist_ok=True)

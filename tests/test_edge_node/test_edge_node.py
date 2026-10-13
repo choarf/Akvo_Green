@@ -170,7 +170,7 @@ class _Mgr:
         return self._status
 
 
-def test_write_status_counts_errors_and_alarms_and_is_valid_json(tmp_path):
+def test_write_status_counts_errors_alarms_and_copies_readings(tmp_path):
     import json
     node = make_node()
     node.wifi = _Mgr({"connected": True, "check": "8.8.8.8:53"})
@@ -179,7 +179,7 @@ def test_write_status_counts_errors_and_alarms_and_is_valid_json(tmp_path):
     payload = {"ts": "2026-10-07T12:00:00+00:00", "devices": {
         "DEV_1": {"T": {"val": 1, "status": "OK", "alarm": "NORMAL"},
                   "H": {"val": 99, "status": "OK", "alarm": "HIGH"}},
-        "DEV_2": {"P": {"status": "BUS_ERROR", "alarm": None}}}}
+        "DEV_2": {"P": {"status": "EXCEPTION", "err": "timeout"}}}}
     cfg = {"gateway": {"gateway_id": "GW1", "poll_interval": 20}}
     path = tmp_path / "sub" / "status.json"
 
@@ -190,6 +190,10 @@ def test_write_status_counts_errors_and_alarms_and_is_valid_json(tmp_path):
     assert st["mqtt"]["connected"] is False and st["network"]["connected"] is True
     assert st["modbus"] == {"connected": True, "port": "/dev/ttyUSB0", "simulated": False,
                             "sensors": 3, "read_errors": 1, "alarms": 1}
+    assert st["readings"] == {
+        "DEV_1": {"T": {"val": 1, "status": "OK", "alarm": "NORMAL"},
+                  "H": {"val": 99, "status": "OK", "alarm": "HIGH"}},
+        "DEV_2": {"P": {"status": "EXCEPTION"}}}  # error text left out
     assert not (tmp_path / "sub" / "status.json.tmp").exists()
 
 

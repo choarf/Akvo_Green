@@ -369,6 +369,8 @@ How it runs:
   publish cycle - `/dev/shm/akvo-green-status.json` (RAM, no SD-card writes;
   `data/status.json` where there's no `/dev/shm`). If it's older than 3 poll
   intervals the page shows the gateway as **Detenido** and greys out the rest.
+  It also holds each sensor's last reading (`readings`: device → sensor →
+  `val`/`status`/`alarm`), for local readers such as the planned OLED display.
   MQTT state comes from the AWS library's connection interrupted/resumed
   callbacks, so a dropped link shows within the MQTT keep-alive time.
 - Times are shown in the gateway's `city` time zone; the CSV has both UTC and

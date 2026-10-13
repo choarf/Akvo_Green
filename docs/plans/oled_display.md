@@ -1,7 +1,7 @@
 # Plan: 1.54" I2C OLED status display
 
 Status: **proposed, display not started** (written 2026-10-07, updated 2026-10-13). The gateway
-status file it reads already exists (see step 4); the display service does not.
+status file it reads is done, including per-sensor readings (step 4); the display service is not.
 
 Goal: a 1.54" I2C OLED (128×64, monochrome, **SSD1309**) on the Pi showing the gateway status
 (the same rows as the local web dashboard's *Sistema* page) and the latest sensor values.
@@ -111,7 +111,7 @@ A fault row (✕) is drawn as an **inverted bar** so it can be seen from across 
     get new packages.
   - It also isn't in git, so `tools/push_site.sh` (rsync `--delete`) removes it from the Pi.
 
-## 4. Gateway status file (mostly done)
+## 4. Gateway status file (done)
 
 **Already in place** (commit `e69320a`, used by the local web *Sistema* page):
 
@@ -124,13 +124,9 @@ A fault row (✕) is drawn as an **inverted bar** so it can be seen from across 
   - fields: `ts`, `gateway_id`, `poll_interval`, `network`, `mqtt`, and `modbus` (port
     state, `simulated`, sensor / read-error / alarm counts).
 
-**Still missing for the display:**
-
-- **Per-sensor readings** (`DEVICE.Sensor` → `val`, `status`, `alarm`). Today the file only
-  has the counts.
-  - Add them to the status file from the same payload `write_status()` already receives.
-  - The display then doesn't depend on the SQLite history being enabled, and needs no
-    second reader.
+- **Per-sensor readings:** `readings` (device → sensor → `val`, `status`, `alarm`; the
+  error text is left out). The display therefore doesn't depend on the SQLite history being
+  enabled.
 
 ## 5. Display service: `gateway/oled_display.py`, systemd unit `akvo-oled`
 
@@ -185,9 +181,8 @@ stop sensor reading or publishing.
 Smaller than the local web dashboard, now that the status file exists. Step 5 is the real
 work. Suggested order:
 
-1. Step 4: per-sensor readings in the status file.
-2. Step 5, porting the simulator's layout. Check the PNG previews against the simulator
+1. Step 5, porting the simulator's layout. Check the PNG previews against the simulator
    before the hardware arrives.
-3. Steps 3 and 6: install, push, docs.
-4. Steps 1 and 2 on a real Pi: enable I2C, `i2cdetect`, and turn on `display_enabled` for
+2. Steps 3 and 6: install, push, docs.
+3. Steps 1 and 2 on a real Pi: enable I2C, `i2cdetect`, and turn on `display_enabled` for
    the site.
