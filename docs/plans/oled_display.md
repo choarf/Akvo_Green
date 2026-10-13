@@ -17,7 +17,7 @@ font tables and row formats instead of redesigning them.
 
 **Order:**
 
-1. At start-up only, the **GHOTRIX logo** with a boot progress bar (5 s).
+1. At start-up only, the **GHOTRIX logo**: the "Venko → Akvo" line writes itself on 3 times (100%), then flashes 3 times (5.1 s).
 2. Then this repeats forever: **Sistema** (5 s) → **Sensores** → **Sensores** → Sistema → …
 
 The sensor list is shown twice per round, because it changes more often than the status does.

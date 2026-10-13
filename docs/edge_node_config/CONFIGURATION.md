@@ -411,7 +411,7 @@ laptop. The visual spec (and a browser simulator of it) is
 ```
 
 - **Screens:**
-  - at start-up only, the GHOTRIX logo with a boot bar (5 s);
+  - at start-up only, the GHOTRIX logo: the "Venko → Akvo" line writes itself on 3 times (100%), then flashes 3 times (5.1 s);
   - then forever: **Sistema** (5 s) → **Sensores** × `sensor_repeats` → Sistema → …
 - **Sistema** shows the same rows as the local web dashboard's Sistema page: gateway
   active/stopped, network + the Pi's IP, AWS + last send, Modbus, active alarms. A fault
@@ -441,8 +441,11 @@ laptop. The visual spec (and a browser simulator of it) is
 - **Preview without the hardware:**
   `python3 gateway/oled_display.py --png /tmp/oled` writes each screen as a PNG from the
   current status file. `--font 5x7` and `--config` work there too.
-- **Logo:** put a black-and-white `gateway/oled_logo.png` to replace the text logo. It
-  is fitted into 128×60; light pixels are lit.
+- **Logo:** `gateway/oled_logo.png` (black and white, fitted into 128×60, light pixels
+  lit). Its last row of ink is the boot line that animates; a logo with only one row
+  gets a plain progress bar under it instead. Without the file, a text logo is drawn.
+  Rebuild it with `python3 tools/make_oled_logo.py` (wordmark from
+  `VenkoDemo/docs/OLED/ghotrix_logo.png` + the "Venko → Akvo" line; `--line` changes it).
 
 ## WiFi networks (optional `wifi` section)
 

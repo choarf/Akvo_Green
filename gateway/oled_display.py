@@ -8,7 +8,8 @@ EdgeNode.write_status()) and config.json, so a display or I2C problem can
 never stall Modbus polling or MQTT publishing.
 
 Screens (visual spec: VenkoDemo/docs/OLED/oled_simulator.html):
-  at start-up   GHOTRIX logo with a boot bar (5 s)
+  at start-up   GHOTRIX logo; its "Venko -> Akvo" line writes itself on 3
+                times (100%) and then flashes 3 times (5.1 s)
   then forever  Sistema (5 s) -> Sensores (scrolling list) x sensor_repeats
 
 Everything is drawn in plain Python into a 128x64 framebuffer (same fonts
@@ -25,6 +26,7 @@ Read once at startup: a change needs a service restart (push_site.sh does it).
 from __future__ import annotations
 
 import argparse
+import functools
 import json
 import logging
 import math
@@ -46,7 +48,11 @@ LOGO_PATH = BASE_DIR / "oled_logo.png"   # optional 1-bit artwork; text logo whe
 W, H = 128, 64
 DRIVERS = ("ssd1309", "ssd1306", "sh1106")
 DEFAULT_ADDRESS = 0x3C
-LOGO_SECONDS = 5.0
+BOOT_PASSES = 3           # the logo's boot line writes itself on left to right this many times...
+BOOT_PASS_SECONDS = 1.2
+BOOT_FLASHES = 3          # ...then flashes (off, on) this many times
+BOOT_FLASH_SECONDS = 0.5
+LOGO_SECONDS = BOOT_PASSES * BOOT_PASS_SECONDS + BOOT_FLASHES * BOOT_FLASH_SECONDS   # 5.1 s
 SCREEN_SECONDS = 5.0
 SCROLL_PAUSE = 1.5        # s still at the top and at the bottom of the sensor list
 SCROLL_SPEED = 6.0        # px/s: one 3x5 text row per second
@@ -436,10 +442,52 @@ def blink_on(now: float) -> bool:
     return (now % 1.0) < 0.65
 
 
-def draw_logo(fr: Frame, v: View, progress: float) -> None:
+@functools.lru_cache(maxsize=4)
+def boot_line_band(logo: bytes) -> tuple[int, int, int, int] | None:
+    """(x0, y0, x1, y1) of the logo's last block of inked rows - the
+    "Venko -> Akvo" line that animates at boot. None when the logo has only
+    one block (then a plain progress bar is drawn instead)."""
+    rows = len(logo) // W
+    bands, start = [], None
+    for y in range(rows + 1):
+        ink = y < rows and any(logo[y * W:(y + 1) * W])
+        if ink and start is None:
+            start = y
+        elif not ink and start is not None:
+            bands.append((start, y))
+            start = None
+    if len(bands) < 2:
+        return None
+    y0, y1 = bands[-1]
+    xs = [x for y in range(y0, y1) for x in range(W) if logo[y * W + x]]
+    return min(xs), y0, max(xs) + 1, y1
+
+
+def boot_line_state(elapsed: float) -> tuple[float, bool]:
+    """(how much of the boot line is written 0..1, whether it's lit) at
+    `elapsed` s: BOOT_PASSES write passes (the last one ends at 100%), then
+    BOOT_FLASHES off/on flashes, then steady."""
+    write = BOOT_PASSES * BOOT_PASS_SECONDS
+    if elapsed < write:
+        return (elapsed % BOOT_PASS_SECONDS) / BOOT_PASS_SECONDS, True
+    t = elapsed - write
+    if t >= BOOT_FLASHES * BOOT_FLASH_SECONDS:
+        return 1.0, True
+    return 1.0, (t % BOOT_FLASH_SECONDS) >= BOOT_FLASH_SECONDS / 2
+
+
+def draw_logo(fr: Frame, v: View, elapsed: float) -> None:
+    progress = elapsed / LOGO_SECONDS
     if v.logo:
         fr.px[: len(v.logo)] = v.logo
-        fr.fill(14, H - 3, round((W - 28) * min(1.0, progress)), 3)
+        band = boot_line_band(v.logo)
+        if band is None:
+            fr.fill(14, H - 3, round((W - 28) * min(1.0, progress)), 3)
+            return
+        x0, y0, x1, y1 = band
+        written, lit = boot_line_state(elapsed)
+        cut = x0 + round((x1 - x0) * written) if lit else x0
+        fr.fill(cut, y0, x1 - cut, y1 - y0, 0)   # erase the part not written yet
         return
     f57 = FONTS["5x7"]
     fr.text(fr.center_x("GHOTRIX", 2, f57), 4, "GHOTRIX", scale=2, font=f57)
@@ -485,7 +533,7 @@ def draw_sensors(fr: Frame, v: View, elapsed: float) -> None:
 def render(kind: str, elapsed: float, v: View) -> Frame:
     fr = Frame(v.font)
     if kind == "logo":
-        draw_logo(fr, v, elapsed / LOGO_SECONDS)
+        draw_logo(fr, v, elapsed)
     elif kind == "system":
         draw_system(fr, v)
     else:
@@ -516,8 +564,8 @@ def local_ip() -> str | None:
 
 
 def load_logo(path: Path = LOGO_PATH) -> bytes | None:
-    """oled_logo.png fitted into 128x60 (the bottom 4 rows are the boot bar),
-    1 bit: light pixels are lit."""
+    """oled_logo.png fitted into 128x60, 1 bit: light pixels are lit. Its
+    last row of ink (if it has two) is the animated boot line."""
     if not path.is_file():
         return None
     from PIL import Image
@@ -595,7 +643,7 @@ def write_pngs(config: dict, status_path: Path, font: Font, out: Path, scale: in
     view = View(font, read_status(status_path, poll), d.sensors, d.gateway_id,
                 datetime.fromtimestamp(now, d.tz).strftime("%H:%M:%S"), now, local_ip(), d.logo)
     end = screen_seconds("sensors", len(d.sensors), font)
-    shots = [("logo", "logo", LOGO_SECONDS / 2), ("sistema", "system", 0),
+    shots = [("logo", "logo", BOOT_PASS_SECONDS * 2.5), ("logo_100", "logo", LOGO_SECONDS), ("sistema", "system", 0),
              ("sensores_inicio", "sensors", 0), ("sensores_medio", "sensors", end / 2),
              ("sensores_fin", "sensors", end)]
     out.mkdir(parents=True, exist_ok=True)

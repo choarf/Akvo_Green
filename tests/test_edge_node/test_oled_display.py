@@ -189,8 +189,8 @@ def test_display_tick_follows_the_clock(monkeypatch, tmp_path):
         clock["t"] = float(t)
         d.tick()
         seen.append(d.kind)
-    assert seen[0] == "logo" and seen[5] == "system" and seen[10] == "sensors"
-    assert "logo" not in seen[5:]
+    assert seen[0] == "logo" and seen[5] == "logo" and seen[6] == "system" and seen[11] == "sensors"
+    assert "logo" not in seen[6:]
 
 
 # ---------------------------------------------------------------------------
@@ -218,10 +218,39 @@ def test_fault_row_is_inverted():
     assert lit(bad, 0, y, od.W, y + F35.row_h) > 2 * lit(ok, 0, y, od.W, y + F35.row_h)
 
 
-def test_logo_boot_bar_fills_with_progress():
+def test_text_logo_boot_bar_fills_with_progress():
     early = od.render("logo", 0.5, view())
     late = od.render("logo", 4.5, view())
     assert lit(late, 16, 52, od.W - 16, 55) > lit(early, 16, 52, od.W - 16, 55)
+
+
+def test_boot_line_writes_three_times_then_flashes_three_times():
+    states = [od.boot_line_state(t) for t in (0.6, 1.3, 3.5, 3.7, 3.95, 4.2, 4.45, 5.0, 5.1)]
+    assert states[0] == (pytest.approx(0.5), True)          # pass 1, half written
+    assert states[1][0] == pytest.approx(0.1 / 1.2)         # pass 2 starts over
+    assert states[2][0] > 0.9                               # pass 3 nearly at 100%
+    assert [lit for _, lit in states[3:]] == [False, True, False, True, True, True]
+    assert all(written == 1.0 for written, _ in states[3:])
+
+
+def test_boot_line_band_is_the_logo_s_last_row_of_ink():
+    logo = od.load_logo(od.LOGO_PATH)
+    x0, y0, x1, y1 = od.boot_line_band(logo)
+    assert y0 > 25 and y1 <= 60 and x1 - x0 > 60            # the "Venko -> Akvo" line
+    assert od.boot_line_band(bytes(od.W * 60)) is None
+
+
+def test_logo_line_is_drawn_up_to_the_written_part():
+    v = view()
+    v.logo = od.load_logo(od.LOGO_PATH)
+    x0, y0, x1, y1 = od.boot_line_band(v.logo)
+    half = od.render("logo", 0.6, v)
+    full = od.render("logo", od.LOGO_SECONDS, v)
+    off = od.render("logo", 3.7, v)
+    mid = (x0 + x1) // 2
+    assert lit(half, x0, y0, mid - 2, y1) > 0 and lit(half, mid + 2, y0, x1, y1) == 0
+    assert lit(full, mid + 2, y0, x1, y1) > 0 and lit(off, x0, y0, x1, y1) == 0
+    assert lit(off, 0, 0, od.W, y0) == lit(full, 0, 0, od.W, y0)   # GHOTRIX never changes
 
 
 def test_shifted_moves_pixels_right_and_down():
@@ -253,7 +282,7 @@ def test_main_png_writes_every_screen(tmp_path):
     cfg, st = write_files(tmp_path)
     assert od.main(["--config", str(cfg), "--status", str(st), "--png", str(tmp_path / "png"), "--scale", "2"]) == 0
     names = sorted(p.name for p in (tmp_path / "png").iterdir())
-    assert names == ["oled_logo.png", "oled_sensores_fin.png", "oled_sensores_inicio.png",
+    assert names == ["oled_logo.png", "oled_logo_100.png", "oled_sensores_fin.png", "oled_sensores_inicio.png",
                      "oled_sensores_medio.png", "oled_sistema.png"]
 
 
