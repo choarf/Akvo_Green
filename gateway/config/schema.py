@@ -84,6 +84,7 @@ def validate(config: dict) -> tuple[list[str], list[str]]:
     warnings: list[str] = []
 
     errors += _validate_section(config, "gateway", REQUIRED_GATEWAY_KEYS)
+    errors += _validate_client(config)
     errors += _validate_section(config, "modbus", REQUIRED_MODBUS_KEYS)
     errors += _validate_section(config, "aws", REQUIRED_AWS_KEYS)
     errors += _validate_database(config)
@@ -186,6 +187,22 @@ def _validate_display(config: dict) -> list[str]:
     if "sensor_repeats" in data and not (is_int(repeats) and 1 <= repeats <= 5):
         errors.append(f"display.sensor_repeats must be an int between 1 and 5, got {repeats!r}")
     return errors
+
+
+CLIENT_MAX_LEN = 24   # what fits after "CLIENTE " on the OLED's 32-column row
+
+
+def _validate_client(config: dict) -> list[str]:
+    """gateway.client is optional: the site's customer, shown on the
+    dashboards and the OLED. One line of text, short enough for the OLED."""
+    client = (config.get("gateway") or {}).get("client")
+    if client is None:
+        return []
+    if not isinstance(client, str) or not client.strip() or "\n" in client or "\r" in client:
+        return [f"gateway.client must be one non-empty line of text, got {client!r}"]
+    if len(client) > CLIENT_MAX_LEN:
+        return [f"gateway.client must be at most {CLIENT_MAX_LEN} characters (it's shown on the OLED), got {client!r}"]
+    return []
 
 
 def _validate_wifi(config: dict) -> list[str]:

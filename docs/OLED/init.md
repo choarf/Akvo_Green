@@ -33,6 +33,7 @@ The same information as the local web page's *Sistema* → Conexiones.
 
 the screen shall show
 SISTEMA                 17:42:10
+CLIENTE Ghotrix
 GATEWAY Activo > 16 s \\ Inactivo > HH:MM:SS
 SSID Vocho
 RED     Activo > IP 192.168.68.129 \\ Inactivo > HH:MM:SS

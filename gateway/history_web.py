@@ -358,6 +358,7 @@ class App:
         self.status_path = status_path
         self.links = aws_links(config.get("aws", {}))
         self.gateway_id = gw.get("gateway_id", "")
+        self.client = gw.get("client", "")
         self.city = gw.get("city") or "UTC"
         self.tz = ZoneInfo(self.city)
         self.poll_interval = int(gw.get("poll_interval") or 20)
@@ -366,7 +367,7 @@ class App:
         self.database = config.get("database", {})
 
     def info(self, conn) -> dict:
-        return {"gateway_id": self.gateway_id, "city": self.city, "poll_interval": self.poll_interval,
+        return {"gateway_id": self.gateway_id, "client": self.client, "city": self.city, "poll_interval": self.poll_interval,
                 "system_interval": self.system_interval, "simulated": self.simulated,
                 "retention_days": self.database.get("retention_days", 30),
                 "database_enabled": bool(self.database.get("enabled")),

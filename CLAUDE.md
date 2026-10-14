@@ -6,6 +6,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Akvo Green (aka Venko Green) is an industrial IoT edge gateway: it polls Modbus RTU sensors over RS-485 and publishes device data + host telemetry to AWS IoT Core over MQTT (mTLS), running unattended on something like a Raspberry Pi. See `docs/README.md` for the full project README (features, installation, usage) and `docs/edge_node_config/CONFIGURATION.md` for a field-by-field reference of every CSV column and `config.json` key.
 
+## Working across both repos
+
+The cloud side and web dashboard are the sibling repo **VenkoDemo** (`../VenkoDemo`): `tools/sync_config.py` there reads `sites/<key>/config_data/config.json` from here, so a new `config.json` key the dashboard should show needs changes in both. VenkoDemo must be a working directory of the session, or reads/edits there are refused (`blockReadsOutsideWorkingDirectories`):
+
+```
+/add-dir /home/chris/git_reps/claude/projects/Venko/VenkoDemo
+```
+
+Starting `claude` from the parent folder `~/git_reps/claude/projects/Venko` covers both. Commit each repo separately.
+
 ## Commands
 
 Repo dependencies (`pymodbus`, `pyserial`, `psutil`, `awsiotsdk`) are on the system `python3`/`pip3` in this dev environment, not in a project-local venv — use `python3`/`pip3` directly rather than assuming a venv is active.

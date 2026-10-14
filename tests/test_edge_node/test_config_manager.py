@@ -368,3 +368,33 @@ def test_export_writes_wifi_columns_back_to_system_csv(workspace):
     cm.ConfigManager().export_config()
     row = read_system_row(workspace)
     assert row["wifi1_ssid"] == "Planta" and row["wifi2_ssid"] == ""
+
+
+# ---------------------------------------------------------------------------
+# build/export: system.csv's optional client column -> config["gateway"]["client"]
+# ---------------------------------------------------------------------------
+
+def test_build_maps_client_into_gateway(workspace):
+    write_system(workspace, client=" Ghotrix ")
+    gw = build()["gateway"]
+    assert gw["client"] == "Ghotrix" and list(gw)[:2] == ["gateway_id", "client"]
+
+
+@pytest.mark.parametrize("extra", [{}, {"client": ""}, {"client": "  "}])
+def test_build_without_a_client_has_no_client_key(workspace, extra):
+    write_system(workspace, **extra)
+    assert "client" not in build()["gateway"]
+
+
+def test_build_rejects_a_client_too_long_for_the_oled(workspace):
+    write_system(workspace, client="x" * 25)
+    with pytest.raises(ValueError):
+        build()
+
+
+def test_export_writes_the_client_back_to_system_csv(workspace):
+    write_system(workspace, client="Ghotrix")
+    build()
+    write_system(workspace)
+    cm.ConfigManager().export_config()
+    assert read_system_row(workspace)["client"] == "Ghotrix"

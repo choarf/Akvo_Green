@@ -30,15 +30,15 @@ the alarm detail line or for 9 sensors on screen. Uppercase only, so accents are
 ```
 ┌────────────────────────────────┐   ┌────────────────────────────────┐
 │█SISTEMA████████████████17:42:10│   │█SENSORES 1-9/15████████17:42:15│
-│GATEWAY ACTIVO > 16 S           │   │PT100           24.0  °C      ■ │
-│SSID    VOCHO                   │   │AMBIENT         57.0  °C      ▲ │
-│RED     ACTIVO > 192.168.68.129 │   │HUMEDAD         32.0  %HR     ■ │
-│AWS     ACTIVO > 16 S           │   │ORP           -356.0  MV      ■ │
-│DATABASE 59 MB - 78%            │   │PH               7.7  PH      ■ │
-│MODBUS  !SIMULADO               │   │TEMPPH          30.4  °C      ■ │
-│ALARMAS ▲ 3 ACTIVAS             │   │DO            1374.4  MG/L    ■ │
-│  SENSORES FUERA DE LIMITES     │   │COD           1623.7  MG/L    ▲ │
-│                                │   │TEMPCOD         24.0  °C      ✕ │
+│CLIENTE GHOTRIX                 │   │PT100           24.0  °C      ■ │
+│GATEWAY ACTIVO > 16 S           │   │AMBIENT         57.0  °C      ▲ │
+│SSID    VOCHO                   │   │HUMEDAD         32.0  %HR     ■ │
+│RED     ACTIVO > 192.168.68.129 │   │ORP           -356.0  MV      ■ │
+│AWS     ACTIVO > 16 S           │   │PH               7.7  PH      ■ │
+│DATABASE 59 MB - 78%            │   │TEMPPH          30.4  °C      ■ │
+│MODBUS  !SIMULADO               │   │DO            1374.4  MG/L    ■ │
+│ALARMAS ▲ 3 ACTIVAS             │   │COD           1623.7  MG/L    ▲ │
+│  SENSORES FUERA DE LIMITES     │   │TEMPCOD         24.0  °C      ✕ │
 └────────────────────────────────┘   └────────────────────────────────┘
 ```
 
@@ -47,6 +47,8 @@ the alarm detail line or for 9 sensors on screen. Uppercase only, so accents are
 One line per item (layout and wording: `docs/OLED/init.md`), from the same status data as
 `connectionRows()` in `gateway/web/app.js`:
 
+- **Cliente:** `gateway.client` from `system.csv`'s `client` column (no row without one; not
+  shown with the 5×7 font).
 - **Gateway / Red / AWS:** `ACTIVO > …` (status-file age, the Pi's IP, last AWS send) or
   `INACTIVO > HH:MM:SS`, how long it has been down. The gateway is down when the status file
   is stale (older than 3 poll intervals, as `history_web.read_status()` decides); the network

@@ -26,7 +26,7 @@ def sensor(name, **kw):
 
 
 CONFIG = {
-    "gateway": {"gateway_id": "GW1", "city": "America/Mexico_City", "poll_interval": POLL,
+    "gateway": {"gateway_id": "GW1", "client": "Ghotrix", "city": "America/Mexico_City", "poll_interval": POLL,
                 "system_interval": 60, "watchdog_timeout": 120},
     "modbus": {"simulate": True},
     "database": {"enabled": True, "retention_days": 30},
@@ -197,7 +197,7 @@ def test_http_serves_the_page_and_info(server):
     assert status == 200 and b"Historial local" in body
     status, _, body = get(server + "/api/info")
     info = json.loads(body)
-    assert info["gateway_id"] == "GW1" and info["simulated"] is True
+    assert info["gateway_id"] == "GW1" and info["client"] == "Ghotrix" and info["simulated"] is True
     assert info["db"]["readings"] == 2 * len(TEMP)
 
 

@@ -286,9 +286,10 @@ LABELS = {"Gateway": "GW", "Red": "Red", "AWS": "AWS", "Database": "DB", "Modbus
 
 
 def system_lines(st: dict, now: float, ip: str | None, wide: bool, blink_on: bool = True,
-                 db: dict | None = None, ssid: str | None = None) -> list[tuple]:
+                 db: dict | None = None, ssid: str | None = None, client: str = "") -> list[tuple]:
     """Sistema rows as (left, right, fault), one line per item (docs/OLED/init.md):
 
+      CLIENTE GHOTRIX                       (system.csv client; no row without one)
       GATEWAY ACTIVO > 16 S                 / ✕INACTIVO > HH:MM:SS
       SSID    VOCHO                         / SIN WIFI (cable only, or WiFi not joined)
       RED     ACTIVO > 192.168.68.129       / ✕INACTIVO > HH:MM:SS
@@ -303,7 +304,8 @@ def system_lines(st: dict, now: float, ip: str | None, wide: bool, blink_on: boo
     alone. wide = the 3x5 font's 32 columns: the detail goes inline after
     ">"; with the 21-column 5x7 font it's right-aligned after a short label.
     st is history_web.read_status()'s result, now epoch seconds, db
-    database_info()'s result (None = no DATABASE row), ssid wifi_ssid()'s."""
+    database_info()'s result (None = no DATABASE row), ssid wifi_ssid()'s,
+    client config.json's gateway.client (5x7: no room, not shown)."""
     def line(label, state, detail="", fault=False, icon=""):
         if wide:   # "DATABASE" fills the 8-column label: one space before its value
             return (f"{label:<7} " + icon + state + (f" > {detail}" if detail else ""), "", fault)
@@ -314,6 +316,8 @@ def system_lines(st: dict, now: float, ip: str | None, wide: bool, blink_on: boo
         return line(label, "Inactivo", dur, True, "✕")
 
     lines = []
+    if wide and client:
+        lines.append(line("Cliente", client))
     if not st.get("available"):
         lines.append(line("Gateway", "Sin estado", "", True, "✕"))
     elif st.get("stale"):
@@ -480,6 +484,7 @@ class View:
     logo: bytes | None = None   # W * (H - 4) pixels from oled_logo.png
     db: dict | None = None      # database_info()
     ssid: str | None = None     # wifi_ssid()
+    client: str = ""            # config.json gateway.client
 
 
 def blink_on(now: float) -> bool:
@@ -550,7 +555,7 @@ def draw_logo(fr: Frame, v: View, elapsed: float) -> None:
 def draw_system(fr: Frame, v: View) -> None:
     fr.header("SISTEMA", v.clock)
     lines = system_lines(v.status, v.now, v.ip, wide=fr.font.cols >= 30, blink_on=blink_on(v.now), db=v.db,
-                         ssid=v.ssid)
+                         ssid=v.ssid, client=v.client)
     for i, (left, right, fault) in enumerate(lines[: fr.font.rows]):
         fr.row(i + 1, left, right, fault)
 
@@ -670,6 +675,7 @@ class Display:
         self.poll_interval = int(gw.get("poll_interval") or 20)
         self.tz = ZoneInfo(gw.get("city") or "UTC")
         self.gateway_id = gw.get("gateway_id", "")
+        self.client = gw.get("client", "")
         self.sensors = sensors_from_config(config)
         self.font, self.repeats = font, max(1, repeats)
         self.logo = load_logo()
@@ -690,7 +696,7 @@ class Display:
                 self.rounds += 1
         clock = datetime.fromtimestamp(now, self.tz).strftime("%H:%M:%S")
         view = View(self.font, self.status, self.sensors, self.gateway_id, clock, now, self.ip, self.logo, self.db,
-                    self.ssid)
+                    self.ssid, self.client)
         return render(self.kind, mono - self.started, view)
 
     @property
@@ -723,7 +729,7 @@ def write_pngs(config: dict, status_path: Path, font: Font, out: Path, scale: in
     now = time.time()
     view = View(font, read_status(status_path, poll), d.sensors, d.gateway_id,
                 datetime.fromtimestamp(now, d.tz).strftime("%H:%M:%S"), now, local_ip(), d.logo,
-                database_info(config, d.db_path), wifi_ssid())
+                database_info(config, d.db_path), wifi_ssid(), d.client)
     end = screen_seconds("sensors", len(d.sensors), font)
     shots = [("logo", "logo", BOOT_PASS_SECONDS * 2.5), ("logo_100", "logo", LOGO_SECONDS), ("sistema", "system", 0),
              ("sensores_inicio", "sensors", 0), ("sensores_medio", "sensors", end / 2),

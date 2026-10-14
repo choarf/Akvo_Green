@@ -48,7 +48,7 @@ def lefts(lines):
 def test_every_character_the_screens_use_has_a_glyph(font):
     text = ("SISTEMA SENSORES Gateway Activo Inactivo Sin estado Red AWS Database Desactivada sin archivo "
             "MB GB sens días Modbus Simulado Pto cerrado No responde Errores Alarmas activas Ninguna "
-            "SSID Sin WiFi sensores fuera de límites 0123456789 .:/-%°µ> ●•■▲▼✕⚠ GHOTRIX AKVO Green")
+            "Cliente SSID Sin WiFi sensores fuera de límites 0123456789 .:/-%°µ> ●•■▲▼✕⚠ GHOTRIX AKVO Green")
     question = font.glyphs["?"]
     assert [ch for ch in text if font.glyph(ch) is question] == []
 
@@ -156,6 +156,18 @@ def test_every_system_line_fits_the_width(font, wide):
     alarms = status(modbus={"connected": True, "sensors": 15, "read_errors": 0, "alarms": 3})
     for s in (st, alarms):
         assert len(od.system_lines(s, NOW, "192.168.100.200", wide=wide, db=big, ssid="Planta")) <= font.rows
+
+
+def test_system_lines_client_row_first_when_set():
+    lines = od.system_lines(status(), NOW, "192.168.1.5", wide=True, db=DB, ssid="Vocho", client="Ghotrix")
+    assert lines[0] == ("Cliente Ghotrix", "", False) and lines[1][0].startswith("Gateway")
+    assert lefts(od.system_lines(status(), NOW, None, wide=False, client="Ghotrix"))[0].startswith("GW")
+
+
+def test_system_screen_with_client_and_alarms_fills_but_fits_9_rows():
+    st = status(modbus={"connected": True, "sensors": 15, "read_errors": 0, "alarms": 3})
+    lines = od.system_lines(st, NOW, "192.168.100.200", wide=True, db=DB, ssid="Vocho", client="x" * 24)
+    assert len(lines) == F35.rows and all(len(left) <= F35.cols for left, _, _ in lines)
 
 
 def test_wifi_ssid_reads_the_active_network(monkeypatch):

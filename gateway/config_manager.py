@@ -319,6 +319,12 @@ class ConfigManager:
             "system_interval": int(s["system_interval"]),
             "watchdog_timeout": int(s["watchdog_timeout"]),
         }
+        # Optional: the site's customer, shown on the local and cloud
+        # dashboards and the OLED. Absent or blank column = no client.
+        client = (s.get("client") or "").strip()
+        if client:
+            config["gateway"] = {"gateway_id": config["gateway"]["gateway_id"], "client": client,
+                                 **{k: v for k, v in config["gateway"].items() if k != "gateway_id"}}
 
         # The local SQLite history settings live in system.csv too, but in
         # their own "database" section of config.json (not under "gateway"),

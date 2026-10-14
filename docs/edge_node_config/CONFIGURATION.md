@@ -134,6 +134,7 @@ One header row + one data row — gateway identity and timing.
 | Column | Type | Description |
 |---|---|---|
 | `gateway_id` | string | Identifier for this gateway, included in every `AKVO/system` telemetry payload. |
+| `client` | string, optional | The site's customer (e.g. `Ghotrix`), at most 24 characters. Shown on the local web page (header, Sistema → Gateway), the VenkoDemo cloud dashboard and the OLED's Sistema screen (`CLIENTE` row). Absent or blank = not shown. Builds to `gateway.client`. |
 | `city` | string | **Actually an IANA/Olson timezone name** (e.g. `America/Mexico_City`), not a display label — it's passed straight to `zoneinfo.ZoneInfo()` to compute `city_time` in the system payload. An invalid value doesn't fail the build; at runtime `city_time()` catches the lookup error and falls back to a UTC timestamp suffixed with `Error`. |
 | `poll_interval` | int (seconds) | Used **twice**: it's both how often the scheduler queues every device for a Modbus poll, and how often the publisher thread sends the `AKVO/data` payload. |
 | `system_interval` | int (seconds) | How often the `AKVO/system` host-telemetry payload (CPU/RAM/disk/IP) is published. |
@@ -416,6 +417,7 @@ laptop. The visual spec (and a browser simulator of it) is
 - **Sistema** has one line per item (spec: `docs/OLED/init.md`):
 
   ```
+  CLIENTE GHOTRIX                    (only with a system.csv client)
   GATEWAY ACTIVO > 16 S              ✕INACTIVO > 00:05:12
   SSID    VOCHO                      SIN WIFI (on a cable only; not a fault)
   RED     ACTIVO > 192.168.68.129    ✕INACTIVO > 00:05:12

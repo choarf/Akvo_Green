@@ -199,3 +199,18 @@ def test_invalid_wifi_section_is_an_error(wifi, needle):
     config["wifi"] = wifi
     errors, _ = validate(config)
     assert any(needle in e for e in errors)
+
+
+@pytest.mark.parametrize("client", ["Ghotrix", "x" * 24])
+def test_valid_client(client):
+    config = copy.deepcopy(VALID_CONFIG)
+    config["gateway"]["client"] = client
+    assert validate(config)[0] == []
+
+
+@pytest.mark.parametrize("client", ["", "  ", "x" * 25, "a\nb", 7])
+def test_invalid_client_is_an_error(client):
+    config = copy.deepcopy(VALID_CONFIG)
+    config["gateway"]["client"] = client
+    errors, _ = validate(config)
+    assert any("gateway.client" in e for e in errors)

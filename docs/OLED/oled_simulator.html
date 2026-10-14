@@ -172,6 +172,8 @@
     <fieldset>
       <legend>Estado del gateway</legend>
       <div class="grid">
+        <label for="c-client">Cliente</label>
+        <input type="text" id="c-client" value="Ghotrix" maxlength="24" placeholder="vacío = sin fila CLIENTE">
         <label for="c-gwid">Gateway ID</label>
         <input type="text" id="c-gwid" value="AKVO_cmd4">
         <label for="c-ip">IP</label>
@@ -409,6 +411,8 @@ function drawSystem(now) {
   const down = (label, s) => line(label, "Inactivo", wide ? hms(s) : agoShort(s), true, "✕");
   header("SISTEMA", now);
   const L = [];
+  const client = $("#c-client").value.trim();
+  if (wide && client) L.push(line("Cliente", client));  // system.csv client; the 5x7 font has no room for it
   L.push(st.stale ? down("Gateway", st.age) : line("Gateway", "Activo", wide ? agoLong(st.age) : agoShort(st.age)));
   const ip = $("#c-ip").value.trim(), ssid = $("#c-ssid").value.trim();
   if (wide) L.push(line("SSID", ssid || "Sin WiFi"));  // no WiFi isn't a fault: the Pi may be on a cable
@@ -788,6 +792,7 @@ $("#c-config").addEventListener("change", async e => {
     }
     if (!list.length) throw new Error("el archivo no tiene 'devices' con sensores");
     if (cfg.gateway?.gateway_id) $("#c-gwid").value = cfg.gateway.gateway_id;
+    $("#c-client").value = cfg.gateway?.client || "";
     if (cfg.gateway?.poll_interval) $("#c-poll").value = cfg.gateway.poll_interval;
     loadSensors(list);
     idx = 0; elapsed = 0; buildTimeline();

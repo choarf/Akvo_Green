@@ -91,7 +91,8 @@ function fromInput(v) {
 async function refreshInfo() {
   const info = state.info = await api("/api/info");
   $("#gw").textContent = info.gateway_id || "gateway";
-  document.title = `Historial local · ${info.gateway_id}`;
+  $("#client").textContent = info.client ? `${info.client} · ` : "";
+  document.title = `Historial local · ${info.client ? info.client + " · " : ""}${info.gateway_id}`;
   $("#sim").hidden = !info.simulated;
   const fresh = $("#fresh");
   const last = info.db.last ? Date.parse(info.db.last) : null;
@@ -390,7 +391,7 @@ async function viewSistema() {
   renderAws(st.links || {});
   const info = state.info, l = sys.latest || {};
   fillDl($("#s-gw"), [
-    ["Gateway", info.gateway_id], ["IP", l.ip_address], ["Plataforma", l.platform_type], ["Sistema", l.os],
+    ["Cliente", info.client || null], ["Gateway", info.gateway_id], ["IP", l.ip_address], ["Plataforma", l.platform_type], ["Sistema", l.os],
     ["Zona horaria", info.city], ["Lectura cada", `${info.poll_interval} s`],
     ["Modo Modbus", info.simulated ? "⚠ simulado (datos sintéticos)" : "sensores reales"],
     ["Último reporte", l.ts ? fmtTime(Date.parse(l.ts)) : null],
