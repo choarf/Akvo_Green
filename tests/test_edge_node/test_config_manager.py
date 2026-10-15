@@ -366,9 +366,11 @@ def test_export_writes_display_csv_and_keeps_system_csv_free_of_it(workspace):
     build()
     (workspace / "display.csv").unlink()
     cm.ConfigManager().export_config()
-    assert read_display_row(workspace) == {"enabled": "1", "driver": "sh1106", "address": "0x3C",
-                                           "column_offset": "3", "screen_seconds": "5", "logo_every": "2",
-                                           "burn_in_shift": "1"}
+    row = read_display_row(workspace)
+    assert list(row) == list(cm.DISPLAY_COLUMNS)   # every column, blank = default
+    assert {k: v for k, v in row.items() if v} == {"enabled": "1", "driver": "sh1106", "address": "0x3C",
+                                                   "column_offset": "3", "screen_seconds": "5",
+                                                   "logo_every": "2", "burn_in_shift": "1"}
     assert not any(k.startswith("display") for k in read_system_row(workspace))
 
 

@@ -548,6 +548,7 @@ class ConfigManager:
         row: Dict[str, Any] = {}
         for key, kind in DISPLAY_COLUMNS.items():
             if key not in display:
+                row[key] = ""   # every column always present, blank = default
                 continue
             value = display[key]
             if kind == "bool":

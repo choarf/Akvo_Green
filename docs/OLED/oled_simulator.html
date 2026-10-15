@@ -939,8 +939,8 @@ function displayCsv() {
     screen_seconds: +$("#c-dur").value, scroll_speed: +$("#c-speed").value, logo_every: +$("#c-logo-n").value,
     contrast: $("#c-bright").dataset.set ? +$("#c-bright").value : "", burn_in_shift: $("#c-shift").checked ? 1 : 0,
   };
-  const cols = DISPLAY_COLUMNS.filter(k => v[k] !== "");
-  return cols.join(",") + "\n" + cols.map(k => v[k]).join(",") + "\n";
+  // every column, blank = the Pi's default (like config_manager.py export)
+  return DISPLAY_COLUMNS.join(",") + "\n" + DISPLAY_COLUMNS.map(k => v[k]).join(",") + "\n";
 }
 $("#c-export").addEventListener("click", () => {
   try {
