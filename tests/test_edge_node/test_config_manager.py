@@ -308,10 +308,11 @@ def read_display_row(workspace):
 def test_build_maps_display_csv_into_its_own_section(workspace):
     write_system(workspace)
     write_display(workspace, enabled="1", driver="sh1106", address="0x3D", column_offset="3", font="3x5",
-                  sensor_repeats="2", screen_seconds="4.5", scroll_speed="8", logo_every="3", contrast="60",
+                  sensor_repeats="2", sensor_list="pages", per_page="5", screen_seconds="4.5", scroll_speed="8", logo_every="3", contrast="60",
                   burn_in_shift="0")
     assert build()["display"] == {"enabled": True, "driver": "sh1106", "address": 0x3D, "column_offset": 3,
-                                  "font": "3x5", "sensor_repeats": 2, "screen_seconds": 4.5,
+                                  "font": "3x5", "sensor_repeats": 2, "sensor_list": "pages", "per_page": 5,
+                                  "screen_seconds": 4.5,
                                   "scroll_speed": 8.0, "logo_every": 3, "contrast": 60,
                                   "burn_in_shift": False}
 

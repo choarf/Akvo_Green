@@ -95,7 +95,7 @@
       <button id="b-next" title="Pantalla siguiente (→)">Siguiente ▶</button>
       <button id="b-png" title="Descarga la pantalla actual como PNG 128×64 de 1 bit">Exportar PNG</button>
     </div>
-    <p class="hint">Ciclo: logo (solo al arrancar; «Venko → Akvo» se escribe 3 veces hasta 100% y parpadea 3 veces; debajo, el Gateway ID) → Sistema → Sensores → Sensores → Sistema → Sensores → Sensores… La lista de sensores se desplaza (o va en páginas 1…n). La lista dura lo que tarda en recorrerse; las demás pantallas, el tiempo configurado.
+    <p class="hint">Ciclo: logo (solo al arrancar; «Venko → Akvo» se escribe 3 veces hasta 100% y parpadea 3 veces; debajo, el Gateway ID) → Sistema → Sensores → Sensores → Sistema → Sensores → Sensores… La lista de sensores se desplaza o va en páginas 1…n (sensor_list). La lista dura lo que tarda en recorrerse; las demás pantallas, el tiempo configurado.
       Atajos: <kbd>espacio</kbd> pausa, <kbd>←</kbd> <kbd>→</kbd> cambiar pantalla, <kbd>b</kbd> arranque.</p>
   </section>
 
@@ -141,6 +141,13 @@
         </select>
         <label for="c-sens-rep">Sensores por vuelta</label>
         <input type="number" id="c-sens-rep" min="1" max="5" value="2" title="Veces que se recorre la lista de sensores antes de volver a Sistema">
+        <label for="c-list">Lista de sensores</label>
+        <select id="c-list" title="sensor_list">
+          <option value="scroll">Desplazamiento</option>
+          <option value="pages">Páginas</option>
+        </select>
+        <label for="c-per-page">Sensores / página</label>
+        <input type="number" id="c-per-page" min="1" max="9" placeholder="auto (todas las filas)" title="per_page: solo con Páginas; vacío = las que quepan">
         <label for="c-dur">Duración (s)</label>
         <input type="number" id="c-dur" min="1" max="60" step="0.5" value="5" title="screen_seconds: Sistema y una lista que no necesita desplazarse">
         <label for="c-speed">Velocidad (px/s)</label>
@@ -161,13 +168,6 @@
     <fieldset>
       <legend>Solo simulador</legend>
       <div class="grid">
-        <label for="c-list">Lista de sensores</label>
-        <select id="c-list">
-          <option value="scroll">Desplazamiento (como el Pi)</option>
-          <option value="pages">Páginas</option>
-        </select>
-        <label for="c-per-page">Sensores / página</label>
-        <input type="number" id="c-per-page" min="1" max="9" placeholder="auto (todas las filas)">
         <label for="c-logo-file">Logo propio</label>
         <div class="row">
           <input type="file" id="c-logo-file" accept="image/*">
@@ -806,9 +806,9 @@ $("#c-random-alarm").addEventListener("click", () => {
 // ../../sites/<key>/config_data/config.json (the repo layout, served by
 // tools/oled_sim.py); ?config=<url> any other config.json.
 const DISPLAY_COLUMNS = ["enabled", "driver", "address", "column_offset", "font", "sensor_repeats",
-  "screen_seconds", "scroll_speed", "logo_every", "contrast", "burn_in_shift"];
+  "sensor_list", "per_page", "screen_seconds", "scroll_speed", "logo_every", "contrast", "burn_in_shift"];
 const DISPLAY_DEFAULTS = { enabled: false, driver: "ssd1309", address: 0x3C, column_offset: 2, font: "3x5",
-  sensor_repeats: 2, screen_seconds: 5, scroll_speed: 6, logo_every: 0, contrast: null, burn_in_shift: true };
+  sensor_repeats: 2, sensor_list: "scroll", per_page: null, screen_seconds: 5, scroll_speed: 6, logo_every: 0, contrast: null, burn_in_shift: true };
 let siteName = "";
 const hex = n => "0x" + n.toString(16).toUpperCase().padStart(2, "0");
 const siteUrl = key => `../../sites/${encodeURIComponent(key)}/config_data/config.json`;
@@ -868,7 +868,9 @@ function applyConfig(cfg, source, name) {
   $("#c-logo-n").value = ds.logo_every;
   setContrast(ds.contrast);
   $("#c-shift").checked = ds.burn_in_shift !== false;
-  $("#c-list").value = "scroll";
+  $("#c-list").value = ds.sensor_list === "pages" ? "pages" : "scroll";
+  $("#c-per-page").value = ds.per_page ?? "";
+  updatePerPage();
   updateChipLabel();
 
   showSite(name ?? (gw.gateway_id || "").replace(/^AKVO_/, ""));
@@ -920,6 +922,8 @@ $("#c-config").addEventListener("change", async e => {
 });
 
 for (const id of ["#c-driver", "#c-address", "#c-offset"]) $(id).addEventListener("input", updateChipLabel);
+function updatePerPage() { $("#c-per-page").disabled = $("#c-list").value !== "pages"; }
+$("#c-list").addEventListener("change", updatePerPage);
 $("#c-bright").addEventListener("input", e => setContrast(+e.target.value));
 
 // display.csv from the controls above, same columns config_manager.py reads
@@ -930,6 +934,8 @@ function displayCsv() {
     enabled: $("#c-enabled").checked ? 1 : 0, driver: $("#c-driver").value, address: hex(parseInt(addr)),
     column_offset: $("#c-driver").value === "sh1106" ? +$("#c-offset").value : "",
     font: $("#c-font").value === "f57" ? "5x7" : "3x5", sensor_repeats: +$("#c-sens-rep").value,
+    sensor_list: $("#c-list").value,
+    per_page: $("#c-list").value === "pages" && $("#c-per-page").value ? +$("#c-per-page").value : "",
     screen_seconds: +$("#c-dur").value, scroll_speed: +$("#c-speed").value, logo_every: +$("#c-logo-n").value,
     contrast: $("#c-bright").dataset.set ? +$("#c-bright").value : "", burn_in_shift: $("#c-shift").checked ? 1 : 0,
   };
@@ -988,6 +994,7 @@ function loop(ts) {
 }
 
 updateChipLabel();
+updatePerPage();
 setContrast(null);
 buildSensorTable();
 boot();

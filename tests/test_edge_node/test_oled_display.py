@@ -285,6 +285,41 @@ def test_display_settings_defaults_and_overrides():
     assert (ds["screen_seconds"], ds["logo_every"], ds["contrast"], ds["burn_in_shift"]) == (4.0, 2, 50, False)
 
 
+def test_sensor_pages_spread_evenly_like_the_simulator():
+    assert od.sensor_pages(15, F35) == (2, 8)          # 9 rows fit -> 2 pages of 8 + 7
+    assert od.sensor_pages(15, F35, per_page=5) == (3, 5)
+    assert od.sensor_pages(15, F35, per_page=4) == (4, 4)
+    assert od.sensor_pages(3, F35) == (1, 3)
+    assert od.sensor_pages(0, F35) == (1, 0)
+
+
+def test_pages_mode_steps_through_every_page_each_pass(monkeypatch, tmp_path):
+    clock = {"t": 0.0}
+    monkeypatch.setattr(od.time, "monotonic", lambda: clock["t"])
+    monkeypatch.setattr(od, "local_ip", lambda: "10.0.0.2")
+    cfg = {**CONFIG, "display": {"sensor_list": "pages", "per_page": 1, "screen_seconds": 1}}
+    d = od.Display(cfg, tmp_path / "missing.json", F35, 2)
+    n = len(d.sensors)
+    assert (d.pages, d.per) == (n, 1) and not d.scrolling
+    headers = []
+    for t in range(0, 60):
+        clock["t"] = t + 0.5
+        d.tick()
+        if d.kind == "sensors":
+            headers.append(d.page_of(d.k)[0])
+    # Sistema, then every page twice (sensor_repeats 2), then Sistema again
+    assert headers[:2 * n] == list(range(n)) * 2
+
+
+def test_pages_mode_draws_one_page_with_its_header():
+    v = view()
+    v.page = (1, 2, 2)
+    fr = od.render("sensors", 0, v)
+    assert lit(fr, 0, 0, od.W, F35.head_h) > 0
+    v.page = None
+    assert od.render("sensors", 0, v).px != fr.px
+
+
 def test_contrast_percent_maps_to_the_register():
     assert (od.contrast_level(100), od.contrast_level(50), od.contrast_level(1)) == (255, 128, 3)
 

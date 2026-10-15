@@ -401,8 +401,8 @@ Its settings have their own file, **`display.csv`** in the site's `config_data/`
 one row, every column optional; no file = display off):
 
 ```csv
-enabled,driver,address,column_offset,font,sensor_repeats,screen_seconds,scroll_speed,logo_every,contrast,burn_in_shift
-1,sh1106,0x3C,3,3x5,2,5,6,0,,1
+enabled,driver,address,column_offset,font,sensor_repeats,sensor_list,per_page,screen_seconds,scroll_speed,logo_every,contrast,burn_in_shift
+1,sh1106,0x3C,3,3x5,2,scroll,,5,6,0,,1
 ```
 
 ```json
@@ -418,7 +418,9 @@ enabled,driver,address,column_offset,font,sensor_repeats,screen_seconds,scroll_s
 | `column_offset` | int 0-4 | `2` | `sh1106` only: the first of the chip's 132 RAM columns the panel shows. Stray lines or a dark strip at the left/right edge mean it's wrong; `tools/oled_test.py --driver sh1106 --offsets 0,1,2,3,4` finds it. |
 | `font` | text | `3x5` | `3x5` (32 columns × 10 rows) or `5x7` (21 × 8). |
 | `sensor_repeats` | int 1-5 | `2` | Times the sensor list is shown before going back to Sistema. |
-| `screen_seconds` | number 1-60 | `5` | How long Sistema (and a sensor list that fits without scrolling) stays up. |
+| `sensor_list` | text | `scroll` | `scroll`: one list that scrolls. `pages`: pages of fixed rows ("SENSORES 1/3"), each up `screen_seconds`; every pass shows all pages. |
+| `per_page` | int 1-9 | blank | `pages` only: most sensors per page; blank = as many rows as fit (9 with `3x5`, 7 with `5x7`). The sensors are spread evenly (15 → 8 + 7). |
+| `screen_seconds` | number 1-60 | `5` | How long Sistema, each sensor page, and a list that fits without scrolling stay up. |
 | `scroll_speed` | number 1-60 | `6` | Sensor list scroll, px/s (6 = one 3x5 row per second). |
 | `logo_every` | int 0-10 | `0` | `0`: logo only at start-up. `N`: also after every N rounds of Sistema + Sensores. |
 | `contrast` | int 1-100 | blank | Contrast in %, like the simulator's slider; blank = the controller's own default. |
@@ -428,7 +430,7 @@ enabled,driver,address,column_offset,font,sensor_repeats,screen_seconds,scroll_s
   the sensors and every setting above come from `sites/<site>/config_data/config.json`
   (rebuild it after editing the CSVs). Tune the look there, then **Exportar display.csv**
   writes the same columns; save it as `sites/<site>/config_data/display.csv`, build, push.
-  The simulator's "Solo simulador" options (pages, colour, zoom, own logo) don't exist on the Pi.
+  The simulator's "Solo simulador" options (colour, zoom, own logo, grid) don't exist on the Pi.
 - **Older sites** may still have these settings as `display_*` columns in `system.csv`;
   they build (with a deprecation warning) but not together with a `display.csv`.
 
@@ -456,7 +458,8 @@ enabled,driver,address,column_offset,font,sensor_repeats,screen_seconds,scroll_s
   - DATABASE is the size of `data/history.db` and how full its disk is. Over 90% full, it
     turns into a fault bar.
   - A fault is drawn as an inverted (lit) bar.
-- **Sensores** lists every sensor of the enabled devices: name, value, unit and a flag.
+- **Sensores** lists every sensor of the enabled devices: name, value, unit and a flag
+  (`sensor_list`: one scrolling list, or pages).
   - The flags are `■` normal, `▲`/`▼` high/low alarm (blinking), `✕` read error.
   - The list scrolls one pixel at a time (`scroll_speed`, default about one row per second),
     waiting 1.5 s at the top and at the bottom.
@@ -557,7 +560,7 @@ whichever thread hits the missing/malformed field first:
 - `modbus.simulate` is optional; if present it must be a boolean.
 - `display` is optional; if present: `enabled` a boolean, `driver` one of
   `ssd1309`/`ssd1306`/`sh1106`, `address` an int 0x03-0x77, `font` `3x5` or `5x7`,
-  `sensor_repeats` an int 1-5, `column_offset` an int 0-4, `screen_seconds` and
+  `sensor_repeats` an int 1-5, `sensor_list` `scroll` or `pages`, `per_page` an int 1-9, `column_offset` an int 0-4, `screen_seconds` and
   `scroll_speed` numbers 1-60, `logo_every` an int 0-10, `contrast` an int 1-100,
   `burn_in_shift` a boolean.
 - Two devices sharing one `slave` ID is a *warning*, not an error (the

@@ -11,7 +11,7 @@ Screens (visual spec: docs/OLED/oled_simulator.html):
   at start-up   GHOTRIX logo; its "Venko -> Akvo" line writes itself on 3
                 times (100%) and then flashes 3 times (5.1 s); the
                 gateway_id below it
-  then forever  Sistema (5 s) -> Sensores (scrolling list) x sensor_repeats
+  then forever  Sistema (5 s) -> Sensores (scrolling list, or pages) x sensor_repeats
 
 Everything is drawn in plain Python into a 128x64 framebuffer (same fonts
 and layout as the simulator); luma.oled only ships the finished frame to the
@@ -50,6 +50,7 @@ LOGO_PATH = BASE_DIR / "oled_logo.png"   # optional 1-bit artwork; text logo whe
 
 W, H = 128, 64
 DRIVERS = ("ssd1309", "ssd1306", "sh1106")
+SENSOR_LISTS = ("scroll", "pages")   # display.sensor_list
 DEFAULT_ADDRESS = 0x3C
 SH1106_COLUMN_OFFSET = 2   # luma's default; display.column_offset overrides it per board
 BOOT_PASSES = 3           # the logo's boot line writes itself on left to right this many times...
@@ -450,14 +451,24 @@ def scroll_offset(elapsed: float, n_sensors: int, font: Font, speed: float = SCR
 
 
 def screen_seconds(kind: str, n_sensors: int, font: Font,
-                   screen_s: float = SCREEN_SECONDS, speed: float = SCROLL_SPEED) -> float:
+                   screen_s: float = SCREEN_SECONDS, speed: float = SCROLL_SPEED, paged: bool = False) -> float:
     """The sensor list stays up as long as its scroll needs (a list that
     fits doesn't scroll and gets the normal time)."""
     if kind == "logo":
         return LOGO_SECONDS
+    if kind == "sensors" and paged:
+        return screen_s
     if kind == "sensors" and scroll_max(n_sensors, font):
         return 2 * SCROLL_PAUSE + scroll_max(n_sensors, font) / speed
     return screen_s
+
+
+def sensor_pages(n_sensors: int, font: Font, per_page: int | None = None) -> tuple[int, int]:
+    """Pages mode: (pages, sensors per page). per_page caps a page (default:
+    as many rows as fit); the sensors are then spread evenly, 15 -> 8 + 7."""
+    cap = max(1, min(font.rows, per_page or font.rows))
+    pages = max(1, math.ceil(n_sensors / cap))
+    return pages, math.ceil(n_sensors / pages)
 
 
 def next_screen(kind: str, k: int, repeats: int, rounds: int = 0, logo_every: int = 0) -> tuple[str, int]:
@@ -492,6 +503,7 @@ class View:
     ssid: str | None = None     # wifi_ssid()
     client: str = ""            # config.json gateway.client
     speed: float = SCROLL_SPEED  # display.scroll_speed
+    page: tuple | None = None   # pages mode: (page, pages, per page); None = scrolling list
 
 
 def blink_on(now: float) -> bool:
@@ -591,12 +603,24 @@ def draw_sensors(fr: Frame, v: View, elapsed: float) -> None:
     fr.header(f"SENSORES {first}-{last}/{n}" if f.cols >= 30 and n else "SENSORES", v.clock)
 
 
+def draw_sensor_page(fr: Frame, v: View) -> None:
+    page, pages, per = v.page
+    on = blink_on(v.now)
+    for i, s in enumerate(v.sensors[page * per: page * per + per]):
+        fr.row(i + 1, sensor_line(s, reading_for(v.status, s), fr.font, on))
+    if not v.sensors:
+        fr.row(1, "  sin sensores en config.json")
+    fr.header(f"SENSORES {page + 1}/{pages}", v.clock)
+
+
 def render(kind: str, elapsed: float, v: View) -> Frame:
     fr = Frame(v.font)
     if kind == "logo":
         draw_logo(fr, v, elapsed)
     elif kind == "system":
         draw_system(fr, v)
+    elif v.page:
+        draw_sensor_page(fr, v)
     else:
         draw_sensors(fr, v, elapsed)
     return fr
@@ -617,6 +641,8 @@ def display_settings(config: dict) -> dict:
             "screen_seconds": float(d.get("screen_seconds", SCREEN_SECONDS)),
             "scroll_speed": float(d.get("scroll_speed", SCROLL_SPEED)),
             "logo_every": int(d.get("logo_every", 0)),
+            "sensor_list": d.get("sensor_list", "scroll"),
+            "per_page": d.get("per_page"),
             "contrast": d.get("contrast"),
             "burn_in_shift": bool(d.get("burn_in_shift", True))}
 
@@ -703,6 +729,7 @@ class Display:
         ds = display_settings(config)
         self.screen_s, self.speed, self.logo_every = ds["screen_seconds"], ds["scroll_speed"], ds["logo_every"]
         self.burn_in_shift = ds["burn_in_shift"]
+        self.paged, self.per_page = ds["sensor_list"] == "pages", ds["per_page"]
         self.config, self.db_path = config, db_path
         self.status_path = status_path
         self.poll_interval = int(gw.get("poll_interval") or 20)
@@ -711,6 +738,9 @@ class Display:
         self.client = gw.get("client", "")
         self.sensors = sensors_from_config(config)
         self.font, self.repeats = font, max(1, repeats)
+        # pages mode: each of the `repeats` passes steps through every page
+        self.pages, self.per = sensor_pages(len(self.sensors), font, self.per_page) if self.paged else (1, 0)
+        self.steps = self.repeats * self.pages
         self.logo = load_logo()
         self.kind, self.k, self.started, self.rounds = "logo", 0, time.monotonic(), 0
         self.status, self.status_read, self.ip, self.ip_read, self.db, self.ssid = {}, -1e9, None, -1e9, None, None
@@ -722,15 +752,20 @@ class Display:
         if mono - self.ip_read >= 10:
             self.ip, self.ip_read = local_ip(), mono
             self.db, self.ssid = database_info(self.config, self.db_path), wifi_ssid()
-        if mono - self.started >= screen_seconds(self.kind, len(self.sensors), self.font, self.screen_s, self.speed):
-            self.kind, self.k = next_screen(self.kind, self.k, self.repeats, self.rounds, self.logo_every)
+        if mono - self.started >= screen_seconds(self.kind, len(self.sensors), self.font, self.screen_s, self.speed,
+                                                  self.paged):
+            self.kind, self.k = next_screen(self.kind, self.k, self.steps, self.rounds, self.logo_every)
             self.started = mono
             if self.kind == "system":
                 self.rounds += 1
         clock = datetime.fromtimestamp(now, self.tz).strftime("%H:%M:%S")
         view = View(self.font, self.status, self.sensors, self.gateway_id, clock, now, self.ip, self.logo, self.db,
-                    self.ssid, self.client, self.speed)
+                    self.ssid, self.client, self.speed, self.page_of(self.k))
         return render(self.kind, mono - self.started, view)
+
+    def page_of(self, k: int) -> tuple | None:
+        """(page, pages, per page) of sensor step k (1-based), pages mode only."""
+        return ((k - 1) % self.pages, self.pages, self.per) if self.paged and self.kind == "sensors" else None
 
     @property
     def shift(self) -> tuple[int, int]:
@@ -738,7 +773,7 @@ class Display:
 
     @property
     def scrolling(self) -> bool:
-        return self.kind == "sensors" and bool(scroll_max(len(self.sensors), self.font))
+        return self.kind == "sensors" and not self.paged and bool(scroll_max(len(self.sensors), self.font))
 
 
 def run(display: Display, device) -> None:
@@ -764,12 +799,17 @@ def write_pngs(config: dict, status_path: Path, font: Font, out: Path, scale: in
                 datetime.fromtimestamp(now, d.tz).strftime("%H:%M:%S"), now, local_ip(), d.logo,
                 database_info(config, d.db_path), wifi_ssid(), d.client, d.speed)
     end = screen_seconds("sensors", len(d.sensors), font, d.screen_s, d.speed)
-    shots = [("logo", "logo", BOOT_PASS_SECONDS * 2.5), ("logo_100", "logo", LOGO_SECONDS), ("sistema", "system", 0),
-             ("sensores_inicio", "sensors", 0), ("sensores_medio", "sensors", end / 2),
-             ("sensores_fin", "sensors", end)]
+    shots = [("logo", "logo", BOOT_PASS_SECONDS * 2.5, None), ("logo_100", "logo", LOGO_SECONDS, None),
+             ("sistema", "system", 0, None)]
+    if d.paged:
+        shots += [(f"sensores_{p + 1}de{d.pages}", "sensors", 0, (p, d.pages, d.per)) for p in range(d.pages)]
+    else:
+        shots += [("sensores_inicio", "sensors", 0, None), ("sensores_medio", "sensors", end / 2, None),
+                  ("sensores_fin", "sensors", end, None)]
     out.mkdir(parents=True, exist_ok=True)
     paths = []
-    for name, kind, elapsed in shots:
+    for name, kind, elapsed, page in shots:
+        view.page = page
         img = render(kind, elapsed, view).image()
         if scale > 1:
             img = img.resize((W * scale, H * scale), Image.NEAREST)

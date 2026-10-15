@@ -156,6 +156,7 @@ def test_invalid_web_section_is_an_error(web, needle):
     {"enabled": True}, {}, {"enabled": False, "driver": "sh1106", "address": 0x3D, "font": "5x7", "sensor_repeats": 1},
     {"driver": "sh1106", "column_offset": 0}, {"driver": "sh1106", "column_offset": 4},
     {"screen_seconds": 4.5, "scroll_speed": 6, "logo_every": 0, "contrast": 100, "burn_in_shift": False},
+    {"sensor_list": "pages", "per_page": 5}, {"sensor_list": "scroll"},
 ])
 def test_valid_display_section(display):
     config = copy.deepcopy(VALID_CONFIG)
@@ -179,6 +180,8 @@ def test_valid_display_section(display):
     ({"logo_every": 11}, "display.logo_every"),
     ({"contrast": 0}, "display.contrast"),
     ({"burn_in_shift": 1}, "display.burn_in_shift"),
+    ({"sensor_list": "paginas"}, "display.sensor_list"),
+    ({"per_page": 10}, "display.per_page"),
 ])
 def test_invalid_display_section_is_an_error(display, needle):
     config = copy.deepcopy(VALID_CONFIG)

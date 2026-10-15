@@ -159,6 +159,7 @@ def _validate_web(config: dict) -> list[str]:
 # never imports the display code.
 DISPLAY_DRIVERS = ("ssd1309", "ssd1306", "sh1106")
 DISPLAY_FONTS = ("3x5", "5x7")
+DISPLAY_SENSOR_LISTS = ("scroll", "pages")
 
 
 def _validate_display(config: dict) -> list[str]:
@@ -203,6 +204,11 @@ def _validate_display(config: dict) -> list[str]:
         v = data.get(key)
         if key in data and not (is_int(v) and lo <= v <= hi):
             errors.append(f"display.{key} must be an int between {lo} and {hi}, got {v!r}")
+    if "sensor_list" in data and data["sensor_list"] not in DISPLAY_SENSOR_LISTS:
+        errors.append(f"display.sensor_list must be one of {list(DISPLAY_SENSOR_LISTS)}, got {data['sensor_list']!r}")
+    per = data.get("per_page")
+    if "per_page" in data and not (is_int(per) and 1 <= per <= 9):
+        errors.append(f"display.per_page must be an int between 1 and 9, got {per!r}")
     if "burn_in_shift" in data and not isinstance(data["burn_in_shift"], bool):
         errors.append(f"display.burn_in_shift must be a boolean, got {data['burn_in_shift']!r}")
     return errors
