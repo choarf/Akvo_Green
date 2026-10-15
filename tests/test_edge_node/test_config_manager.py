@@ -314,6 +314,19 @@ def test_build_without_display_columns_leaves_it_off(workspace):
     assert "display" not in build()
 
 
+def test_build_maps_display_column_offset(workspace):
+    write_system(workspace, display_enabled="1", display_driver="sh1106", display_column_offset="3")
+    assert build()["display"] == {"enabled": True, "driver": "sh1106", "column_offset": 3}
+
+
+def test_export_writes_display_column_offset_back(workspace):
+    write_system(workspace, display_enabled="1", display_driver="sh1106", display_column_offset="3")
+    build()
+    write_system(workspace)
+    cm.ConfigManager().export_config()
+    assert read_system_row(workspace)["display_column_offset"] == "3"
+
+
 def test_build_rejects_bad_display_address(workspace):
     write_system(workspace, display_enabled="1", display_address="3C")
     with pytest.raises(ValueError, match="display_address"):

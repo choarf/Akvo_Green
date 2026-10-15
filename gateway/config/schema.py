@@ -186,6 +186,11 @@ def _validate_display(config: dict) -> list[str]:
     repeats = data.get("sensor_repeats")
     if "sensor_repeats" in data and not (is_int(repeats) and 1 <= repeats <= 5):
         errors.append(f"display.sensor_repeats must be an int between 1 and 5, got {repeats!r}")
+    # SH1106 only: which of the chip's 132 RAM columns is the panel's first
+    # (boards differ; 128 visible columns leave 0-4).
+    offset = data.get("column_offset")
+    if "column_offset" in data and not (is_int(offset) and 0 <= offset <= 4):
+        errors.append(f"display.column_offset must be an int between 0 and 4, got {offset!r}")
     return errors
 
 

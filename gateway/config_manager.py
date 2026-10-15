@@ -359,14 +359,15 @@ class ConfigManager:
         # Optional OLED status display (oled_display.py, its own systemd
         # service) - same pattern again: its own "display" section, every
         # column optional, absent = off. Blank columns are left out so
-        # oled_display.py's defaults apply (ssd1309, 0x3C, 3x5, 2 repeats).
+        # oled_display.py's defaults apply (ssd1309, 0x3C, 3x5, 2 repeats,
+        # sh1106 column offset 2).
         if any(k.startswith("display_") for k in s):
             display = {"enabled": _parse_bool(s.get("display_enabled"), default=False)}
             for key in ("driver", "font"):
                 value = (s.get(f"display_{key}") or "").strip()
                 if value:
                     display[key] = value
-            for key, base in (("address", 0), ("sensor_repeats", 10)):
+            for key, base in (("address", 0), ("sensor_repeats", 10), ("column_offset", 10)):
                 value = (s.get(f"display_{key}") or "").strip()
                 if value:
                     try:
@@ -501,7 +502,7 @@ class ConfigManager:
         display = config.get("display")
         if display is not None:
             row["display_enabled"] = int(bool(display.get("enabled", False)))
-            for key in ("driver", "font", "sensor_repeats"):
+            for key in ("driver", "font", "sensor_repeats", "column_offset"):
                 if key in display:
                     row[f"display_{key}"] = display[key]
             if "address" in display:

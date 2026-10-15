@@ -154,6 +154,7 @@ def test_invalid_web_section_is_an_error(web, needle):
 
 @pytest.mark.parametrize("display", [
     {"enabled": True}, {}, {"enabled": False, "driver": "sh1106", "address": 0x3D, "font": "5x7", "sensor_repeats": 1},
+    {"driver": "sh1106", "column_offset": 0}, {"driver": "sh1106", "column_offset": 4},
 ])
 def test_valid_display_section(display):
     config = copy.deepcopy(VALID_CONFIG)
@@ -170,6 +171,8 @@ def test_valid_display_section(display):
     ({"font": "8x8"}, "display.font"),
     ({"sensor_repeats": 0}, "display.sensor_repeats"),
     ({"sensor_repeats": True}, "display.sensor_repeats"),
+    ({"column_offset": 5}, "display.column_offset"),
+    ({"column_offset": "3"}, "display.column_offset"),
 ])
 def test_invalid_display_section_is_an_error(display, needle):
     config = copy.deepcopy(VALID_CONFIG)

@@ -388,11 +388,30 @@ def test_main_exits_quietly_when_disabled(tmp_path):
 def test_main_fails_when_the_display_cant_be_opened(tmp_path, monkeypatch):
     cfg, st = write_files(tmp_path, {"enabled": True})
 
-    def no_i2c(driver, address):
+    def no_i2c(driver, address, column_offset):
         raise FileNotFoundError("/dev/i2c-1")
 
     monkeypatch.setattr(od, "open_device", no_i2c)
     assert od.main(["--config", str(cfg), "--status", str(st)]) == 1
+
+
+def test_main_passes_the_column_offset(tmp_path, monkeypatch):
+    cfg, st = write_files(tmp_path, {"enabled": True, "driver": "sh1106", "column_offset": 3})
+    seen = {}
+
+    def fake_open(driver, address, column_offset):
+        seen.update(driver=driver, offset=column_offset)
+        raise FileNotFoundError("/dev/i2c-1")   # stop before the display loop
+
+    monkeypatch.setattr(od, "open_device", fake_open)
+    assert od.main(["--config", str(cfg), "--status", str(st)]) == 1
+    assert seen == {"driver": "sh1106", "offset": 3}
+    assert od.main(["--config", str(cfg), "--status", str(st), "--column-offset", "0"]) == 1
+    assert seen["offset"] == 0
+
+
+def test_display_settings_column_offset_defaults_to_luma_s():
+    assert od.display_settings({"display": {"driver": "sh1106"}})["column_offset"] == 2
 
 
 def test_run_sends_only_changed_frames(monkeypatch, tmp_path):

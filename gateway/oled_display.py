@@ -51,6 +51,7 @@ LOGO_PATH = BASE_DIR / "oled_logo.png"   # optional 1-bit artwork; text logo whe
 W, H = 128, 64
 DRIVERS = ("ssd1309", "ssd1306", "sh1106")
 DEFAULT_ADDRESS = 0x3C
+SH1106_COLUMN_OFFSET = 2   # luma's default; display.column_offset overrides it per board
 BOOT_PASSES = 3           # the logo's boot line writes itself on left to right this many times...
 BOOT_PASS_SECONDS = 1.2
 BOOT_FLASHES = 3          # ...then flashes (off, on) this many times
@@ -603,7 +604,8 @@ def display_settings(config: dict) -> dict:
     d = config.get("display") or {}
     return {"enabled": bool(d.get("enabled")), "driver": d.get("driver", "ssd1309"),
             "address": int(d.get("address", DEFAULT_ADDRESS)), "font": d.get("font", "3x5"),
-            "sensor_repeats": int(d.get("sensor_repeats", 2))}
+            "sensor_repeats": int(d.get("sensor_repeats", 2)),
+            "column_offset": int(d.get("column_offset", SH1106_COLUMN_OFFSET))}
 
 
 def local_ip() -> str | None:
@@ -659,10 +661,19 @@ def load_logo(path: Path = LOGO_PATH) -> bytes | None:
     return bytes(1 if p > 127 else 0 for p in canvas.tobytes())
 
 
-def open_device(driver: str, address: int):
+def open_device(driver: str, address: int, column_offset: int = SH1106_COLUMN_OFFSET):
     from luma.core.interface.serial import i2c
     from luma.oled import device as luma_device
-    return getattr(luma_device, driver)(i2c(port=1, address=address))
+    if driver != "sh1106":
+        return getattr(luma_device, driver)(i2c(port=1, address=address))
+    # SH1106 RAM is 132 columns wide; which 128 the panel shows varies by
+    # board (display.column_offset). luma writes only those 128, so zero all
+    # 132 first or the 2-4 columns it never writes keep power-on garbage.
+    device = luma_device.sh1106(i2c(port=1, address=address), page_address_offset=column_offset)
+    for page in range(8):
+        device.command(0xB0 + page, 0x00, 0x10)
+        device.data([0] * 132)
+    return device
 
 
 class Display:
@@ -755,6 +766,7 @@ def main(argv=None) -> int:
     ap.add_argument("--driver", choices=DRIVERS, help="overrides display.driver")
     ap.add_argument("--address", type=lambda s: int(s, 0), help="overrides display.address, e.g. 0x3D")
     ap.add_argument("--font", choices=sorted(FONTS), help="overrides display.font")
+    ap.add_argument("--column-offset", type=int, choices=range(5), help="overrides display.column_offset (sh1106)")
     ap.add_argument("--force", action="store_true", help="run even if display.enabled is off (testing)")
     args = ap.parse_args(argv)
 
@@ -773,14 +785,17 @@ def main(argv=None) -> int:
         return 0
 
     driver, address = args.driver or ds["driver"], args.address or ds["address"]
+    offset = ds["column_offset"] if args.column_offset is None else args.column_offset
     try:
-        device = open_device(driver, address)
+        device = open_device(driver, address, offset)
     except Exception as e:
         # Missing luma.oled, I2C off (no /dev/i2c-1), nothing at the address...
         # Exit 1: systemd retries (RestartSec), the gateway is unaffected.
         logger.error(f"Can't open the {driver} display at I2C 0x{address:02X}: {e!r}")
         return 1
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
+    if driver == "sh1106":
+        driver = f"sh1106 (column offset {offset})"
     logger.info(f"OLED display: {driver} at I2C 0x{address:02X}, font {font.cols}x{font.rows + 1}, "
                 f"status {args.status}")
     try:

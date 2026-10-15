@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-10-15T21:07:39.912730+00:00",
-        "hash": "bd0c282dc5d67a6a0aba60c4e3cdc945"
+        "generated_at": "2026-10-15T22:54:49.884571+00:00",
+        "hash": "348afedb37a4bb2889b88f4b5d3af1ce"
     },
     "gateway": {
         "gateway_id": "AKVO_akvo01005",
@@ -318,7 +318,8 @@
         "driver": "sh1106",
         "font": "3x5",
         "address": 60,
-        "sensor_repeats": 2
+        "sensor_repeats": 2,
+        "column_offset": 3
     },
     "wifi": {
         "networks": [

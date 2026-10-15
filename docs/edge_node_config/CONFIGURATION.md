@@ -144,10 +144,11 @@ One header row + one data row — gateway identity and timing.
 | `web_enabled` | bool (optional) | `1` turns on the local web dashboard over that database (`gateway/history_web.py`, service `akvo-history-web`); `0`/blank/absent leaves it off. Becomes `web.enabled`. See [Local web dashboard](#local-web-dashboard-optional-web-section). |
 | `web_port` | int (optional) | Port of that dashboard (default `8080` when blank). Becomes `web.port`; must be 1-65535. |
 | `display_enabled` | bool (optional) | `1` turns on the OLED status display (`gateway/oled_display.py`, service `akvo-oled`); `0`/blank/absent leaves it off. Becomes `display.enabled`. See [OLED status display](#oled-status-display-optional-display-section). |
-| `display_driver` | text (optional) | Display controller: `ssd1309` (default, the 1.54" module), `ssd1306` or `sh1106`. Becomes `display.driver`. |
+| `display_driver` | text (optional) | Display controller: `ssd1309` (default), `ssd1306` or `sh1106`. Boards sold as "SSD1309" are often SH1106 (garbage with `ssd1309`): check with `tools/oled_test.py`. Becomes `display.driver`. |
 | `display_address` | int (optional) | I2C address, `0x3C` (default) or `60`; some boards use `0x3D`. Becomes `display.address` (an int). |
 | `display_font` | text (optional) | `3x5` (default, 32 columns × 10 rows) or `5x7` (21 × 8, larger but fewer rows). Becomes `display.font`. |
 | `display_sensor_repeats` | int (optional) | How many times the sensor list scrolls through before going back to the Sistema screen (1-5, default `2`). Becomes `display.sensor_repeats`. |
+| `display_column_offset` | int (optional) | `sh1106` only: the first of the chip's 132 RAM columns the panel shows, `0`-`4` (default `2`). Stray lines or a dark strip at the left/right edge mean it's wrong; `tools/oled_test.py --driver sh1106 --offsets 0,1,2,3,4` finds it. Becomes `display.column_offset`. |
 | `wifi1_ssid` | text (optional) | Preferred WiFi network. Becomes `wifi.networks[0]`. Its password goes in the site's git-ignored `wifi.csv`, never here. See [WiFi networks](#wifi-networks-optional-wifi-section). |
 | `wifi2_ssid` | text (optional) | Fallback WiFi network. Becomes `wifi.networks[1]`. |
 
