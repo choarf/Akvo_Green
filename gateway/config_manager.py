@@ -48,18 +48,30 @@ DEVICES_CSV = CONFIG_DIR / "devices.csv"
 MODBUS_CSV = CONFIG_DIR / "modbus.csv"
 SYSTEM_CSV = CONFIG_DIR / "system.csv"
 AWS_CSV = CONFIG_DIR / "aws.csv"
+DISPLAY_CSV = CONFIG_DIR / "display.csv"   # optional: the OLED (oled_display.py)
+
+# display.csv columns, in the order export writes them. All optional; a blank
+# or missing column leaves the key out of config.json so oled_display.py's
+# default applies. The OLED simulator (docs/OLED/oled_simulator.html) reads
+# and exports the same columns.
+DISPLAY_COLUMNS = {
+    "enabled": "bool", "driver": "str", "address": "addr", "column_offset": "int",
+    "font": "str", "sensor_repeats": "int", "screen_seconds": "float",
+    "scroll_speed": "float", "logo_every": "int", "contrast": "int", "burn_in_shift": "bool",
+}
 
 
 def use_config_dir(path: Path) -> None:
     """Repoint every CSV/config.json path at another config directory
     (one per site under sites/<key>/config_data/)."""
-    global CONFIG_DIR, CONFIG_JSON, DEVICES_CSV, MODBUS_CSV, SYSTEM_CSV, AWS_CSV
+    global CONFIG_DIR, CONFIG_JSON, DEVICES_CSV, MODBUS_CSV, SYSTEM_CSV, AWS_CSV, DISPLAY_CSV
     CONFIG_DIR = Path(path).resolve()
     CONFIG_JSON = CONFIG_DIR / "config.json"
     DEVICES_CSV = CONFIG_DIR / "devices.csv"
     MODBUS_CSV = CONFIG_DIR / "modbus.csv"
     SYSTEM_CSV = CONFIG_DIR / "system.csv"
     AWS_CSV = CONFIG_DIR / "aws.csv"
+    DISPLAY_CSV = CONFIG_DIR / "display.csv"
 
 # Columns that MUST be present in devices.csv. "enabled" is optional -
 # if the column is missing every device defaults to enabled.
@@ -152,7 +164,7 @@ class ConfigManager:
 
     def calculate_hash(self) -> str:
         md5 = hashlib.md5(usedforsecurity=False)
-        for file in (DEVICES_CSV, MODBUS_CSV, SYSTEM_CSV, AWS_CSV):
+        for file in (DEVICES_CSV, MODBUS_CSV, SYSTEM_CSV, AWS_CSV, DISPLAY_CSV):
             if not file.exists():
                 continue
             md5.update(file.read_bytes())
@@ -357,24 +369,18 @@ class ConfigManager:
                     raise ValueError(f"system.csv: web_port must be an integer, got {port!r}")
 
         # Optional OLED status display (oled_display.py, its own systemd
-        # service) - same pattern again: its own "display" section, every
-        # column optional, absent = off. Blank columns are left out so
-        # oled_display.py's defaults apply (ssd1309, 0x3C, 3x5, 2 repeats,
-        # sh1106 column offset 2).
-        if any(k.startswith("display_") for k in s):
-            display = {"enabled": _parse_bool(s.get("display_enabled"), default=False)}
-            for key in ("driver", "font"):
-                value = (s.get(f"display_{key}") or "").strip()
-                if value:
-                    display[key] = value
-            for key, base in (("address", 0), ("sensor_repeats", 10), ("column_offset", 10)):
-                value = (s.get(f"display_{key}") or "").strip()
-                if value:
-                    try:
-                        display[key] = int(value, base)   # address: "0x3C" or "60"
-                    except ValueError:
-                        raise ValueError(f"system.csv: display_{key} must be an integer, got {value!r}")
-            config["display"] = display
+        # service): its own file, display.csv -> "display" section; no file =
+        # off. Older sites had the same settings as display_* columns in
+        # system.csv; those still build, but not together with display.csv.
+        legacy = {k[len("display_"):]: v for k, v in s.items() if k.startswith("display_")}
+        if DISPLAY_CSV.exists():
+            if legacy:
+                raise ValueError("display settings are in both display.csv and system.csv's display_* "
+                                 "columns - remove the system.csv columns")
+            config["display"] = self.parse_display(self.load_single_row_csv(DISPLAY_CSV), "display.csv")
+        elif legacy:
+            logger.warning("system.csv display_* columns are deprecated - move them to display.csv")
+            config["display"] = self.parse_display(legacy, "system.csv display_")
 
         # Optional WiFi networks the Pi should join, in order of preference:
         # wifi1_ssid is preferred, wifi2_ssid the fallback. Only the SSIDs
@@ -408,6 +414,34 @@ class ConfigManager:
         logger.info("config.json generated.")
         self.config = config
         return config
+
+    @staticmethod
+    def parse_display(row: Dict[str, str], source: str) -> Dict[str, Any]:
+        """display.csv row -> config["display"]. Blank columns are left out
+        so oled_display.py's defaults apply (ssd1309, 0x3C, 3x5, ...)."""
+        unknown = set(row) - set(DISPLAY_COLUMNS)
+        if unknown:
+            raise ValueError(f"{source}: unknown column(s) {sorted(unknown)}; known: {list(DISPLAY_COLUMNS)}")
+        display: Dict[str, Any] = {"enabled": _parse_bool(row.get("enabled"), default=False)}
+        for key, kind in DISPLAY_COLUMNS.items():
+            value = (row.get(key) or "").strip()
+            if key == "enabled" or not value:
+                continue
+            try:
+                if kind == "str":
+                    display[key] = value
+                elif kind == "bool":
+                    display[key] = _parse_bool(value)
+                elif kind == "addr":
+                    display[key] = int(value, 0)   # "0x3C" or "60"
+                elif kind == "int":
+                    display[key] = int(value)
+                else:
+                    display[key] = float(value)
+            except ValueError:
+                raise ValueError(f"{source}{key} must be {'an integer' if kind != 'float' else 'a number'}, "
+                                 f"got {value!r}")
+        return display
 
     # ------------------------------------------------------------------
     # Atomic JSON Save / Load
@@ -499,20 +533,31 @@ class ConfigManager:
             row["web_enabled"] = int(bool(web.get("enabled", False)))
             if "port" in web:
                 row["web_port"] = web["port"]
-        display = config.get("display")
-        if display is not None:
-            row["display_enabled"] = int(bool(display.get("enabled", False)))
-            for key in ("driver", "font", "sensor_repeats", "column_offset"):
-                if key in display:
-                    row[f"display_{key}"] = display[key]
-            if "address" in display:
-                row["display_address"] = f"0x{display['address']:02X}"
         wifi = config.get("wifi")
         if wifi is not None:
             networks = list(wifi.get("networks", []))
             row["wifi1_ssid"] = networks[0] if len(networks) > 0 else ""
             row["wifi2_ssid"] = networks[1] if len(networks) > 1 else ""
         self._write_single_row_csv(SYSTEM_CSV, row)
+
+    def export_display(self, config: Dict[str, Any]) -> None:
+        display = config.get("display")
+        if display is None:
+            return
+        logger.info("Exporting display.csv")
+        row: Dict[str, Any] = {}
+        for key, kind in DISPLAY_COLUMNS.items():
+            if key not in display:
+                continue
+            value = display[key]
+            if kind == "bool":
+                value = int(bool(value))
+            elif kind == "addr":
+                value = f"0x{value:02X}"
+            elif kind == "float" and float(value).is_integer():
+                value = int(value)
+            row[key] = value
+        self._write_single_row_csv(DISPLAY_CSV, row)
 
     def export_aws(self, config: Dict[str, Any]) -> None:
         logger.info("Exporting aws.csv")
@@ -524,6 +569,7 @@ class ConfigManager:
         self.export_devices(config)
         self.export_modbus(config)
         self.export_system(config)
+        self.export_display(config)
         self.export_aws(config)
         logger.info("Export complete.")
 

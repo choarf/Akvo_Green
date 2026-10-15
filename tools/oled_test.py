@@ -18,8 +18,8 @@ is wrong. --offsets sweeps them (default 2 is luma's):
     ~/Akvo_Green/.venv/bin/python3 ~/Akvo_Green/tools/oled_test.py --driver sh1106 --offsets 0,1,2,3,4
 
 Pick the driver whose screens look clean (frame touches all 4 edges, X
-corner to corner, text sharp), put it in system.csv's display_driver,
-rebuild config.json and push. Boards sold as "SSD1309" are often SH1106.
+corner to corner, text sharp), put it in the site's display.csv (driver,
+and for sh1106 column_offset), rebuild config.json and push. Boards sold as "SSD1309" are often SH1106.
 """
 import argparse
 import subprocess
@@ -126,7 +126,7 @@ def main(argv=None) -> int:
     # leave the last screen up so it can still be checked after the program ends
     dev.persist = True
     print("\nThe driver whose screens all looked clean is the one to use:"
-          "\n  system.csv display_driver=<driver>, rebuild config.json, push, restart akvo-oled.")
+          "\n  display.csv driver=<driver> (sh1106: column_offset), rebuild config.json, push.")
     return 0
 
 

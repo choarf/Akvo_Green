@@ -1,0 +1,2 @@
+enabled,driver,address,column_offset,font,sensor_repeats
+1,sh1106,0x3C,3,3x5,2

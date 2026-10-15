@@ -268,7 +268,7 @@ EOF
 
     # OLED status display (gateway/oled_display.py). Same idea: its own
     # service that only reads the status file and config.json, and exits 0
-    # at start unless system.csv has display_enabled=1. RestartSec=30: with
+    # at start unless display.csv has enabled=1. RestartSec=30: with
     # no display wired (or I2C off) it fails and retries slowly.
     OLED_SERVICE_FILE="/etc/systemd/system/${OLED_SERVICE_NAME}.service"
     SERVICE_TMP="$(mktemp)"
@@ -297,8 +297,8 @@ EOF
     echo "Installed and enabled $SERVICE_FILE (starts on boot; not started now)."
     echo "Installed and enabled $WEB_SERVICE_FILE (local dashboard on port 8080 when" \
          "system.csv has web_enabled=1; otherwise it exits at start)."
-    echo "Installed and enabled $OLED_SERVICE_FILE (OLED display when system.csv has" \
-         "display_enabled=1 and I2C is on; otherwise it exits at start)."
+    echo "Installed and enabled $OLED_SERVICE_FILE (OLED display when display.csv has" \
+         "enabled=1 and I2C is on; otherwise it exits at start)."
     echo "Restart=on-failure: systemd restarts the process on an unexpected crash," \
          "on top of the gateway's own OS-level reboot escalation for a communication" \
          "layer that stays stuck (see CLAUDE.md's Architecture section)."
@@ -321,7 +321,7 @@ echo "  - dialout group membership for $SERVICE_USER"
 echo "  - Passwordless 'reboot' sudo rule (if validation succeeded above)"
 echo "  - systemd service '$SERVICE_NAME' (enabled, not started)"
 echo "  - systemd service '$WEB_SERVICE_NAME' (enabled, not started; needs web_enabled=1)"
-echo "  - systemd service '$OLED_SERVICE_NAME' (enabled, not started; needs display_enabled=1 and I2C on)"
+echo "  - systemd service '$OLED_SERVICE_NAME' (enabled, not started; needs display.csv enabled=1 and I2C on)"
 echo ""
 echo "Next steps:"
 echo "  1. Edit config_data/{devices,modbus,system,aws}.csv" \

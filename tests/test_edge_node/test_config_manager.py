@@ -33,6 +33,7 @@ def workspace(tmp_path, monkeypatch):
         ("MODBUS_CSV", "modbus.csv"),
         ("SYSTEM_CSV", "system.csv"),
         ("AWS_CSV", "aws.csv"),
+        ("DISPLAY_CSV", "display.csv"),
         ("CONFIG_JSON", "config.json"),
     ):
         monkeypatch.setattr(cm, name, tmp_path / filename)
@@ -292,54 +293,82 @@ def test_export_writes_web_columns_back_to_system_csv(workspace):
 
 
 # ---------------------------------------------------------------------------
-# build/export: system.csv's optional display_* columns -> config["display"]
+# build/export: display.csv (the OLED) -> config["display"]
 # ---------------------------------------------------------------------------
 
-def test_build_maps_display_columns_into_their_own_section(workspace):
-    write_system(workspace, display_enabled="1", display_driver="ssd1309", display_address="0x3D",
-                 display_font="3x5", display_sensor_repeats="2")
-    config = build()
-    assert config["display"] == {"enabled": True, "driver": "ssd1309", "address": 0x3D,
-                                 "font": "3x5", "sensor_repeats": 2}
-    assert not any(k.startswith("display_") for k in config["gateway"])
+def write_display(workspace, **row):
+    write_csv(workspace / "display.csv", list(row), [list(row.values())])
+
+
+def read_display_row(workspace):
+    with open(workspace / "display.csv", newline="", encoding="utf-8") as f:
+        return next(csv.DictReader(f))
+
+
+def test_build_maps_display_csv_into_its_own_section(workspace):
+    write_system(workspace)
+    write_display(workspace, enabled="1", driver="sh1106", address="0x3D", column_offset="3", font="3x5",
+                  sensor_repeats="2", screen_seconds="4.5", scroll_speed="8", logo_every="3", contrast="60",
+                  burn_in_shift="0")
+    assert build()["display"] == {"enabled": True, "driver": "sh1106", "address": 0x3D, "column_offset": 3,
+                                  "font": "3x5", "sensor_repeats": 2, "screen_seconds": 4.5,
+                                  "scroll_speed": 8.0, "logo_every": 3, "contrast": 60,
+                                  "burn_in_shift": False}
 
 
 def test_build_display_blank_columns_are_left_out_so_defaults_apply(workspace):
-    write_system(workspace, display_enabled="1", display_driver="", display_address="60")
+    write_system(workspace)
+    write_display(workspace, enabled="1", driver="", address="60", contrast="")
     assert build()["display"] == {"enabled": True, "address": 60}
 
 
-def test_build_without_display_columns_leaves_it_off(workspace):
+def test_build_without_display_csv_leaves_it_off(workspace):
     write_system(workspace)
     assert "display" not in build()
 
 
-def test_build_maps_display_column_offset(workspace):
-    write_system(workspace, display_enabled="1", display_driver="sh1106", display_column_offset="3")
-    assert build()["display"] == {"enabled": True, "driver": "sh1106", "column_offset": 3}
-
-
-def test_export_writes_display_column_offset_back(workspace):
-    write_system(workspace, display_enabled="1", display_driver="sh1106", display_column_offset="3")
-    build()
+@pytest.mark.parametrize("row, needle", [
+    ({"enabled": "1", "address": "3C"}, "address"),
+    ({"enabled": "1", "scroll_speed": "fast"}, "scroll_speed"),
+    ({"enabled": "1", "colour": "blue"}, "unknown column"),
+])
+def test_build_rejects_bad_display_csv(workspace, row, needle):
     write_system(workspace)
-    cm.ConfigManager().export_config()
-    assert read_system_row(workspace)["display_column_offset"] == "3"
-
-
-def test_build_rejects_bad_display_address(workspace):
-    write_system(workspace, display_enabled="1", display_address="3C")
-    with pytest.raises(ValueError, match="display_address"):
+    write_display(workspace, **row)
+    with pytest.raises(ValueError, match=needle):
         build()
 
 
-def test_export_writes_display_columns_back_to_system_csv(workspace):
-    write_system(workspace, display_enabled="1", display_address="0x3c", display_sensor_repeats="3")
-    build()
+def test_build_rejects_out_of_range_display_values(workspace):
     write_system(workspace)
+    write_display(workspace, enabled="1", contrast="150")
+    with pytest.raises(Exception, match="display.contrast"):
+        build()
+
+
+def test_build_still_reads_legacy_system_csv_display_columns(workspace):
+    write_system(workspace, display_enabled="1", display_driver="ssd1309", display_address="0x3C")
+    assert build()["display"] == {"enabled": True, "driver": "ssd1309", "address": 0x3C}
+
+
+def test_build_refuses_display_settings_in_both_files(workspace):
+    write_system(workspace, display_enabled="1")
+    write_display(workspace, enabled="1")
+    with pytest.raises(ValueError, match="both display.csv"):
+        build()
+
+
+def test_export_writes_display_csv_and_keeps_system_csv_free_of_it(workspace):
+    write_system(workspace)
+    write_display(workspace, enabled="1", driver="sh1106", address="0x3c", column_offset="3",
+                  screen_seconds="5", logo_every="2", burn_in_shift="1")
+    build()
+    (workspace / "display.csv").unlink()
     cm.ConfigManager().export_config()
-    row = read_system_row(workspace)
-    assert (row["display_enabled"], row["display_address"], row["display_sensor_repeats"]) == ("1", "0x3C", "3")
+    assert read_display_row(workspace) == {"enabled": "1", "driver": "sh1106", "address": "0x3C",
+                                           "column_offset": "3", "screen_seconds": "5", "logo_every": "2",
+                                           "burn_in_shift": "1"}
+    assert not any(k.startswith("display") for k in read_system_row(workspace))
 
 
 # ---------------------------------------------------------------------------

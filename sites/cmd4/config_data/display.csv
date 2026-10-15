@@ -1,0 +1,2 @@
+enabled,driver,address,font,sensor_repeats
+1,ssd1309,0x3C,3x5,2

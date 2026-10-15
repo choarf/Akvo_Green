@@ -76,7 +76,7 @@
 <body>
 <header>
   <h1>Simulador OLED · gateway AKVO Green</h1>
-  <p>Módulo 1.54" I2C, 128×64 px, controlador SSD1309. Vista previa píxel a píxel de las pantallas (fuente 3×5: 32 columnas × 10 filas, o 5×7: 21 × 8).</p>
+  <p>Módulo 1.54" I2C, 128×64 px (controlador según display.csv). Vista previa píxel a píxel de las pantallas (fuente 3×5: 32 columnas × 10 filas, o 5×7: 21 × 8).</p>
 </header>
 
 <main>
@@ -101,46 +101,79 @@
 
   <aside class="controls">
     <fieldset>
-      <legend>Secuencia</legend>
+      <legend>Sitio</legend>
       <div class="grid">
-        <label for="c-dur">Duración (s)</label>
-        <input type="number" id="c-dur" min="1" max="60" value="5">
-        <label for="c-logo">Logo</label>
-        <select id="c-logo">
-          <option value="boot" selected>solo al arrancar</option>
-          <option value="cycle">al arrancar y cada N ciclos</option>
-          <option value="never">nunca</option>
+        <label for="c-site">Sitio</label>
+        <div class="row">
+          <input type="text" id="c-site" list="site-list" placeholder="p. ej. akvo01005" style="width:11em">
+          <datalist id="site-list"></datalist>
+          <button type="button" id="c-site-load" class="primary">Cargar</button>
+        </div>
+        <label>config.json</label>
+        <a id="c-config-link" href="#" target="_blank" rel="noopener">—</a>
+        <label for="c-config">o un archivo</label>
+        <input type="file" id="c-config" accept=".json,application/json">
+      </div>
+      <p class="legend" id="site-status">Los sensores y la configuración vienen del config.json del sitio
+        (sites/&lt;sitio&gt;/config_data/config.json). Enlace directo: <code>oled_simulator.html?site=&lt;sitio&gt;</code>
+        (servido con <code>tools/oled_sim.py</code>).</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>display.csv · OLED del sitio</legend>
+      <div class="grid">
+        <label for="c-enabled">Habilitado</label>
+        <label><input type="checkbox" id="c-enabled" checked> enabled</label>
+        <label for="c-driver">Controlador</label>
+        <select id="c-driver">
+          <option value="ssd1309">ssd1309</option>
+          <option value="ssd1306">ssd1306</option>
+          <option value="sh1106">sh1106</option>
         </select>
-        <label for="c-logo-n">Ciclos entre logos</label>
-        <input type="number" id="c-logo-n" min="1" max="10" value="2" title="Vueltas de Sistema + Sensores antes de volver a mostrar el logo">
+        <label for="c-address">Dirección I2C</label>
+        <input type="text" id="c-address" value="0x3C" style="width:6em">
+        <label for="c-offset">Offset columna</label>
+        <input type="number" id="c-offset" min="0" max="4" value="2" title="Solo sh1106: primera de las 132 columnas que muestra el panel (tools/oled_test.py --offsets)">
+        <label for="c-font">Fuente</label>
+        <select id="c-font">
+          <option value="f35">3×5 mayúsculas (32 × 10)</option>
+          <option value="f57">5×7 (21 × 8)</option>
+        </select>
+        <label for="c-sens-rep">Sensores por vuelta</label>
+        <input type="number" id="c-sens-rep" min="1" max="5" value="2" title="Veces que se recorre la lista de sensores antes de volver a Sistema">
+        <label for="c-dur">Duración (s)</label>
+        <input type="number" id="c-dur" min="1" max="60" step="0.5" value="5" title="screen_seconds: Sistema y una lista que no necesita desplazarse">
+        <label for="c-speed">Velocidad (px/s)</label>
+        <input type="number" id="c-speed" min="1" max="60" value="6" title="scroll_speed. Con la fuente 3×5 una fila mide 6 px">
+        <label for="c-logo-n">Logo cada N ciclos</label>
+        <input type="number" id="c-logo-n" min="0" max="10" value="0" title="logo_every: 0 = solo al arrancar; N = también tras cada N vueltas de Sistema + Sensores">
+        <label for="c-bright">Contraste</label>
+        <div class="row"><input type="range" id="c-bright" min="1" max="100" value="100"> <span id="c-bright-v">por defecto</span></div>
+        <label for="c-shift">Anti‑quemado</label>
+        <label title="burn_in_shift: mueve el contenido 1 px en cada ciclo"><input type="checkbox" id="c-shift" checked> mover 1 px por ciclo</label>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button type="button" id="c-export" class="primary">Exportar display.csv</button>
+        <span class="legend" id="export-status" style="margin:0"></span>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Solo simulador</legend>
+      <div class="grid">
+        <label for="c-list">Lista de sensores</label>
+        <select id="c-list">
+          <option value="scroll">Desplazamiento (como el Pi)</option>
+          <option value="pages">Páginas</option>
+        </select>
+        <label for="c-per-page">Sensores / página</label>
+        <input type="number" id="c-per-page" min="1" max="9" placeholder="auto (todas las filas)">
         <label for="c-logo-file">Logo propio</label>
         <div class="row">
           <input type="file" id="c-logo-file" accept="image/*">
           <label><input type="checkbox" id="c-logo-inv"> invertir</label>
           <button id="c-logo-clear" type="button" title="Volver al logo GHOTRIX">Quitar</button>
         </div>
-        <label for="c-sens-rep">Sensores por vuelta</label>
-        <input type="number" id="c-sens-rep" min="1" max="5" value="2" title="Veces que se recorre la lista de sensores antes de volver a Sistema">
-        <label for="c-list">Lista de sensores</label>
-        <select id="c-list">
-          <option value="scroll">Desplazamiento</option>
-          <option value="pages">Páginas</option>
-        </select>
-        <label for="c-speed">Velocidad (px/s)</label>
-        <input type="number" id="c-speed" min="1" max="60" value="6" title="Con la fuente 3×5 una fila mide 6 px">
-        <label for="c-per-page">Sensores / página</label>
-        <input type="number" id="c-per-page" min="1" max="9" placeholder="auto (todas las filas)">
-      </div>
-    </fieldset>
-
-    <fieldset>
-      <legend>Pantalla</legend>
-      <div class="grid">
-        <label for="c-font">Fuente</label>
-        <select id="c-font">
-          <option value="f35">3×5 mayúsculas (32 × 10)</option>
-          <option value="f57">5×7 (21 × 8)</option>
-        </select>
         <label for="c-color">Color</label>
         <select id="c-color">
           <option value="white">Blanco</option>
@@ -157,14 +190,11 @@
           <option value="5" selected>5×</option>
           <option value="6">6×</option>
         </select>
-        <label for="c-bright">Contraste</label>
-        <input type="range" id="c-bright" min="10" max="100" value="100">
         <label>Opciones</label>
         <div class="row">
           <label><input type="checkbox" id="c-grid" checked> rejilla</label>
           <label><input type="checkbox" id="c-glow" checked> brillo</label>
           <label><input type="checkbox" id="c-blink" checked> parpadeo de alarmas</label>
-          <label title="Mueve el contenido 1 px en cada ciclo para evitar quemado"><input type="checkbox" id="c-shift"> anti‑quemado</label>
         </div>
       </div>
     </fieldset>
@@ -206,10 +236,6 @@
     <fieldset>
       <legend>Sensores</legend>
       <div class="row">
-        <label for="c-config">Cargar config.json del gateway:</label>
-        <input type="file" id="c-config" accept=".json,application/json">
-      </div>
-      <div class="row" style="margin-top:8px">
         <button type="button" id="c-all-normal">Todos normales</button>
         <button type="button" id="c-random-alarm">Alarma aleatoria</button>
       </div>
@@ -332,14 +358,6 @@ const agoShort = s => s < 90 ? `${s}s` : s < 5400 ? `${Math.round(s / 60)}m` : s
 const agoLong = s => s < 90 ? `${s} s` : s < 5400 ? `${Math.round(s / 60)} min` : s < 172800 ? `${Math.round(s / 3600)} h` : `${Math.round(s / 86400)} días`;
 
 // ============================================================ simulated gateway
-const DEFAULT_DEVICES = [  // sites/cmd4/config_data/config.json
-  ["DEV_1", "Pt100Sensor", "°C", 0, 55], ["DEV_2", "Ambient", "°C", 0, 55], ["DEV_3", "Humedad", "%HR", 0, 80],
-  ["DEV_4", "ORPSensor", "mV", -1500, 1500], ["DEV_5", "PhSensor", "unit", 0, 14], ["DEV_6", "TempPhSensor", "°C", 0, 55],
-  ["DEV_7", "DOSensor", "mg/L", 0, 2500], ["DEV_8", "CODSensor", "mg/L", 0, 1500], ["DEV_9", "TempCODSensor", "°C", 0, 55],
-  ["DEV_10", "TurbCODSensort", "NTU", 0, 100], ["DEV_11", "BODSensor", "mg/L", 0, 40], ["DEV_12", "TOCSensor", "mg/L", 0, 300],
-  ["DEV_13", "CondSensor", "uc/cm", 0, 200], ["DEV_14", "TempCondSensor", "°C", 0, 55], ["DEV_15", "TDSCondSensor", "uS/cm", 10, 5000],
-].map(([device, name, unit, min, max]) => ({ device, name, unit, min, max }));
-
 const UNIT_SHORT = { "unit": "pH", "uS/cm": "µS", "uc/cm": "µS", "us/cm": "µS", "mS/cm": "mS" };
 const shortName = n => fit(n.replace(/Sensort?$/i, "") || n, 12);
 const shortUnit = (u, name) => fit(u === "unit" && !/ph/i.test(name) ? "" : (UNIT_SHORT[u] ?? u), 6);
@@ -578,8 +596,10 @@ function drawLogo(now, ms) {
 const perPage = () => Math.min(textRows(), Math.max(1, +$("#c-per-page").value || textRows()));
 let booting = true, idx = 0, elapsed = 0, playing = true, cyclesDone = 0;
 
+// display.csv logo_every: 0 = logo only at boot, N = also after every N rounds
+const logoMode = () => (+$("#c-logo-n").value || 0) > 0 ? "cycle" : "boot";
 function cycle() {
-  const mode = $("#c-logo").value;
+  const mode = logoMode();
   const list = [];
   if (mode === "cycle" || (mode === "boot" && booting)) list.push({ kind: "logo", name: "Logo" });
   list.push({ kind: "system", name: "Sistema" });
@@ -594,7 +614,7 @@ function cycle() {
   }
   // "cycle": the logo comes back after N rounds of Sistema + Sensores
   if (mode !== "cycle") return list;
-  const round = list.slice(1), n = Math.max(1, Math.min(10, +$("#c-logo-n").value || 2));
+  const round = list.slice(1), n = Math.max(1, Math.min(10, +$("#c-logo-n").value || 1));
   for (let k = 1; k < n; k++) list.push(...round);
   return list;
 }
@@ -602,7 +622,7 @@ function current() { const l = cycle(); if (idx >= l.length) idx = 0; return l[i
 function go(delta) {
   const l = cycle(), cur = l[idx];
   elapsed = 0;
-  if (cur && cur.kind === "logo" && booting && $("#c-logo").value === "boot" && delta > 0) {
+  if (cur && cur.kind === "logo" && booting && logoMode() === "boot" && delta > 0) {
     booting = false;  // the logo leaves the list: index 0 is now Sistema
     idx = 0;
   } else {
@@ -649,7 +669,7 @@ function blit() {
   const shift = $("#c-shift").checked ? [[0, 0], [1, 0], [1, 1], [0, 1]][cyclesDone % 4] : [0, 0];
   const colorMode = $("#c-color").value;
   const colorAt = y => colorMode === "duo" ? (y < 16 ? COLORS.yellow : COLORS.blue) : COLORS[colorMode];
-  const alpha = +$("#c-bright").value / 100;
+  const alpha = $("#c-bright").dataset.set ? Math.max(0.1, +$("#c-bright").value / 100) : 1;
   const grid = $("#c-grid").checked && S >= 3, gap = grid ? 1 : 0;
 
   ctx.fillStyle = "#050607";
@@ -760,7 +780,7 @@ document.addEventListener("keydown", e => {
   else if (e.key === "b") boot();
 });
 $("#c-font").addEventListener("change", e => { F = FONTS[e.target.value]; });
-for (const id of ["#c-logo", "#c-logo-n", "#c-sens-rep", "#c-per-page", "#c-font", "#c-list"]) $(id).addEventListener("change", () => { idx = 0; elapsed = 0; buildTimeline(); });
+for (const id of ["#c-logo-n", "#c-sens-rep", "#c-per-page", "#c-font", "#c-list"]) $(id).addEventListener("change", () => { idx = 0; elapsed = 0; buildTimeline(); });
 
 $("#c-gw").addEventListener("change", e => { sim.gw = e.target.value === "1"; if (sim.gw) pollCycle(); });
 $("#c-net").addEventListener("change", e => {
@@ -780,27 +800,152 @@ $("#c-random-alarm").addEventListener("click", () => {
   s.force = Math.random() < 0.5 ? "high" : "low"; s.select.value = s.force; readSensor(s); refreshSensorValues();
 });
 
+// ============================================================ site config (source of truth)
+// The sensors and the display.csv settings come from the site's config.json,
+// built from its CSVs by config_manager.py. ?site=<key> loads
+// ../../sites/<key>/config_data/config.json (the repo layout, served by
+// tools/oled_sim.py); ?config=<url> any other config.json.
+const DISPLAY_COLUMNS = ["enabled", "driver", "address", "column_offset", "font", "sensor_repeats",
+  "screen_seconds", "scroll_speed", "logo_every", "contrast", "burn_in_shift"];
+const DISPLAY_DEFAULTS = { enabled: false, driver: "ssd1309", address: 0x3C, column_offset: 2, font: "3x5",
+  sensor_repeats: 2, screen_seconds: 5, scroll_speed: 6, logo_every: 0, contrast: null, burn_in_shift: true };
+let siteName = "";
+const hex = n => "0x" + n.toString(16).toUpperCase().padStart(2, "0");
+const siteUrl = key => `../../sites/${encodeURIComponent(key)}/config_data/config.json`;
+
+function setStatus(msg, bad = false) { const el = $("#site-status"); el.textContent = msg; el.style.color = bad ? "#ff8a8a" : ""; }
+
+function showSite(name) {
+  siteName = name || "";
+  $("#c-site").value = siteName;
+  document.title = siteName ? `Simulador OLED · ${siteName}` : "Simulador OLED";
+  $("header h1").textContent = `Simulador OLED · ${siteName ? "sitio " + siteName : "gateway AKVO Green"}`;
+  const u = new URL(location.href);
+  if (siteName) u.searchParams.set("site", siteName); else u.searchParams.delete("site");
+  history.replaceState(null, "", u);
+}
+
+function updateChipLabel() {
+  const drv = $("#c-driver").value, off = drv === "sh1106" ? ` · offset ${$("#c-offset").value}` : "";
+  $(".chip-label").textContent = `${drv.toUpperCase()} · 128×64 · ${$("#c-address").value}${off}`;
+  $("#c-offset").disabled = drv !== "sh1106";
+}
+
+function setContrast(pct) {
+  const b = $("#c-bright");
+  if (pct == null) { delete b.dataset.set; b.value = 100; $("#c-bright-v").textContent = "por defecto"; }
+  else { b.dataset.set = "1"; b.value = pct; $("#c-bright-v").textContent = pct + " %"; }
+}
+
+function applyConfig(cfg, source, name) {
+  const list = [];
+  for (const d of cfg.devices || []) {
+    if (d.enabled === false) continue;
+    for (const s of d.sensors || []) list.push({ device: d.id, name: s.name, unit: s.unit || "", min: +s.min, max: +s.max });
+  }
+  if (!list.length) throw new Error("el config.json no tiene 'devices' con sensores");
+  const gw = cfg.gateway || {};
+  $("#c-gwid").value = gw.gateway_id || "";
+  $("#c-client").value = gw.client || "";
+  if (gw.poll_interval) $("#c-poll").value = gw.poll_interval;
+  $("#c-ssid").value = (cfg.wifi?.networks || [])[0] || "";
+  $("#c-db").value = cfg.database?.enabled ? "1" : "0";
+  const mb = cfg.modbus || {};
+  sim.modbus = mb.simulate ? "sim" : "ok";
+  $("#c-modbus").value = sim.modbus;
+  $('#c-modbus option[value="ok"]').textContent = `Puerto abierto (${mb.port || "?"})`;
+
+  const ds = { ...DISPLAY_DEFAULTS, ...(cfg.display || {}) };
+  $("#c-enabled").checked = !!ds.enabled;
+  $("#c-driver").value = ds.driver;
+  $("#c-address").value = hex(+ds.address);
+  $("#c-offset").value = ds.column_offset;
+  $("#c-font").value = ds.font === "5x7" ? "f57" : "f35";
+  F = FONTS[$("#c-font").value];
+  $("#c-sens-rep").value = ds.sensor_repeats;
+  $("#c-dur").value = ds.screen_seconds;
+  $("#c-speed").value = ds.scroll_speed;
+  $("#c-logo-n").value = ds.logo_every;
+  setContrast(ds.contrast);
+  $("#c-shift").checked = ds.burn_in_shift !== false;
+  $("#c-list").value = "scroll";
+  updateChipLabel();
+
+  showSite(name ?? (gw.gateway_id || "").replace(/^AKVO_/, ""));
+  loadSensors(list);
+  boot();
+  setStatus(`${list.length} sensores de ${source}` + (cfg.display ? "" : " · sin sección display: valores por defecto")
+    + (cfg.meta?.generated_at ? ` · generado ${cfg.meta.generated_at.slice(0, 16).replace("T", " ")} UTC` : ""));
+}
+
+async function loadSite(key, url) {
+  key = (key || "").trim();
+  url = url || (key && siteUrl(key));
+  if (!url) { setStatus("Escribe el nombre de un sitio (carpeta de sites/).", true); return; }
+  const link = $("#c-config-link");
+  link.href = url; link.textContent = url.replace(/^\.\.\/\.\.\//, "");
+  try {
+    const r = await fetch(url, { cache: "no-store" });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    applyConfig(await r.json(), link.textContent, key || undefined);
+  } catch (err) {
+    console.error(err);
+    setStatus(`No se pudo leer ${link.textContent}: ${err.message}. ` + (location.protocol === "file:"
+      ? "Abierto como archivo, el navegador no deja leer otros archivos: usa tools/oled_sim.py o «o un archivo»."
+      : "¿Existe el sitio y se generó su config.json (config_manager.py build)?"), true);
+  }
+}
+
+async function listSites() {
+  try {
+    const r = await fetch("../../sites.json", { cache: "no-store" });
+    if (!r.ok) return;
+    $("#site-list").replaceChildren(...(await r.json()).map(k => Object.assign(document.createElement("option"), { value: k })));
+  } catch { /* no server listing (file:// or plain static hosting): type the name */ }
+}
+
+$("#c-site-load").addEventListener("click", () => loadSite($("#c-site").value));
+$("#c-site").addEventListener("keydown", e => { if (e.key === "Enter") loadSite($("#c-site").value); });
 $("#c-config").addEventListener("change", async e => {
   const f = e.target.files[0];
   if (!f) return;
   try {
-    const cfg = JSON.parse(await f.text());
-    const list = [];
-    for (const d of cfg.devices || []) {
-      if (d.enabled === false) continue;
-      for (const s of d.sensors || []) list.push({ device: d.id, name: s.name, unit: s.unit || "", min: +s.min, max: +s.max });
-    }
-    if (!list.length) throw new Error("el archivo no tiene 'devices' con sensores");
-    if (cfg.gateway?.gateway_id) $("#c-gwid").value = cfg.gateway.gateway_id;
-    $("#c-client").value = cfg.gateway?.client || "";
-    if (cfg.gateway?.poll_interval) $("#c-poll").value = cfg.gateway.poll_interval;
-    loadSensors(list);
-    idx = 0; elapsed = 0; buildTimeline();
+    $("#c-config-link").textContent = f.name; $("#c-config-link").removeAttribute("href");
+    applyConfig(JSON.parse(await f.text()), f.name);
   } catch (err) {
     console.error(err);
     e.target.value = "";
-    $(".legend").textContent = "No se pudo leer el config.json: " + err.message;
+    setStatus("No se pudo leer el config.json: " + err.message, true);
   }
+});
+
+for (const id of ["#c-driver", "#c-address", "#c-offset"]) $(id).addEventListener("input", updateChipLabel);
+$("#c-bright").addEventListener("input", e => setContrast(+e.target.value));
+
+// display.csv from the controls above, same columns config_manager.py reads
+function displayCsv() {
+  const addr = $("#c-address").value.trim();
+  if (!/^(0x[0-9a-f]{1,2}|\d{1,3})$/i.test(addr)) throw new Error("dirección I2C no válida: " + addr);
+  const v = {
+    enabled: $("#c-enabled").checked ? 1 : 0, driver: $("#c-driver").value, address: hex(parseInt(addr)),
+    column_offset: $("#c-driver").value === "sh1106" ? +$("#c-offset").value : "",
+    font: $("#c-font").value === "f57" ? "5x7" : "3x5", sensor_repeats: +$("#c-sens-rep").value,
+    screen_seconds: +$("#c-dur").value, scroll_speed: +$("#c-speed").value, logo_every: +$("#c-logo-n").value,
+    contrast: $("#c-bright").dataset.set ? +$("#c-bright").value : "", burn_in_shift: $("#c-shift").checked ? 1 : 0,
+  };
+  const cols = DISPLAY_COLUMNS.filter(k => v[k] !== "");
+  return cols.join(",") + "\n" + cols.map(k => v[k]).join(",") + "\n";
+}
+$("#c-export").addEventListener("click", () => {
+  try {
+    const a = document.createElement("a");
+    a.download = "display.csv";
+    a.href = URL.createObjectURL(new Blob([displayCsv()], { type: "text/csv" }));
+    a.click();
+    URL.revokeObjectURL(a.href);
+    $("#export-status").textContent = `Guárdalo en sites/${siteName || "<sitio>"}/config_data/display.csv, ` +
+      "luego config_manager.py build y push_site.sh.";
+  } catch (err) { $("#export-status").textContent = err.message; }
 });
 
 function loadLogo(file) {
@@ -842,12 +987,18 @@ function loop(ts) {
   requestAnimationFrame(loop);
 }
 
-loadSensors(DEFAULT_DEVICES);
-sensors[1].force = "high"; sensors[7].force = "high"; sensors[11].force = "low";  // a few alarms to start with
-sensors.forEach(readSensor);
+updateChipLabel();
+setContrast(null);
 buildSensorTable();
 boot();
 requestAnimationFrame(loop);
+listSites();
+{
+  const q = new URLSearchParams(location.search);
+  if (q.get("config")) loadSite(q.get("site") || "", q.get("config"));
+  else if (q.get("site")) loadSite(q.get("site"));
+  else setStatus("Elige un sitio y pulsa Cargar: los sensores salen de su config.json.");
+}
 </script>
 </body>
 </html>

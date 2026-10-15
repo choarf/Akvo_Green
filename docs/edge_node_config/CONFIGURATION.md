@@ -3,8 +3,8 @@
 `edge_node_improved.py` runs entirely off `config_data/config.json`, centralized
 at the repo root (not nested under `gateway/`) so the real gateway
 and every test suite read/build the same file. You normally don't
-hand-edit that file — you edit four CSVs and run `config_manager.py build`
-to regenerate it:
+hand-edit that file — you edit four CSVs (plus the optional `display.csv`
+for the OLED) and run `config_manager.py build` to regenerate it:
 
 ```text
 devices.csv   modbus.csv   system.csv   aws.csv
@@ -143,16 +143,10 @@ One header row + one data row — gateway identity and timing.
 | `database_retention_days` | int (optional) | Days of readings/telemetry to keep (default `30` when blank). Becomes `database.retention_days`. Must be a positive integer — a non-integer fails `build` with a clear message. |
 | `web_enabled` | bool (optional) | `1` turns on the local web dashboard over that database (`gateway/history_web.py`, service `akvo-history-web`); `0`/blank/absent leaves it off. Becomes `web.enabled`. See [Local web dashboard](#local-web-dashboard-optional-web-section). |
 | `web_port` | int (optional) | Port of that dashboard (default `8080` when blank). Becomes `web.port`; must be 1-65535. |
-| `display_enabled` | bool (optional) | `1` turns on the OLED status display (`gateway/oled_display.py`, service `akvo-oled`); `0`/blank/absent leaves it off. Becomes `display.enabled`. See [OLED status display](#oled-status-display-optional-display-section). |
-| `display_driver` | text (optional) | Display controller: `ssd1309` (default), `ssd1306` or `sh1106`. Boards sold as "SSD1309" are often SH1106 (garbage with `ssd1309`): check with `tools/oled_test.py`. Becomes `display.driver`. |
-| `display_address` | int (optional) | I2C address, `0x3C` (default) or `60`; some boards use `0x3D`. Becomes `display.address` (an int). |
-| `display_font` | text (optional) | `3x5` (default, 32 columns × 10 rows) or `5x7` (21 × 8, larger but fewer rows). Becomes `display.font`. |
-| `display_sensor_repeats` | int (optional) | How many times the sensor list scrolls through before going back to the Sistema screen (1-5, default `2`). Becomes `display.sensor_repeats`. |
-| `display_column_offset` | int (optional) | `sh1106` only: the first of the chip's 132 RAM columns the panel shows, `0`-`4` (default `2`). Stray lines or a dark strip at the left/right edge mean it's wrong; `tools/oled_test.py --driver sh1106 --offsets 0,1,2,3,4` finds it. Becomes `display.column_offset`. |
 | `wifi1_ssid` | text (optional) | Preferred WiFi network. Becomes `wifi.networks[0]`. Its password goes in the site's git-ignored `wifi.csv`, never here. See [WiFi networks](#wifi-networks-optional-wifi-section). |
 | `wifi2_ssid` | text (optional) | Fallback WiFi network. Becomes `wifi.networks[1]`. |
 
-The `database_*`, `web_*`, `display_*` and `wifi*_ssid` columns are optional: a `system.csv` without them builds
+The `database_*`, `web_*` and `wifi*_ssid` columns are optional: a `system.csv` without them builds
 exactly as before, with the database off. The other columns are still required —
 a missing one isn't caught with a friendly error, it surfaces as a raw
 `KeyError` during `build`.
@@ -398,23 +392,50 @@ How it runs:
 
 ## OLED status display (optional `display` section)
 
-A 1.54" 128×64 OLED (SSD1309, I2C) on the Pi that shows the gateway's status and
+A 1.54" 128×64 I2C OLED on the Pi that shows the gateway's status and
 the latest sensor values, for someone standing at the cabinet with no phone or
 laptop. The visual spec (and a browser simulator of it) is
 `docs/OLED/oled_simulator.html`.
 
+Its settings have their own file, **`display.csv`** in the site's `config_data/` (header +
+one row, every column optional; no file = display off):
+
 ```csv
-...,web_enabled,web_port,display_enabled,display_driver,display_address,display_font,display_sensor_repeats
-...,1,8080,1,ssd1309,0x3C,3x5,2
+enabled,driver,address,column_offset,font,sensor_repeats,screen_seconds,scroll_speed,logo_every,contrast,burn_in_shift
+1,sh1106,0x3C,3,3x5,2,5,6,0,,1
 ```
 
 ```json
-"display": { "enabled": true, "driver": "ssd1309", "address": 60, "font": "3x5", "sensor_repeats": 2 }
+"display": { "enabled": true, "driver": "sh1106", "address": 60, "column_offset": 3, "font": "3x5",
+             "sensor_repeats": 2, "screen_seconds": 5, "scroll_speed": 6, "logo_every": 0, "burn_in_shift": true }
 ```
+
+| Column | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `enabled` | bool | `0` | `1` turns the display on (service `akvo-oled`). |
+| `driver` | text | `ssd1309` | `ssd1309`, `ssd1306` or `sh1106`. Boards sold as "SSD1309" are often SH1106 (garbage with `ssd1309`): check with `tools/oled_test.py`. |
+| `address` | int | `0x3C` | I2C address, `0x3C` or `60`; some boards use `0x3D`. |
+| `column_offset` | int 0-4 | `2` | `sh1106` only: the first of the chip's 132 RAM columns the panel shows. Stray lines or a dark strip at the left/right edge mean it's wrong; `tools/oled_test.py --driver sh1106 --offsets 0,1,2,3,4` finds it. |
+| `font` | text | `3x5` | `3x5` (32 columns × 10 rows) or `5x7` (21 × 8). |
+| `sensor_repeats` | int 1-5 | `2` | Times the sensor list is shown before going back to Sistema. |
+| `screen_seconds` | number 1-60 | `5` | How long Sistema (and a sensor list that fits without scrolling) stays up. |
+| `scroll_speed` | number 1-60 | `6` | Sensor list scroll, px/s (6 = one 3x5 row per second). |
+| `logo_every` | int 0-10 | `0` | `0`: logo only at start-up. `N`: also after every N rounds of Sistema + Sensores. |
+| `contrast` | int 1-100 | blank | Contrast in %, like the simulator's slider; blank = the controller's own default. |
+| `burn_in_shift` | bool | `1` | Move the whole image 1 px each round against burn-in. |
+
+- **Simulator link.** `python3 tools/oled_sim.py <site>` opens the simulator on that site:
+  the sensors and every setting above come from `sites/<site>/config_data/config.json`
+  (rebuild it after editing the CSVs). Tune the look there, then **Exportar display.csv**
+  writes the same columns; save it as `sites/<site>/config_data/display.csv`, build, push.
+  The simulator's "Solo simulador" options (pages, colour, zoom, own logo) don't exist on the Pi.
+- **Older sites** may still have these settings as `display_*` columns in `system.csv`;
+  they build (with a deprecation warning) but not together with a `display.csv`.
 
 - **Screens:**
   - at start-up only, the GHOTRIX logo: the "Venko → Akvo" line writes itself on 3 times (100%), then flashes 3 times (5.1 s), with the gateway name (`gateway_id`) as a third row under it;
-  - then forever: **Sistema** (5 s) → **Sensores** × `sensor_repeats` → Sistema → …
+  - then forever: **Sistema** (`screen_seconds`) → **Sensores** × `sensor_repeats` → Sistema → …;
+    with `logo_every` N the logo comes back after every N rounds.
 - **Sistema** has one line per item (spec: `docs/OLED/init.md`):
 
   ```
@@ -437,14 +458,14 @@ laptop. The visual spec (and a browser simulator of it) is
   - A fault is drawn as an inverted (lit) bar.
 - **Sensores** lists every sensor of the enabled devices: name, value, unit and a flag.
   - The flags are `■` normal, `▲`/`▼` high/low alarm (blinking), `✕` read error.
-  - The list scrolls one pixel at a time (about one row per second), waiting 1.5 s at
-    the top and at the bottom.
+  - The list scrolls one pixel at a time (`scroll_speed`, default about one row per second),
+    waiting 1.5 s at the top and at the bottom.
   - Names drop a trailing `Sensor`, and units are shortened (`uS/cm` → `µS`).
 - **Where the data comes from:** the gateway's status file
   (`/dev/shm/akvo-green-status.json`, which has each sensor's last reading in `readings`)
   and `config.json`. The display never talks to the gateway process, Modbus or AWS, so
   a display problem can't affect them.
-- **Burn-in:** the whole image moves 1 px each round.
+- **Burn-in:** the whole image moves 1 px each round (`burn_in_shift=0` turns it off).
 - **Hardware:** VCC → 3.3 V (pin 1), GND → pin 6, SDA → GPIO 2 (pin 3), SCL → GPIO 3
   (pin 5).
   - Turn I2C on once per Pi: `sudo raspi-config` > Interface Options > I2C, then reboot.
@@ -453,7 +474,7 @@ laptop. The visual spec (and a browser simulator of it) is
     `i2c` group.
 - **Restart to apply.** `display.*` and the sensor list are read at service start;
   `tools/push_site.sh` restarts `akvo-oled` on every push.
-- When `display_enabled` is off, the service logs `OLED display is off` and exits 0.
+- When `enabled` is off, the service logs `OLED display is off` and exits 0.
 - **If the display can't be opened** (I2C off, nothing at the address, `luma.oled`
   missing), the service logs the error and exits 1; systemd retries every 30 s.
 - Check it on the Pi: `systemctl status akvo-oled`, `journalctl -u akvo-oled -n 20`.
@@ -536,7 +557,9 @@ whichever thread hits the missing/malformed field first:
 - `modbus.simulate` is optional; if present it must be a boolean.
 - `display` is optional; if present: `enabled` a boolean, `driver` one of
   `ssd1309`/`ssd1306`/`sh1106`, `address` an int 0x03-0x77, `font` `3x5` or `5x7`,
-  `sensor_repeats` an int 1-5.
+  `sensor_repeats` an int 1-5, `column_offset` an int 0-4, `screen_seconds` and
+  `scroll_speed` numbers 1-60, `logo_every` an int 0-10, `contrast` an int 1-100,
+  `burn_in_shift` a boolean.
 - Two devices sharing one `slave` ID is a *warning*, not an error (the
   normal way to model two sensors on one physical unit).
 - A `config.json` edit that fails validation while the gateway is already

@@ -20,7 +20,7 @@ module. So the screens can be rendered and tested without the hardware:
   python3 oled_display.py                      # drives the display (display.enabled)
   python3 oled_display.py --png /tmp/oled      # writes each screen as PNG and exits
 
-Enabled by system.csv's display_* columns (config.json "display" section).
+Enabled and tuned by the site's display.csv (config.json "display" section).
 Read once at startup: a change needs a service restart (push_site.sh does it).
 """
 
@@ -57,9 +57,9 @@ BOOT_PASS_SECONDS = 1.2
 BOOT_FLASHES = 3          # ...then flashes (off, on) this many times
 BOOT_FLASH_SECONDS = 0.5
 LOGO_SECONDS = BOOT_PASSES * BOOT_PASS_SECONDS + BOOT_FLASHES * BOOT_FLASH_SECONDS   # 5.1 s
-SCREEN_SECONDS = 5.0
+SCREEN_SECONDS = 5.0      # default display.screen_seconds
 SCROLL_PAUSE = 1.5        # s still at the top and at the bottom of the sensor list
-SCROLL_SPEED = 6.0        # px/s: one 3x5 text row per second
+SCROLL_SPEED = 6.0        # px/s, default display.scroll_speed: one 3x5 text row per second
 STATUS_EVERY = 1.0        # s between status-file reads
 SHIFTS = ((0, 0), (1, 0), (1, 1), (0, 1))   # burn-in: whole image moves 1 px per round
 
@@ -444,27 +444,32 @@ def scroll_max(n_sensors: int, font: Font) -> int:
     return max(0, n_sensors * font.row_h - (H - font.head_h))
 
 
-def scroll_offset(elapsed: float, n_sensors: int, font: Font) -> int:
-    """Wait SCROLL_PAUSE, move at SCROLL_SPEED px/s, stop at the end."""
-    return round(min(scroll_max(n_sensors, font), max(0.0, (elapsed - SCROLL_PAUSE) * SCROLL_SPEED)))
+def scroll_offset(elapsed: float, n_sensors: int, font: Font, speed: float = SCROLL_SPEED) -> int:
+    """Wait SCROLL_PAUSE, move at speed px/s, stop at the end."""
+    return round(min(scroll_max(n_sensors, font), max(0.0, (elapsed - SCROLL_PAUSE) * speed)))
 
 
-def screen_seconds(kind: str, n_sensors: int, font: Font) -> float:
+def screen_seconds(kind: str, n_sensors: int, font: Font,
+                   screen_s: float = SCREEN_SECONDS, speed: float = SCROLL_SPEED) -> float:
     """The sensor list stays up as long as its scroll needs (a list that
     fits doesn't scroll and gets the normal time)."""
     if kind == "logo":
         return LOGO_SECONDS
     if kind == "sensors" and scroll_max(n_sensors, font):
-        return 2 * SCROLL_PAUSE + scroll_max(n_sensors, font) / SCROLL_SPEED
-    return SCREEN_SECONDS
+        return 2 * SCROLL_PAUSE + scroll_max(n_sensors, font) / speed
+    return screen_s
 
 
-def next_screen(kind: str, k: int, repeats: int) -> tuple[str, int]:
-    """logo -> system -> sensors #1 .. #repeats -> system -> ..."""
+def next_screen(kind: str, k: int, repeats: int, rounds: int = 0, logo_every: int = 0) -> tuple[str, int]:
+    """logo -> system -> sensors #1 .. #repeats -> system -> ...; with
+    logo_every N the logo comes back after every N rounds (rounds = how many
+    Sistema screens so far), as in the simulator's "Logo cada N ciclos"."""
     if kind == "sensors" and k < repeats:
         return "sensors", k + 1
     if kind == "system":
         return "sensors", 1
+    if kind == "sensors" and logo_every and rounds % logo_every == 0:
+        return "logo", 0
     return "system", 0
 
 
@@ -486,6 +491,7 @@ class View:
     db: dict | None = None      # database_info()
     ssid: str | None = None     # wifi_ssid()
     client: str = ""            # config.json gateway.client
+    speed: float = SCROLL_SPEED  # display.scroll_speed
 
 
 def blink_on(now: float) -> bool:
@@ -563,7 +569,7 @@ def draw_system(fr: Frame, v: View) -> None:
 
 def draw_sensors(fr: Frame, v: View, elapsed: float) -> None:
     f, n = fr.font, len(v.sensors)
-    off = scroll_offset(elapsed, n, f)
+    off = scroll_offset(elapsed, n, f, v.speed)
     on = blink_on(v.now)
     for i, s in enumerate(v.sensors):
         y = f.head_h + i * f.row_h - off
@@ -601,11 +607,24 @@ def render(kind: str, elapsed: float, v: View) -> Frame:
 # ----------------------------------------------------------------------
 
 def display_settings(config: dict) -> dict:
+    """config.json "display" with every default filled in (display.csv's
+    columns are all optional). contrast None = the driver's own default."""
     d = config.get("display") or {}
     return {"enabled": bool(d.get("enabled")), "driver": d.get("driver", "ssd1309"),
             "address": int(d.get("address", DEFAULT_ADDRESS)), "font": d.get("font", "3x5"),
             "sensor_repeats": int(d.get("sensor_repeats", 2)),
-            "column_offset": int(d.get("column_offset", SH1106_COLUMN_OFFSET))}
+            "column_offset": int(d.get("column_offset", SH1106_COLUMN_OFFSET)),
+            "screen_seconds": float(d.get("screen_seconds", SCREEN_SECONDS)),
+            "scroll_speed": float(d.get("scroll_speed", SCROLL_SPEED)),
+            "logo_every": int(d.get("logo_every", 0)),
+            "contrast": d.get("contrast"),
+            "burn_in_shift": bool(d.get("burn_in_shift", True))}
+
+
+def contrast_level(percent: int) -> int:
+    """display.contrast (1-100 %, like the simulator's slider) -> the
+    controller's 0-255 contrast register."""
+    return max(0, min(255, round(percent * 255 / 100)))
 
 
 def local_ip() -> str | None:
@@ -681,6 +700,9 @@ class Display:
 
     def __init__(self, config: dict, status_path: Path, font: Font, repeats: int, db_path: Path = DEFAULT_DB):
         gw = config.get("gateway", {})
+        ds = display_settings(config)
+        self.screen_s, self.speed, self.logo_every = ds["screen_seconds"], ds["scroll_speed"], ds["logo_every"]
+        self.burn_in_shift = ds["burn_in_shift"]
         self.config, self.db_path = config, db_path
         self.status_path = status_path
         self.poll_interval = int(gw.get("poll_interval") or 20)
@@ -700,19 +722,19 @@ class Display:
         if mono - self.ip_read >= 10:
             self.ip, self.ip_read = local_ip(), mono
             self.db, self.ssid = database_info(self.config, self.db_path), wifi_ssid()
-        if mono - self.started >= screen_seconds(self.kind, len(self.sensors), self.font):
-            self.kind, self.k = next_screen(self.kind, self.k, self.repeats)
+        if mono - self.started >= screen_seconds(self.kind, len(self.sensors), self.font, self.screen_s, self.speed):
+            self.kind, self.k = next_screen(self.kind, self.k, self.repeats, self.rounds, self.logo_every)
             self.started = mono
             if self.kind == "system":
                 self.rounds += 1
         clock = datetime.fromtimestamp(now, self.tz).strftime("%H:%M:%S")
         view = View(self.font, self.status, self.sensors, self.gateway_id, clock, now, self.ip, self.logo, self.db,
-                    self.ssid, self.client)
+                    self.ssid, self.client, self.speed)
         return render(self.kind, mono - self.started, view)
 
     @property
     def shift(self) -> tuple[int, int]:
-        return SHIFTS[self.rounds % len(SHIFTS)]
+        return SHIFTS[self.rounds % len(SHIFTS)] if self.burn_in_shift else (0, 0)
 
     @property
     def scrolling(self) -> bool:
@@ -740,8 +762,8 @@ def write_pngs(config: dict, status_path: Path, font: Font, out: Path, scale: in
     now = time.time()
     view = View(font, read_status(status_path, poll), d.sensors, d.gateway_id,
                 datetime.fromtimestamp(now, d.tz).strftime("%H:%M:%S"), now, local_ip(), d.logo,
-                database_info(config, d.db_path), wifi_ssid(), d.client)
-    end = screen_seconds("sensors", len(d.sensors), font)
+                database_info(config, d.db_path), wifi_ssid(), d.client, d.speed)
+    end = screen_seconds("sensors", len(d.sensors), font, d.screen_s, d.speed)
     shots = [("logo", "logo", BOOT_PASS_SECONDS * 2.5), ("logo_100", "logo", LOGO_SECONDS), ("sistema", "system", 0),
              ("sensores_inicio", "sensors", 0), ("sensores_medio", "sensors", end / 2),
              ("sensores_fin", "sensors", end)]
@@ -781,7 +803,7 @@ def main(argv=None) -> int:
         return 0
     if not (ds["enabled"] or args.force):
         # Exit 0 so systemd (Restart=on-failure) leaves it stopped.
-        logger.info("OLED display is off (system.csv display_enabled) - exiting")
+        logger.info("OLED display is off (display.csv enabled) - exiting")
         return 0
 
     driver, address = args.driver or ds["driver"], args.address or ds["address"]
@@ -794,6 +816,8 @@ def main(argv=None) -> int:
         logger.error(f"Can't open the {driver} display at I2C 0x{address:02X}: {e!r}")
         return 1
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
+    if ds["contrast"] is not None:
+        device.contrast(contrast_level(int(ds["contrast"])))
     if driver == "sh1106":
         driver = f"sh1106 (column offset {offset})"
     logger.info(f"OLED display: {driver} at I2C 0x{address:02X}, font {font.cols}x{font.rows + 1}, "

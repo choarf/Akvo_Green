@@ -261,6 +261,43 @@ def test_sequence_logo_then_system_and_two_sensor_screens():
     assert seq == ["system", "sensors", "sensors", "system", "sensors", "sensors", "system"]
 
 
+def test_sequence_logo_every_n_rounds():
+    seq, kind, k, rounds = [], "logo", 0, 0
+    for _ in range(11):
+        kind, k = od.next_screen(kind, k, 1, rounds, logo_every=2)
+        rounds += kind == "system"
+        seq.append(kind)
+    assert seq == ["system", "sensors", "system", "sensors", "logo",
+                   "system", "sensors", "system", "sensors", "logo", "system"]
+
+
+def test_screen_time_and_scroll_speed_are_settable():
+    assert od.screen_seconds("system", 15, F35, screen_s=8) == 8
+    assert od.screen_seconds("sensors", 15, F35, speed=11) == pytest.approx(3 + 33 / 11)
+    assert od.scroll_offset(1.5 + 2.0, 15, F35, speed=3) == 6
+
+
+def test_display_settings_defaults_and_overrides():
+    ds = od.display_settings({"display": {}})
+    assert (ds["screen_seconds"], ds["scroll_speed"], ds["logo_every"], ds["contrast"], ds["burn_in_shift"]) == \
+        (od.SCREEN_SECONDS, od.SCROLL_SPEED, 0, None, True)
+    ds = od.display_settings({"display": {"screen_seconds": 4, "logo_every": 2, "contrast": 50, "burn_in_shift": False}})
+    assert (ds["screen_seconds"], ds["logo_every"], ds["contrast"], ds["burn_in_shift"]) == (4.0, 2, 50, False)
+
+
+def test_contrast_percent_maps_to_the_register():
+    assert (od.contrast_level(100), od.contrast_level(50), od.contrast_level(1)) == (255, 128, 3)
+
+
+def test_burn_in_shift_can_be_turned_off(tmp_path):
+    d = od.Display({**CONFIG, "display": {"burn_in_shift": False}}, tmp_path / "missing.json", F35, 2)
+    d.rounds = 1
+    assert d.shift == (0, 0)
+    d = od.Display(CONFIG, tmp_path / "missing.json", F35, 2)
+    d.rounds = 1
+    assert d.shift == od.SHIFTS[1]
+
+
 def test_display_tick_follows_the_clock(monkeypatch, tmp_path):
     clock = {"t": 0.0}
     monkeypatch.setattr(od.time, "monotonic", lambda: clock["t"])

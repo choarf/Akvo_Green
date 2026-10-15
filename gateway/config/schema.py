@@ -191,6 +191,20 @@ def _validate_display(config: dict) -> list[str]:
     offset = data.get("column_offset")
     if "column_offset" in data and not (is_int(offset) and 0 <= offset <= 4):
         errors.append(f"display.column_offset must be an int between 0 and 4, got {offset!r}")
+
+    def is_num(v):
+        return isinstance(v, (int, float)) and not isinstance(v, bool)
+
+    for key, lo, hi in (("screen_seconds", 1, 60), ("scroll_speed", 1, 60)):
+        v = data.get(key)
+        if key in data and not (is_num(v) and lo <= v <= hi):
+            errors.append(f"display.{key} must be a number between {lo} and {hi}, got {v!r}")
+    for key, lo, hi in (("logo_every", 0, 10), ("contrast", 1, 100)):
+        v = data.get(key)
+        if key in data and not (is_int(v) and lo <= v <= hi):
+            errors.append(f"display.{key} must be an int between {lo} and {hi}, got {v!r}")
+    if "burn_in_shift" in data and not isinstance(data["burn_in_shift"], bool):
+        errors.append(f"display.burn_in_shift must be a boolean, got {data['burn_in_shift']!r}")
     return errors
 
 
