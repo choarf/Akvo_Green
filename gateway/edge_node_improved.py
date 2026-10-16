@@ -1038,9 +1038,11 @@ class EdgeNode:
                 if self.simulate_modbus:
                     payload["simulated"] = True
 
-                # Local first (history, then the OLED/web status file), AWS
-                # last: an AWS problem must never hold up what is shown and
-                # stored on the Pi itself.
+                # History first, then AWS, then the OLED/web status file:
+                # publish() never blocks (no connection = skipped, reconnect
+                # in the background) and its errors are caught here, so AWS
+                # can't hold up the Pi's own data - and the status file
+                # written after it carries this cycle's last_publish.
                 if self.history is not None:
                     # Own try/except, separate from the one below: a sqlite3
                     # failure (locked db, disk full, ...) must never mask an
@@ -1051,13 +1053,16 @@ class EdgeNode:
                     except Exception as e:
                         logger.error(f"History record_devices error: {e}")
 
+                try:
+                    self.mqtt.publish(cfg["aws"]["topic_pub"], payload)
+                except Exception as e:
+                    logger.error(f"Publisher MQTT error: {e}")
+
                 # Same isolation: a status-file problem never stops publishing.
                 try:
                     self.write_status(cfg, payload)
                 except Exception as e:
                     logger.error(f"Status file error: {e}")
-
-                self.mqtt.publish(cfg["aws"]["topic_pub"], payload)
             except Exception as e:
                 # See scheduler() - same reasoning: don't let one bad cycle
                 # permanently kill the thread that reports device data.

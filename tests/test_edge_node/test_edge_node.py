@@ -255,7 +255,7 @@ def test_init_system_does_not_wait_for_aws(monkeypatch):
         release.set()
 
 
-def test_publisher_writes_history_and_status_before_aws(monkeypatch):
+def test_publisher_order_history_aws_status_and_aws_errors_skip_nothing(monkeypatch):
     node = make_node()
     node.stop_event = threading.Event()
     node.simulate_modbus = False
@@ -269,12 +269,16 @@ def test_publisher_writes_history_and_status_before_aws(monkeypatch):
     class Mqtt:
         def publish(self, topic, payload):
             order.append("aws")
-            node.stop_event.set()
+            raise RuntimeError("unexpected")   # must not skip the status file
+
+    def status(cfg, payload):
+        order.append("status")
+        node.stop_event.set()
 
     node.history, node.mqtt = History(), Mqtt()
-    monkeypatch.setattr(node, "write_status", lambda cfg, payload: order.append("status"))
+    monkeypatch.setattr(node, "write_status", status)
     node.publisher()
-    assert order == ["history", "status", "aws"]
+    assert order == ["history", "aws", "status"]   # status after AWS: fresh last_publish
 
 
 def test_system_publisher_records_history_before_aws(monkeypatch):
