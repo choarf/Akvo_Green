@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-10-15T23:38:51.886285+00:00",
-        "hash": "29eb291cad3a788f256960a2caeb08e7"
+        "generated_at": "2026-10-16T01:01:34.610458+00:00",
+        "hash": "9610cba2aa5cef6b7eb05c2487b10c8b"
     },
     "gateway": {
         "gateway_id": "AKVO_cmd4",
@@ -307,7 +307,7 @@
     ],
     "database": {
         "enabled": true,
-        "retention_days": 30
+        "retention_days": 7
     },
     "web": {
         "enabled": true,
@@ -315,14 +315,15 @@
     },
     "display": {
         "enabled": true,
-        "driver": "ssd1309",
+        "driver": "sh1106",
         "address": 60,
-        "font": "3x5",
-        "sensor_repeats": 2,
-        "sensor_list": "scroll",
+        "column_offset": 3,
+        "font": "5x7",
+        "sensor_repeats": 3,
+        "sensor_list": "pages",
         "screen_seconds": 5.0,
         "scroll_speed": 6.0,
-        "logo_every": 0,
+        "logo_every": 4,
         "burn_in_shift": true
     },
     "wifi": {

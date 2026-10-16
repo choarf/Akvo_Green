@@ -1,2 +1,2 @@
-enabled,driver,address,column_offset,font,sensor_repeats,sensor_list,screen_seconds,scroll_speed,logo_every,burn_in_shift
-1,sh1106,0x3C,3,5x7,3,pages,5,6,4,1
+enabled,driver,address,column_offset,font,sensor_repeats,sensor_list,per_page,screen_seconds,scroll_speed,logo_every,contrast,burn_in_shift
+1,sh1106,0x3C,3,5x7,3,pages,,5,6,4,,1

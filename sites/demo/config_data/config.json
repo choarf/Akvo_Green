@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-10-14T14:44:59.579044+00:00",
-        "hash": "4888fe529e846fde26dc19337a2f7ebd"
+        "generated_at": "2026-10-16T01:01:34.696156+00:00",
+        "hash": "6f719cda156a6bc724ef2e539f5696f7"
     },
     "gateway": {
         "gateway_id": "AKVO_Demo",
@@ -312,6 +312,18 @@
     "web": {
         "enabled": true,
         "port": 8080
+    },
+    "display": {
+        "enabled": false,
+        "driver": "ssd1309",
+        "address": 60,
+        "font": "3x5",
+        "sensor_repeats": 2,
+        "sensor_list": "scroll",
+        "screen_seconds": 5.0,
+        "scroll_speed": 6.0,
+        "logo_every": 0,
+        "burn_in_shift": true
     },
     "wifi": {
         "networks": [
