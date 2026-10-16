@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-10-15T23:38:51.756483+00:00",
-        "hash": "242c54dad8be4f2aa309dbe1f3719cee"
+        "generated_at": "2026-10-15T23:58:59.502318+00:00",
+        "hash": "acb47b9c8a0b5c8e789f56f525e62181"
     },
     "gateway": {
         "gateway_id": "AKVO_akvo01005",
@@ -320,10 +320,10 @@
         "column_offset": 3,
         "font": "5x7",
         "sensor_repeats": 3,
-        "sensor_list": "scroll",
+        "sensor_list": "pages",
         "screen_seconds": 5.0,
         "scroll_speed": 6.0,
-        "logo_every": 0,
+        "logo_every": 4,
         "burn_in_shift": true
     },
     "wifi": {
