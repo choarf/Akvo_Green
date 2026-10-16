@@ -226,3 +226,18 @@ def test_invalid_client_is_an_error(client):
     config["gateway"]["client"] = client
     errors, _ = validate(config)
     assert any("gateway.client" in e for e in errors)
+
+
+@pytest.mark.parametrize("database, ok", [
+    ({"enabled": True, "max_mb": 500, "interval": 60}, True),
+    ({"max_mb": 10}, True),
+    ({"max_mb": 5}, False),
+    ({"max_mb": "500"}, False),
+    ({"interval": 0}, False),
+    ({"interval": True}, False),
+])
+def test_database_max_mb_and_interval(database, ok):
+    config = copy.deepcopy(VALID_CONFIG)
+    config["database"] = database
+    errors = validate(config)[0]
+    assert (errors == []) is ok

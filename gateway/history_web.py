@@ -365,10 +365,15 @@ class App:
         self.system_interval = int(gw.get("system_interval") or 60)
         self.simulated = bool(config.get("modbus", {}).get("simulate"))
         self.database = config.get("database", {})
+        # How often readings are actually stored: every poll, or every
+        # database.interval s - what the charts, alarm gaps and the
+        # "last data" badge must expect between stored rows.
+        self.record_interval = max(self.poll_interval, int(self.database.get("interval") or 0))
 
     def info(self, conn) -> dict:
         return {"gateway_id": self.gateway_id, "client": self.client, "city": self.city, "poll_interval": self.poll_interval,
                 "system_interval": self.system_interval, "simulated": self.simulated,
+                "record_interval": self.record_interval, "max_mb": self.database.get("max_mb"),
                 "retention_days": self.database.get("retention_days", 30),
                 "database_enabled": bool(self.database.get("enabled")),
                 "now": iso(datetime.now(UTC)), "db": db_info(conn, self.db_path)}
@@ -411,18 +416,18 @@ def make_handler(app: App):
                 return self._json(app.info(conn))
             if path == "/api/overview":
                 since = datetime.now(UTC) - timedelta(hours=1)
-                return self._json({"sensors": overview(conn, since, max(60, app.poll_interval))})
+                return self._json({"sensors": overview(conn, since, max(60, app.record_interval))})
             if path == "/api/sensors":
                 return self._json({"sensors": list_sensors(conn)})
             if path == "/api/history":
                 start, end = time_range(q, timedelta(hours=24), MAX_RANGE)
-                step = bucket_seconds(start, end, app.poll_interval)
+                step = bucket_seconds(start, end, app.record_interval)
                 return self._json({"start": iso(start), "end": iso(end), "step_s": step, "series": [
                     {**s, "points": sensor_series(conn, s, start, end, step)}
                     for s in pick_sensors(conn, q.get("sensors"))]})
             if path == "/api/alarms":
                 start, end = time_range(q, timedelta(hours=24), MAX_RANGE)
-                eps = alarm_episodes(conn, start, end, gap_s=2.5 * app.poll_interval)
+                eps = alarm_episodes(conn, start, end, gap_s=2.5 * app.record_interval)
                 return self._json({"start": iso(start), "end": iso(end), "episodes": eps})
             if path == "/api/system":
                 start, end = time_range(q, timedelta(hours=24), MAX_RANGE)

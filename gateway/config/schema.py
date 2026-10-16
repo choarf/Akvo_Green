@@ -132,6 +132,16 @@ def _validate_database(config: dict) -> list[str]:
         isinstance(retention, int) and not isinstance(retention, bool) and retention > 0
     ):
         errors.append(f"database.retention_days must be a positive int, got {retention!r}")
+
+    def is_int(v):
+        return isinstance(v, int) and not isinstance(v, bool)
+
+    # max_mb: ring by size (min 10 MB - below that the schema and one
+    # trim round don't fit); interval: seconds between stored readings.
+    for key, lo, hi in (("max_mb", 10, 100_000), ("interval", 1, 86_400)):
+        v = data.get(key)
+        if key in data and not (is_int(v) and lo <= v <= hi):
+            errors.append(f"database.{key} must be an int between {lo} and {hi}, got {v!r}")
     return errors
 
 

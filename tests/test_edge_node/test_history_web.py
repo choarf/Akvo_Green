@@ -329,3 +329,12 @@ def test_http_system_includes_network(server):
     start, end = int(T0.timestamp() * 1000), int((T0 + timedelta(hours=1)).timestamp() * 1000)
     body = json.loads(get(f"{server}/api/system?start={start}&end={end}")[2])
     assert body["network"]["step_s"] == 300 and "total_recv" in body["network"]
+
+
+def test_stored_reading_cadence_follows_database_interval(tmp_path):
+    slow = {**CONFIG, "database": {"enabled": True, "interval": 300, "max_mb": 200}}
+    app = hw.App(slow, tmp_path / "none.db")
+    assert app.record_interval == 300   # charts, alarm gaps and the "last data" badge expect this
+    assert hw.App(CONFIG, tmp_path / "none.db").record_interval == CONFIG["gateway"]["poll_interval"]
+    fast = {**CONFIG, "database": {"enabled": True, "interval": 1}}
+    assert hw.App(fast, tmp_path / "none.db").record_interval == CONFIG["gateway"]["poll_interval"]

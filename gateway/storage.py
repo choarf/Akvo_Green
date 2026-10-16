@@ -111,11 +111,21 @@ class HistoryStore:
         db_path: str | Path = DEFAULT_DB_PATH,
         retention_days: int = 30,
         prune_interval_seconds: float = 3600,
+        max_mb: float | None = None,
+        record_interval: float = 0,
     ):
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.retention_days = retention_days
         self.prune_interval_seconds = prune_interval_seconds
+        # database.max_mb: also a ring by size - prune() drops the oldest
+        # rows until the data fits. None = by age (retention_days) only.
+        self.max_mb = max_mb
+        # database.interval: store sensor readings at most this often (s),
+        # whatever the poll rate; 0 = every poll. AWS and the OLED still get
+        # every poll - only what is kept locally thins out.
+        self.record_interval = record_interval
+        self._last_record = None
         self._local = threading.local()
         self._last_pruned = 0.0
 
@@ -336,6 +346,12 @@ class HistoryStore:
         "status":..,"alarm":..}}}} shape - flattened to one row per
         (device_id, sensor_name). `value` is left NULL for BUS_ERROR/
         EXCEPTION entries, which carry no "val" key."""
+        now = time.monotonic()
+        # 1 s of slack: polls are poll_interval apart plus a little work,
+        # so with interval = 3 x poll every 3rd one is kept, not every 4th.
+        if (self.record_interval and self._last_record is not None
+                and now - self._last_record < self.record_interval - 1):
+            return
         conn = self._connect()
         # NULL sensor_id (sensor not mirrored yet, e.g. a reading landing
         # between a config reload and its sync_config() call) is fine - the
@@ -366,6 +382,7 @@ class HistoryStore:
             rows,
         )
         conn.commit()
+        self._last_record = now
 
     def record_system(self, status: dict) -> None:
         """status is get_system_status()'s exact return dict."""
@@ -472,7 +489,44 @@ class HistoryStore:
         r = conn.execute("DELETE FROM readings WHERE ts < ?", (cutoff_iso,))
         s = conn.execute("DELETE FROM system_telemetry WHERE ts < ?", (cutoff_iso,))
         conn.commit()
-        return r.rowcount, s.rowcount
+        r2, s2 = self._trim_to_size(conn)
+        return r.rowcount + r2, s.rowcount + s2
+
+    def data_bytes(self, conn=None) -> int:
+        """Bytes of data in the database (pages in use). The file itself
+        never shrinks after deletes - SQLite reuses the freed pages - so
+        this, not the file size, is what max_mb limits."""
+        conn = conn or self._connect()
+        page_size = conn.execute("PRAGMA page_size").fetchone()[0]
+        pages = conn.execute("PRAGMA page_count").fetchone()[0]
+        free = conn.execute("PRAGMA freelist_count").fetchone()[0]
+        return (pages - free) * page_size
+
+    def _trim_to_size(self, conn) -> tuple[int, int]:
+        """Ring by size: while the data is over max_mb, delete the oldest
+        ~10% of readings and the telemetry up to the same moment."""
+        if not self.max_mb:
+            return 0, 0
+        limit = self.max_mb * 1024 * 1024
+        r_total = s_total = 0
+        for _ in range(50):   # bounded: each round removes ~10%
+            if self.data_bytes(conn) <= limit:
+                break
+            n = conn.execute("SELECT COUNT(*) FROM readings").fetchone()[0]
+            if n:
+                cutoff = conn.execute("SELECT ts FROM readings ORDER BY ts LIMIT 1 OFFSET ?",
+                                      (max(1, n // 10) - 1,)).fetchone()[0]
+            else:
+                row = conn.execute("SELECT ts FROM system_telemetry ORDER BY ts LIMIT 1 OFFSET ?",
+                                   (max(1, conn.execute("SELECT COUNT(*) FROM system_telemetry")
+                                        .fetchone()[0] // 10) - 1,)).fetchone()
+                if row is None:
+                    break   # nothing left to trim (the limit is below the empty schema)
+                cutoff = row[0]
+            r_total += conn.execute("DELETE FROM readings WHERE ts <= ?", (cutoff,)).rowcount
+            s_total += conn.execute("DELETE FROM system_telemetry WHERE ts <= ?", (cutoff,)).rowcount
+            conn.commit()
+        return r_total, s_total
 
     def maybe_prune(self, now: float | None = None) -> None:
         """No-ops unless prune_interval_seconds has elapsed since the last

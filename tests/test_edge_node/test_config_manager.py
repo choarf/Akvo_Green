@@ -146,6 +146,33 @@ def read_system_row(workspace):
         return next(csv.DictReader(f))
 
 
+def test_build_maps_database_max_mb_and_interval(workspace):
+    write_system(workspace, database_enabled="1", database_retention_days="30",
+                 database_max_mb="500", database_interval="60")
+    assert build()["database"] == {"enabled": True, "retention_days": 30, "max_mb": 500, "interval": 60}
+
+
+def test_build_rejects_bad_database_max_mb(workspace):
+    write_system(workspace, database_enabled="1", database_max_mb="lots")
+    with pytest.raises(ValueError, match="database_max_mb"):
+        build()
+
+
+def test_build_rejects_out_of_range_database_interval(workspace):
+    write_system(workspace, database_enabled="1", database_interval="0")
+    with pytest.raises(Exception, match="database.interval"):
+        build()
+
+
+def test_export_writes_database_max_mb_and_interval_back(workspace):
+    write_system(workspace, database_enabled="1", database_max_mb="200", database_interval="300")
+    build()
+    write_system(workspace)
+    cm.ConfigManager().export_config()
+    row = read_system_row(workspace)
+    assert (row["database_max_mb"], row["database_interval"]) == ("200", "300")
+
+
 def test_export_writes_database_columns_back_to_system_csv(workspace):
     write_system(workspace, database_enabled="1", database_retention_days="45")
     build()

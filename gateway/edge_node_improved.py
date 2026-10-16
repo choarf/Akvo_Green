@@ -910,7 +910,9 @@ class EdgeNode:
         db_cfg = cfg.get("database", {})
         if db_cfg.get("enabled"):
             try:
-                self.history = HistoryStore(retention_days=db_cfg.get("retention_days", 30))
+                self.history = HistoryStore(retention_days=db_cfg.get("retention_days", 30),
+                                            max_mb=db_cfg.get("max_mb"),
+                                            record_interval=db_cfg.get("interval", 0))
                 self._sync_history_config(cfg)
             except Exception as e:
                 logger.error(f"History database init failed, continuing without it: {e}")

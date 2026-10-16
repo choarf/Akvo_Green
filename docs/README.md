@@ -184,7 +184,7 @@ cd gateway && python3 config_manager.py build
 
 This produces a `database` section in `config.json` (`"database": { "enabled": true, "retention_days": 30 }`). The columns are optional — a `system.csv` without them leaves the database off.
 
-`retention_days` (default `30`) bounds disk use: older readings and telemetry are pruned hourly. The file is `data/history.db` at the repo root. Leaving the columns out, or `database_enabled` at `0`, keeps everything exactly as before. `config_manager.py export` writes the settings back to `system.csv`. The startup log confirms it worked:
+`retention_days` (default `30`) bounds disk use: older readings and telemetry are pruned hourly. Optional `database_max_mb` also caps the data by size (oldest rows go first, like a ring buffer), and `database_interval` stores readings only every N seconds (AWS and the OLED still get every poll); see `docs/edge_node_config/CONFIGURATION.md`. The file is `data/history.db` at the repo root. Leaving the columns out, or `database_enabled` at `0`, keeps everything exactly as before. `config_manager.py export` writes the settings back to `system.csv`. The startup log confirms it worked:
 
 ```text
 History DB synced from config.json -> added:['DEV_1', 'DEV_2', ...] removed:[] updated:[]

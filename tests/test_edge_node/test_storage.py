@@ -11,6 +11,7 @@ import pytest
 
 import edge_node_improved as en
 from config.schema import validate
+import storage
 from storage import HistoryStore
 from test_config_schema import VALID_CONFIG
 
@@ -398,3 +399,62 @@ def test_existing_database_gets_the_network_columns(tmp_path):
     s.close()
     assert got == [{"gateway": "old", "net_bytes_recv": None, "net_bytes_sent": None},
                    {"gateway": "new", "net_bytes_recv": 5, "net_bytes_sent": 7}]
+
+
+# ---------------------------------------------------------------------------
+# database.interval (store readings at most every N s) and database.max_mb
+# (ring by size)
+# ---------------------------------------------------------------------------
+
+def _payload(ts, n=5):
+    return {"ts": ts, "devices": {"DEV_1": {f"S{i}": {"val": float(i), "status": "OK", "alarm": "NORMAL"}
+                                            for i in range(n)}}}
+
+
+def _count(store):
+    return store._connect().execute("SELECT COUNT(*) FROM readings").fetchone()[0]
+
+
+def test_record_interval_keeps_every_nth_poll(tmp_path, monkeypatch):
+    s = HistoryStore(db_path=tmp_path / "h.db", record_interval=60)
+    clock = {"t": 1000.0}
+    monkeypatch.setattr(storage.time, "monotonic", lambda: clock["t"])
+    for k in range(9):                       # 9 polls, 20.3 s apart (poll 20 s + some work)
+        clock["t"] = 1000.0 + k * 20.3
+        s.record_devices(_payload(f"2026-10-15T00:00:{k:02d}+00:00", n=1))
+    assert _count(s) == 3                    # polls 0, 3, 6
+    s.close()
+
+
+def test_record_interval_zero_keeps_every_poll(tmp_path):
+    s = HistoryStore(db_path=tmp_path / "h.db")
+    for k in range(4):
+        s.record_devices(_payload(f"2026-10-15T00:00:{k:02d}+00:00", n=1))
+    assert _count(s) == 4
+    s.close()
+
+
+def test_max_mb_trims_the_oldest_rows_until_the_data_fits(tmp_path):
+    s = HistoryStore(db_path=tmp_path / "h.db", retention_days=3650)
+    base = datetime(2026, 1, 1, tzinfo=UTC)
+    for k in range(3000):
+        s.record_devices(_payload((base + timedelta(minutes=k)).isoformat(), n=10))
+    full = s.data_bytes()
+    s.max_mb = full / 2 / (1024 * 1024)      # half of what is there now
+    s.prune(now=base + timedelta(days=5))
+    assert s.data_bytes() <= full / 2
+    conn = s._connect()
+    oldest, newest = conn.execute("SELECT MIN(ts), MAX(ts) FROM readings").fetchone()
+    assert newest == (base + timedelta(minutes=2999)).isoformat()   # newest kept
+    assert oldest > base.isoformat()                                  # oldest dropped
+    s.close()
+
+
+def test_max_mb_unset_or_not_reached_deletes_nothing(tmp_path):
+    s = HistoryStore(db_path=tmp_path / "h.db", retention_days=3650, max_mb=500)
+    base = datetime(2026, 1, 1, tzinfo=UTC)
+    for k in range(50):
+        s.record_devices(_payload((base + timedelta(minutes=k)).isoformat()))
+    assert s.prune(now=base + timedelta(days=1)) == (0, 0)
+    assert _count(s) == 250
+    s.close()

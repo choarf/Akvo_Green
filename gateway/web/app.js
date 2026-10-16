@@ -97,7 +97,7 @@ async function refreshInfo() {
   const fresh = $("#fresh");
   const last = info.db.last ? Date.parse(info.db.last) : null;
   const age = last ? Date.parse(info.now) - last : null;
-  const ok = age != null && age < 3 * info.poll_interval * 1000;
+  const ok = age != null && age < 3 * (info.record_interval || info.poll_interval) * 1000;  // stored-reading cadence
   fresh.className = `badge ${ok ? "ok" : "stale"}`;
   fresh.textContent = last ? `Último dato hace ${fmtAgo(age)}` : "Sin datos todavía";
 }
@@ -401,7 +401,8 @@ async function viewSistema() {
     ["Tamaño", `${(db.size_bytes / 1048576).toLocaleString("es-MX", { maximumFractionDigits: 1 })} MB`],
     ["Lecturas", db.readings.toLocaleString("es-MX")], ["Telemetría", db.system_rows.toLocaleString("es-MX")],
     ["Desde", db.first ? fmtTime(Date.parse(db.first)) : null], ["Hasta", db.last ? fmtTime(Date.parse(db.last)) : null],
-    ["Se conservan", `${info.retention_days} días`],
+    ["Se conservan", `${info.retention_days} días` + (info.max_mb ? ` o hasta ${info.max_mb} MB` : "")],
+    ["Guardar cada", `${info.record_interval || info.poll_interval} s`],
   ]);
   const p = sys.points;
   lineChart($("#s-chart"), {

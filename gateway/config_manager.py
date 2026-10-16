@@ -355,6 +355,14 @@ class ConfigManager:
                     raise ValueError(
                         f"system.csv: database_retention_days must be an integer, got {retention!r}"
                     )
+            # Optional ring by size and storage cadence (blank = off).
+            for key in ("max_mb", "interval"):
+                value = (s.get(f"database_{key}") or "").strip()
+                if value:
+                    try:
+                        config["database"][key] = int(value)
+                    except ValueError:
+                        raise ValueError(f"system.csv: database_{key} must be an integer, got {value!r}")
 
         # Optional local web dashboard over that database (history_web.py,
         # its own systemd service) - same pattern: its own "web" section,
@@ -528,6 +536,9 @@ class ConfigManager:
             row["database_enabled"] = int(bool(database.get("enabled", False)))
             if "retention_days" in database:
                 row["database_retention_days"] = database["retention_days"]
+            for key in ("max_mb", "interval"):
+                if key in database:
+                    row[f"database_{key}"] = database[key]
         web = config.get("web")
         if web is not None:
             row["web_enabled"] = int(bool(web.get("enabled", False)))

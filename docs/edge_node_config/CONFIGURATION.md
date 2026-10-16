@@ -141,6 +141,8 @@ One header row + one data row — gateway identity and timing.
 | `watchdog_timeout` | int (seconds) | If the worker thread (the one doing Modbus reads) stalls for longer than this — genuinely stuck, e.g. blocked inside a library call that never returns, not just returning read errors — a dedicated watchdog thread logs a `CRITICAL` line and reboots the whole host (`sudo reboot`, via the same `_RebootEscalator`/`_default_reboot_fn` the three communication managers use — see `CLAUDE.md`'s Architecture section). Leave blank/`0` to disable. Guarded by the same reboot-loop limit (max 3 reboots/hour) so a problem a reboot can't fix doesn't boot-loop the device. |
 | `database_enabled` | bool (optional) | `1`/`true`/`yes`/`on` turns on the local SQLite history store; `0`/blank/anything else leaves it off. Becomes `database.enabled` in `config.json` — **not** a `gateway` key. See [Local history database](#local-history-database-optional-database-section). |
 | `database_retention_days` | int (optional) | Days of readings/telemetry to keep (default `30` when blank). Becomes `database.retention_days`. Must be a positive integer — a non-integer fails `build` with a clear message. |
+| `database_max_mb` | int (optional) | Also keep the data under this many MB (10-100000): the oldest rows go first. Blank = limited by days only. Becomes `database.max_mb`. |
+| `database_interval` | int (optional) | Store sensor readings at most every N seconds (1-86400), e.g. `60` with a 20 s poll keeps every 3rd. Blank = every poll. AWS and the OLED still get every poll. Becomes `database.interval`. |
 | `web_enabled` | bool (optional) | `1` turns on the local web dashboard over that database (`gateway/history_web.py`, service `akvo-history-web`); `0`/blank/absent leaves it off. Becomes `web.enabled`. See [Local web dashboard](#local-web-dashboard-optional-web-section). |
 | `web_port` | int (optional) | Port of that dashboard (default `8080` when blank). Becomes `web.port`; must be 1-65535. |
 | `wifi1_ssid` | text (optional) | Preferred WiFi network. Becomes `wifi.networks[0]`. Its password goes in the site's git-ignored `wifi.csv`, never here. See [WiFi networks](#wifi-networks-optional-wifi-section). |
@@ -273,18 +275,18 @@ or changed (`reload_devices()`), leaving unaffected devices running.
 
 An optional top-level `database` object in `config.json` turns on a local
 SQLite history store (`gateway/storage.py`, file `data/history.db` at the
-repo root). It is configured with the `database_enabled` and
-`database_retention_days` columns of **`system.csv`**; `config_manager.py
+repo root). It is configured with the `database_enabled`, `database_retention_days`,
+`database_max_mb` and `database_interval` columns of **`system.csv`**; `config_manager.py
 build` writes them into `config.json` as a separate top-level `database`
 section (and `export` writes them back):
 
 ```csv
-...,watchdog_timeout,database_enabled,database_retention_days
-...,120,1,30
+...,watchdog_timeout,database_enabled,database_retention_days,database_max_mb,database_interval
+...,120,1,30,500,60
 ```
 
 ```json
-"database": { "enabled": true, "retention_days": 30 }
+"database": { "enabled": true, "retention_days": 30, "max_mb": 500, "interval": 60 }
 ```
 
 `system.csv` is the source of truth for this section when you go through
@@ -297,13 +299,21 @@ replaced on the next `build` (edit `system.csv` instead). Editing
 |---|---|---|
 | `enabled` | off (section absent = off) | Record readings/telemetry and mirror devices/sensors. |
 | `retention_days` | `30` | Readings and system telemetry older than this are pruned (hourly). Device/sensor/config records are never pruned. |
+| `max_mb` | none | Ring by size: at the same hourly prune, while the data is over this many MB the oldest ~10% of readings (and the telemetry up to that moment) are deleted. Days and size both apply - whichever is reached first. |
+| `interval` | every poll | Seconds between stored sensor readings. Only thins what is kept locally; AWS, the OLED and the status file still get every poll. System telemetry is stored every `system_interval` as before. |
+
+**It works as a ring buffer.** Deleted rows free pages that SQLite reuses
+for new ones, so once the days (or MB) limit is reached `history.db` stops
+growing. The file never shrinks (no `VACUUM`), which is why `max_mb`
+measures the pages in use, not the file size; allow some headroom on the
+disk for the file plus its `-wal` journal (a few MB).
 
 Read once at startup — changing `database.*` needs a restart. A database
 failure (unwritable `data/`, locked file, full disk) is logged and never
 blocks Modbus, MQTT, or config reloads. The database is independent of
 AWS: it is never synced to or replayed to it (a reading missed by AWS
-during an outage is not backfilled from the database), and no polling or
-recording starts until the first MQTT connection succeeds. See the README's [Local history database](../README.md#local-history-database-optional)
+during an outage is not backfilled from the database). Recording doesn't
+depend on AWS either: it starts at boot and continues during an outage. See the README's [Local history database](../README.md#local-history-database-optional)
 section for usage and example queries.
 
 **`config.json` is the source of truth; sync is one-way.** The `devices`
