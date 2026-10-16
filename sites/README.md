@@ -21,7 +21,7 @@ The full procedure covers the AWS IoT certificate and policy, the AWS stack and 
 
 | Site | Client id | Topics | Pi | Modbus | OLED (`display.csv`) | Local history | Local dashboard |
 |---|---|---|---|---|---|---|---|
-| `cmd4` | `AKVO_cmd4` | `VENKO/cmd4/*` | `pi@192.168.68.124` (CM5) | **simulated** | sh1106, offset 3, pages | 7 days | http://192.168.68.124:8080 |
+| `cmd4` | `AKVO_cmd4` | `VENKO/cmd4/*` | `pi@192.168.68.124` (CM5) | **simulated** | none (off) | 7 days | http://192.168.68.124:8080 |
 | `akvo01005` | `AKVO_akvo01005` | `VENKO/akvo01005/*` | `akvo@192.168.68.107` (Pi 4) | **simulated** | sh1106, offset 3, pages | 30 days / 500 MB, every 60 s | http://192.168.68.107:8080 |
 | `demo` | `AKVO_Demo` | `VENKO/demo/*` | Pi 3B+ (offline since 2026-10-10) | **simulated** | off | 30 days | — |
 
