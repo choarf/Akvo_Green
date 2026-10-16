@@ -462,9 +462,12 @@ class MQTTManager:
         # awaited) doesn't raise during an outage, so without the
         # interrupted/resumed callbacks below a dropped link is invisible.
         self.connected = False
-        self.last_change = None    # epoch s of the last connected/disconnected change
+        # Starts at creation, so a gateway that boots without internet shows
+        # AWS down "since start-up" rather than no time at all.
+        self.last_change = time.time()   # epoch s of the last connected/disconnected change
         self.last_publish = None   # epoch s of the last publish() handed to a live connection
         self.last_error = None
+        self._connect_thread = None   # the background connect (connect_in_background)
         # Built once and reused for every connect() attempt over this
         # manager's whole lifetime (including retries and update_config()'s
         # reconnects) - a ClientBootstrap/EventLoopGroup is meant to serve
@@ -520,6 +523,32 @@ class MQTTManager:
                 time.sleep(delay)
                 attempt += 1
 
+    def connect_in_background(self):
+        """Start connect() on its own thread unless one is already running,
+        and return at once. Nothing that reads sensors, writes the local
+        history or the OLED's status file ever waits on AWS: at start-up
+        without internet, after a failed publish, or on a new 'aws' config.
+        connect() rereads self.cfg on every attempt, so a config change
+        reaches a loop that is already retrying."""
+        with self.lock:
+            thread = getattr(self, "_connect_thread", None)
+            if thread is not None and thread.is_alive():
+                return thread
+            thread = threading.Thread(target=self._connect_and_replace, name="MqttConnect", daemon=True)
+            self._connect_thread = thread
+        thread.start()
+        return thread
+
+    def _connect_and_replace(self):
+        with self.lock:
+            old = self.connection
+        self.connect()
+        if old is not None and old is not self.connection:
+            try:
+                old.disconnect().result()
+            except Exception as e:
+                logger.warning(f"MQTT disconnect of old connection failed: {e}")
+
     def _set_connected(self, value):
         if value != self.connected:
             self.connected = value
@@ -543,22 +572,25 @@ class MQTTManager:
 
     def update_config(self, cfg):
         """Called by config_watcher when the 'aws' section changes.
-        Reconnects using the new settings."""
-        old_connection = self.connection
+        Reconnects with the new settings in the background (the old
+        connection is closed once the new one is up) and returns at once -
+        it used to block config_watcher, so a wrong identity kept it retrying
+        forever and it never saw the corrected config."""
         self.cfg = cfg
-        self.connect()  # blocks (retries forever) but no longer holds the lock while doing so
-        try:
-            if old_connection is not None:
-                old_connection.disconnect().result()
-        except Exception as e:
-            logger.warning(f"MQTT disconnect of old connection failed: {e}")
+        self.connect_in_background()
 
     def publish(self, topic, payload):
+        """Never blocks on the network. No connection yet (or a send that
+        raised): skip this message and make sure a background connect is
+        running. With a connection, the AWS library takes the message even
+        during an outage and sends it after its own reconnect."""
         with self.lock:
             connection = self.connection
         if connection is None:
-            logger.error("MQTT publish skipped: not yet connected")
-            self.connect()
+            thread = getattr(self, "_connect_thread", None)
+            if thread is None or not thread.is_alive():
+                logger.error("MQTT publish skipped: not connected - connecting in the background")
+            self.connect_in_background()
             return
         try:
             connection.publish(
@@ -570,8 +602,9 @@ class MQTTManager:
                 self.last_publish = time.time()
         except Exception as e:
             self.last_error = str(e)
-            logger.error(f"MQTT publish failed: {e}")
-            self.connect()
+            logger.error(f"MQTT publish failed: {e} - reconnecting in the background")
+            self._set_connected(False)
+            self.connect_in_background()
 
     def disconnect(self):
         """Cleanly close the connection. Called from EdgeNode.stop() so AWS
@@ -856,15 +889,13 @@ class EdgeNode:
         )
         wifi_thread.start()
 
-        # Only block startup on MQTT. Modbus and WiFi keep retrying forever
-        # in the background - if the serial bus is down/misconfigured,
-        # sensor reads will just come back EXCEPTION/BUS_ERROR until it
-        # connects, but AWS reporting (including system_publisher's
-        # host-health payload) starts immediately regardless (and MQTT's
-        # own connect() retries forever too, so a dead network doesn't
-        # block startup here either - it just means this call takes a
-        # while).
-        self.mqtt.connect()
+        # MQTT connects in the background too, like Modbus and WiFi: a Pi
+        # that boots without internet (power cut before the router is up,
+        # WiFi down, AWS unreachable) still reads its sensors, keeps the
+        # local history and updates the OLED/status file; AWS catches up
+        # once it connects. (This used to block here, so nothing ran at all
+        # until AWS was reachable.)
+        self.mqtt.connect_in_background()
 
         self._modbus_hash = _section_hash(cfg["modbus"])
         self._aws_hash = _section_hash(cfg["aws"])
@@ -1007,8 +1038,9 @@ class EdgeNode:
                 if self.simulate_modbus:
                     payload["simulated"] = True
 
-                self.mqtt.publish(cfg["aws"]["topic_pub"], payload)
-
+                # Local first (history, then the OLED/web status file), AWS
+                # last: an AWS problem must never hold up what is shown and
+                # stored on the Pi itself.
                 if self.history is not None:
                     # Own try/except, separate from the one below: a sqlite3
                     # failure (locked db, disk full, ...) must never mask an
@@ -1024,6 +1056,8 @@ class EdgeNode:
                     self.write_status(cfg, payload)
                 except Exception as e:
                     logger.error(f"Status file error: {e}")
+
+                self.mqtt.publish(cfg["aws"]["topic_pub"], payload)
             except Exception as e:
                 # See scheduler() - same reasoning: don't let one bad cycle
                 # permanently kill the thread that reports device data.
@@ -1074,14 +1108,14 @@ class EdgeNode:
 
                 payload = get_system_status(cfg["gateway"])
 
-                self.mqtt.publish(cfg["aws"]["topic_system"], payload)
-
                 if self.history is not None:
                     try:
                         self.history.record_system(payload)
                         self.history.maybe_prune()
                     except Exception as e:
                         logger.error(f"History record_system error: {e}")
+
+                self.mqtt.publish(cfg["aws"]["topic_system"], payload)
             except Exception as e:
                 # See scheduler() - same reasoning: don't let one bad cycle
                 # permanently kill host-health reporting.
@@ -1129,10 +1163,7 @@ class EdgeNode:
                     # Reconnect MQTT only if its section actually changed.
                     new_aws_hash = _section_hash(cfg["aws"])
                     if new_aws_hash != self._aws_hash:
-                        logger.info(
-                            "AWS/MQTT config changed, reconnecting "
-                            "(config watcher blocks until this succeeds)..."
-                        )
+                        logger.info("AWS/MQTT config changed, reconnecting in the background")
                         self.mqtt.update_config(cfg["aws"])
                         self._aws_hash = new_aws_hash
 

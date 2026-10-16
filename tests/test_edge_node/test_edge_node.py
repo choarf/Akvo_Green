@@ -230,3 +230,72 @@ def test_system_status_counts_network_bytes_on_every_interface_but_loopback(monk
     monkeypatch.setattr(en.psutil, "cpu_percent", lambda interval: 1.0)
     st = en.get_system_status({"gateway_id": "GW1"})
     assert (st["net_bytes_recv"], st["net_bytes_sent"]) == (1030, 204)
+
+
+# ---------------------------------------------------------------------------
+# AWS down: the Pi itself (sensors, history, OLED status file) never waits on it
+# ---------------------------------------------------------------------------
+
+def test_init_system_does_not_wait_for_aws(monkeypatch):
+    release = threading.Event()
+    monkeypatch.setattr(en.MQTTManager, "connect", lambda self: release.wait(5))   # AWS unreachable
+    monkeypatch.setattr(en.WifiManager, "connect", lambda self: None)
+    node = make_node()
+    node.history = None
+    node.config_mgr = FakeConfigMgr({
+        "gateway": {"gateway_id": "GW1"}, "modbus": {"simulate": True}, "devices": [],
+        "aws": {"host": "h", "cert": "c", "key": "k", "ca": "ca", "client_id": "GW1"}})
+    t = time.monotonic()
+    node.init_system()
+    try:
+        assert time.monotonic() - t < 2
+        assert node.mqtt.connected is False and node.mqtt._connect_thread.is_alive()
+        assert node.mqtt.status()["since"] is not None   # "down since start-up" for the OLED
+    finally:
+        release.set()
+
+
+def test_publisher_writes_history_and_status_before_aws(monkeypatch):
+    node = make_node()
+    node.stop_event = threading.Event()
+    node.simulate_modbus = False
+    node.config_mgr = FakeConfigMgr({"gateway": {"poll_interval": 0}, "aws": {"topic_pub": "t"}})
+    order = []
+
+    class History:
+        def record_devices(self, payload):
+            order.append("history")
+
+    class Mqtt:
+        def publish(self, topic, payload):
+            order.append("aws")
+            node.stop_event.set()
+
+    node.history, node.mqtt = History(), Mqtt()
+    monkeypatch.setattr(node, "write_status", lambda cfg, payload: order.append("status"))
+    node.publisher()
+    assert order == ["history", "status", "aws"]
+
+
+def test_system_publisher_records_history_before_aws(monkeypatch):
+    node = make_node()
+    node.stop_event = threading.Event()
+    node.config_mgr = FakeConfigMgr({"gateway": {"system_interval": 0}, "aws": {"topic_system": "s"}})
+    order = []
+
+    class History:
+        def record_system(self, payload):
+            order.append("history")
+
+        def maybe_prune(self):
+            pass
+
+    class Mqtt:
+        def publish(self, topic, payload):
+            order.append("aws")
+            node.stop_event.set()
+
+    node.history, node.mqtt = History(), Mqtt()
+    monkeypatch.setattr(en, "get_system_status", lambda gw: {})
+    node.system_publisher()
+    assert order == ["history", "aws"]

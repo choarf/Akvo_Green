@@ -47,12 +47,22 @@ def test_mqtt_disconnect_is_a_safe_noop_when_not_connected():
     assert mgr.connection is None
 
 
-def test_publish_reconnects_when_not_yet_connected(monkeypatch):
+def test_publish_without_a_connection_connects_in_the_background_and_returns(monkeypatch):
     mgr = make_mqtt_mgr(None)
-    reconnect_calls = []
-    monkeypatch.setattr(mgr, "connect", lambda: reconnect_calls.append(1))
-    mgr.publish("AKVO/data", {"a": 1})
-    assert reconnect_calls == [1]
+    release, started = threading.Event(), []
+
+    def slow_connect():   # an AWS that can't be reached: connect() never returns on its own
+        started.append(1)
+        release.wait(5)
+
+    monkeypatch.setattr(mgr, "connect", slow_connect)
+    mgr.publish("AKVO/data", {"a": 1})          # returns at once
+    mgr.publish("AKVO/data", {"a": 2})          # ...and doesn't start a second connect
+    mgr._connect_thread.join(0.5)
+    assert started == [1] and mgr._connect_thread.is_alive()
+    release.set()
+    mgr._connect_thread.join(1)
+    assert not mgr._connect_thread.is_alive()
 
 
 def test_publish_sends_payload_when_connected():
@@ -62,7 +72,7 @@ def test_publish_sends_payload_when_connected():
     assert conn.published == [("AKVO/data", '{"a": 1}')]
 
 
-def test_publish_reconnects_when_send_raises(monkeypatch):
+def test_publish_reconnects_in_the_background_when_send_raises(monkeypatch):
     class RaisingConnection(FakeMqttConnection):
         def publish(self, topic, payload, qos=None):
             raise RuntimeError("boom")
@@ -71,7 +81,22 @@ def test_publish_reconnects_when_send_raises(monkeypatch):
     reconnect_calls = []
     monkeypatch.setattr(mgr, "connect", lambda: reconnect_calls.append(1))
     mgr.publish("AKVO/data", {"a": 1})
-    assert reconnect_calls == [1]
+    mgr._connect_thread.join(1)
+    assert reconnect_calls == [1] and mgr.connected is False and mgr.last_error == "boom"
+
+
+def test_update_config_returns_at_once_and_replaces_the_old_connection(monkeypatch):
+    old, new = FakeMqttConnection(), FakeMqttConnection()
+    mgr = make_mqtt_mgr(old)
+
+    def connect():
+        assert mgr.cfg == {"client_id": "AKVO_new"}   # the new settings are used
+        mgr.connection = new
+
+    monkeypatch.setattr(mgr, "connect", connect)
+    mgr.update_config({"client_id": "AKVO_new"})
+    mgr._connect_thread.join(1)
+    assert mgr.connection is new and old.disconnected is True and new.disconnected is False
 
 
 # ---------------------------------------------------------------------------
