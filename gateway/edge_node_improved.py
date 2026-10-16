@@ -444,6 +444,17 @@ class WifiManager:
             time.sleep(interval)
 
 
+SERIAL_KEYS = ("port", "baudrate", "bytesize", "parity", "stopbits", "timeout")
+
+
+def serial_settings(cfg: dict) -> dict:
+    """The keys of config.json's "modbus" section that ModbusSerialClient
+    takes. The section also holds "simulate" (and may grow other gateway
+    options), which pymodbus rejects with a TypeError - passing the whole
+    dict meant real sensors (simulate off) could never connect."""
+    return {k: cfg[k] for k in SERIAL_KEYS if k in cfg}
+
+
 # =========================
 # MQTT MANAGER (RECONNECT SAFE)
 # =========================
@@ -646,7 +657,7 @@ class ModbusManager:
                 # a silent gap with nothing to anchor "how long has this
                 # been stuck" to.
                 logger.info(f"Connecting Modbus ({self.cfg.get('port')})...")
-                client = ModbusSerialClient(**self.cfg)
+                client = ModbusSerialClient(**serial_settings(self.cfg))
                 if client.connect():
                     with self.lock:
                         self.client = client

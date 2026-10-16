@@ -187,3 +187,11 @@ def test_mqtt_connect_registers_the_link_callbacks(monkeypatch):
     assert seen["on_connection_interrupted"] == mgr._on_interrupted
     assert seen["on_connection_resumed"] == mgr._on_resumed
     assert mgr.connected is True
+
+
+def test_serial_settings_drop_keys_pymodbus_rejects():
+    cfg = {"port": "/dev/ttySC0", "baudrate": 9600, "timeout": 1.0, "parity": "N", "stopbits": 1,
+           "bytesize": 8, "simulate": False}
+    settings = en.serial_settings(cfg)
+    assert "simulate" not in settings and settings["port"] == "/dev/ttySC0"
+    en.ModbusSerialClient(**settings)   # the real pymodbus class accepts it (no TypeError)
