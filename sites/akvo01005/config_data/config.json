@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-10-21T00:12:55.617273+00:00",
-        "hash": "7e3c34d73f8f665ccddc947776a0a209"
+        "generated_at": "2026-10-21T22:54:37.020995+00:00",
+        "hash": "648e28dc62f63a7289ce3c796f170d5b"
     },
     "gateway": {
         "gateway_id": "AKVO_akvo01005",
@@ -130,8 +130,9 @@
     },
     "display": {
         "enabled": true,
-        "driver": "ssd1309",
+        "driver": "sh1106",
         "address": 60,
+        "column_offset": 0,
         "font": "5x7",
         "sensor_repeats": 3,
         "sensor_list": "pages",
