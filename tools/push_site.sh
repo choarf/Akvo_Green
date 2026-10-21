@@ -143,9 +143,9 @@ if [ "$KIOSK" = 1 ]; then
     # Open it now (or reopen it so the screen shows the pushed page) when a
     # desktop session is running; Wayland (labwc) or X11.
     ssh "$PI" "cd '$REMOTE_DIR' && R=/run/user/\$(id -u) && W=\$(ls \$R 2>/dev/null | grep -m1 '^wayland-[0-9]*\$'); \
-      if [ -z \"\$W\" ] && ! pgrep -u \"\$USER\" -x Xorg >/dev/null && ! pgrep -u \"\$USER\" -f lxsession >/dev/null; then \
+      if [ -z \"\$W\" ] && ! pgrep -u \"\$USER\" -x Xorg >/dev/null && ! pgrep -u \"\$USER\" -f '[l]xsession' >/dev/null; then \
         echo '   nobody logged in on the desktop - it opens at the next boot'; exit 0; fi; \
-      pkill -u \"\$USER\" -f 'user-data-dir=.*akvo-kiosk' && sleep 2; \
+      pkill -u \"\$USER\" -f '[u]ser-data-dir=.*akvo-kiosk' && sleep 2; \
       XDG_RUNTIME_DIR=\$R WAYLAND_DISPLAY=\$W DISPLAY=:0 setsid nohup tools/kiosk_launch.sh >/dev/null 2>&1 < /dev/null & \
       echo '   opened on the Pi screen'" \
       || echo "   warning: couldn't open the kiosk now - it opens at the next boot"
