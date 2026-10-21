@@ -58,6 +58,8 @@
 }
 
 * { box-sizing: border-box; }
+/* Styles that set display (.badge: inline-flex...) would otherwise override the hidden attribute. */
+[hidden] { display: none !important; }
 body {
   margin: 0;
   /* Ghotrix water-waves image under a theme wash (same as the cloud dashboard). */
