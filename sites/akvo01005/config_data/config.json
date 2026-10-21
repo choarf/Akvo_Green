@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-10-21T22:54:37.020995+00:00",
-        "hash": "648e28dc62f63a7289ce3c796f170d5b"
+        "generated_at": "2026-10-21T23:31:05.780882+00:00",
+        "hash": "ed150b67496075ff34788046f662eb87"
     },
     "gateway": {
         "gateway_id": "AKVO_akvo01005",
@@ -43,12 +43,12 @@
                     "name": "TempAgua",
                     "addr": 0,
                     "count": 1,
-                    "scale": 1.0,
+                    "scale": 0.1,
                     "offset": 0.0,
-                    "unit": "0.1 \u00b0C",
+                    "unit": "\u00b0C",
                     "type": "float",
                     "min": 0.0,
-                    "max": 500.0
+                    "max": 50.0
                 }
             ]
         },
@@ -61,23 +61,23 @@
                     "name": "TempAmb",
                     "addr": 0,
                     "count": 1,
-                    "scale": 1.0,
+                    "scale": 0.1,
                     "offset": 0.0,
-                    "unit": "0.1 \u00b0C",
+                    "unit": "\u00b0C",
                     "type": "float",
                     "min": 0.0,
-                    "max": 500.0
+                    "max": 50.0
                 },
                 {
                     "name": "HumAmb",
                     "addr": 1,
                     "count": 1,
-                    "scale": 1.0,
-                    "offset": 1.0,
-                    "unit": "0.1 %HR",
+                    "scale": 0.1,
+                    "offset": 0.1,
+                    "unit": "%HR",
                     "type": "float",
                     "min": 0.0,
-                    "max": 1000.0
+                    "max": 100.0
                 }
             ]
         },
