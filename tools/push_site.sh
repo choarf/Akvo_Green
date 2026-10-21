@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # Deploy the gateway code plus one site's config (and optionally its certs) to a Pi.
 #
-#   tools/push_site.sh <site> <user@pi> [--certs] [--remote-dir DIR] [--no-modbus-tool]
+#   tools/push_site.sh <site> <user@pi> [--certs] [--remote-dir DIR] [--no-modbus-tool] [--no-kiosk]
 #
 #   <site>            key under sites/ (e.g. akvo); "root" = the repo-root config_data/ (site 1)
 #   --certs           also copy sites/<site>/certs/* to the Pi's gateway/certs/
 #   --remote-dir      install location on the Pi, relative to its home (default: Akvo_Green)
 #   --no-modbus-tool  skip the AKVO Modbus Tool (see below)
+#   --no-kiosk        don't set up / refresh the Chromium kiosk (see below)
 #
 # Code is synced with rsync, never touching the Pi's config_data/, data/, logs/,
 # gateway/certs/ or .venv/; when gateway/requirements*.txt changed, the Pi's
@@ -21,21 +22,27 @@
 # Also installs the AKVO Modbus Tool (desktop app for scanning/reading/writing
 # Modbus registers on site, from ../Tools/AkvoModbus or $AKVO_MODBUS_DIR) as a
 # .deb - only when its source changed since the last install on that Pi.
+# Kiosk: on a Pi with a desktop (chromium installed) and akvo-history-web,
+# runs tools/setup_kiosk.sh (opens the local dashboard full screen at every
+# boot) and opens - or reopens, to show the new page - it on the Pi's screen now
+# when someone is logged in on the desktop. No sudo.
 # First install on a new Pi: run this, then ./install.sh --skip-certs on the Pi.
 set -euo pipefail
 
-USAGE="usage: tools/push_site.sh <site> <user@pi> [--certs] [--remote-dir DIR] [--no-modbus-tool]"
+USAGE="usage: tools/push_site.sh <site> <user@pi> [--certs] [--remote-dir DIR] [--no-modbus-tool] [--no-kiosk]"
 SITE="${1:?$USAGE}"
 PI="${2:?$USAGE}"
 shift 2
 CERTS=0
 MODBUS_TOOL=1
+KIOSK=1
 REMOTE_DIR="Akvo_Green"
 while [ $# -gt 0 ]; do
   case "$1" in
     --certs) CERTS=1 ;;
     --remote-dir) REMOTE_DIR="${2:?--remote-dir needs a value}"; shift ;;
     --no-modbus-tool) MODBUS_TOOL=0 ;;
+    --no-kiosk) KIOSK=0 ;;
     *) echo "unknown option: $1" >&2; exit 1 ;;
   esac
   shift
@@ -123,6 +130,26 @@ fi
 if ssh "$PI" "systemctl is-enabled --quiet akvo-oled" 2>/dev/null; then
   echo "== restarting akvo-oled (OLED display)"
   ssh -t "$PI" "sudo systemctl restart akvo-oled"
+fi
+
+# Kiosk: Chromium showing the local dashboard on the Pi's own screen.
+if [ "$KIOSK" = 1 ]; then
+  if ! ssh "$PI" "command -v chromium >/dev/null && systemctl is-enabled --quiet akvo-history-web" 2>/dev/null; then
+    echo "   note: kiosk skipped - no chromium (Lite image) or akvo-history-web not installed"
+  else
+    echo "== kiosk: local dashboard in Chromium at every boot"
+    ssh "$PI" "cd '$REMOTE_DIR' && tools/setup_kiosk.sh >/dev/null" \
+      || echo "   warning: tools/setup_kiosk.sh failed on the Pi"
+    # Open it now (or reopen it so the screen shows the pushed page) when a
+    # desktop session is running; Wayland (labwc) or X11.
+    ssh "$PI" "cd '$REMOTE_DIR' && R=/run/user/\$(id -u) && W=\$(ls \$R 2>/dev/null | grep -m1 '^wayland-[0-9]*\$'); \
+      if [ -z \"\$W\" ] && ! pgrep -u \"\$USER\" -x Xorg >/dev/null && ! pgrep -u \"\$USER\" -f lxsession >/dev/null; then \
+        echo '   nobody logged in on the desktop - it opens at the next boot'; exit 0; fi; \
+      pkill -u \"\$USER\" -f 'user-data-dir=.*akvo-kiosk' && sleep 2; \
+      XDG_RUNTIME_DIR=\$R WAYLAND_DISPLAY=\$W DISPLAY=:0 setsid nohup tools/kiosk_launch.sh >/dev/null 2>&1 < /dev/null & \
+      echo '   opened on the Pi screen'" \
+      || echo "   warning: couldn't open the kiosk now - it opens at the next boot"
+  fi
 fi
 
 if [ "$MODBUS_TOOL" = 1 ]; then

@@ -59,6 +59,7 @@ STATIC_FILES = {
     "/app.js": ("app.js", "text/javascript; charset=utf-8"),
     "/chart.js": ("chart.js", "text/javascript; charset=utf-8"),
     "/style.css": ("style.css", "text/css; charset=utf-8"),
+    "/background.jpg": ("background.jpg", "image/jpeg"),
 }
 
 logger = logging.getLogger("history_web")

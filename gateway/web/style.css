@@ -17,6 +17,7 @@
   --serious: #ec835a;
   --critical: #d03b3b;
   --wash: rgba(11, 11, 11, 0.04);
+  --bg-wash: rgba(249, 249, 247, 0.60);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -34,6 +35,7 @@
     --series-2: #d95926;
     --series-3: #199e70;
     --wash: rgba(255, 255, 255, 0.05);
+    --bg-wash: rgba(13, 13, 13, 0.82);
   }
 }
 /* Chosen with the header button (app.js); wins over the OS setting both ways. */
@@ -52,12 +54,14 @@
   --series-2: #d95926;
   --series-3: #199e70;
   --wash: rgba(255, 255, 255, 0.05);
+  --bg-wash: rgba(13, 13, 13, 0.82);
 }
 
 * { box-sizing: border-box; }
 body {
   margin: 0;
-  background: var(--page);
+  /* Ghotrix water-waves image under a theme wash (same as the cloud dashboard). */
+  background: linear-gradient(var(--bg-wash), var(--bg-wash)), url("background.jpg") center / cover fixed, var(--page);
   color: var(--text);
   font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
 }
