@@ -35,6 +35,8 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 from zoneinfo import ZoneInfo
 
+from hwinfo import hardware_info
+
 BASE_DIR = Path(__file__).resolve().parent
 REPO_ROOT = BASE_DIR.parent
 DEFAULT_CONFIG = REPO_ROOT / "config_data" / "config.json"
@@ -377,7 +379,8 @@ class App:
                 "record_interval": self.record_interval, "max_mb": self.database.get("max_mb"),
                 "retention_days": self.database.get("retention_days", 30),
                 "database_enabled": bool(self.database.get("enabled")),
-                "now": iso(datetime.now(UTC)), "db": db_info(conn, self.db_path)}
+                "now": iso(datetime.now(UTC)), "db": db_info(conn, self.db_path),
+                "hardware": hardware_info()}
 
 
 def make_handler(app: App):

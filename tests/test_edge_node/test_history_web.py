@@ -199,6 +199,7 @@ def test_http_serves_the_page_and_info(server):
     info = json.loads(body)
     assert info["gateway_id"] == "GW1" and info["client"] == "Ghotrix" and info["simulated"] is True
     assert info["db"]["readings"] == 2 * len(TEMP)
+    assert set(info["hardware"]) == {"hostname", "hw_model", "hw_serial"}
 
 
 def test_http_history_and_errors(server):

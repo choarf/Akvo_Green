@@ -24,6 +24,7 @@ from config.schema import validate as validate_config
 from domain.sensors import decode as decode_sensor
 from domain.simulation import SimulatedModbusManager
 from storage import HistoryStore
+from hwinfo import hardware_info
 
 # aws.{ca,cert,key} in config.json are conventionally relative (e.g.
 # "./certs/AmazonRootCA1.pem", as config_manager.py's aws.csv -> config.json
@@ -347,6 +348,7 @@ def get_system_status(gateway_cfg: dict) -> dict:
         "disk_usage_percent": psutil.disk_usage(disk_path).percent,
         "ip_address": ip_address,
         "os": os_info,
+        **hardware_info(),
         "net_bytes_recv": net_recv,
         "net_bytes_sent": net_sent,
     }

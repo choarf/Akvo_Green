@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Deploy the gateway code plus one site's config (and optionally its certs) to a Pi.
 #
-#   tools/push_site.sh <site> <user@pi> [--certs] [--remote-dir DIR] [--no-modbus-tool] [--no-kiosk]
+#   tools/push_site.sh <site> [<user@pi>] [--certs] [--remote-dir DIR] [--no-modbus-tool] [--no-kiosk] [--new-hw]
 #
 #   <site>            key under sites/ (e.g. akvo); "root" = the repo-root config_data/ (site 1)
+#   <user@pi>         optional: without it the Pi is found by name, then through AWS (see below)
+#   --new-hw          the site moved to another Pi: accept its serial and re-register it
 #   --certs           also copy sites/<site>/certs/* to the Pi's gateway/certs/
 #   --remote-dir      install location on the Pi, relative to its home (default: Akvo_Green)
 #   --no-modbus-tool  skip the AKVO Modbus Tool (see below)
@@ -26,13 +28,22 @@
 # runs tools/setup_kiosk.sh (opens the local dashboard full screen at every
 # boot) and opens - or reopens, to show the new page - it on the Pi's screen now
 # when someone is logged in on the desktop. No sudo.
+# Which Pi: sites/<site>/pi.csv (hostname,user,serial,mac) ties the site to one
+# physical Pi by its serial number (/proc/device-tree/serial-number). Without
+# <user@pi> the push goes to <user>@<hostname>.local (mDNS), or else to the IP
+# the gateway last reported to AWS (latest/system.json). Every push compares the
+# Pi's serial with pi.csv and stops on a mismatch, so a site's config can't land
+# on another site's Pi; the first push writes pi.csv (commit it). The Pi's
+# hostname is set to pi.csv's (default: the site key), so <key>.local works.
 # First install on a new Pi: run this, then ./install.sh --skip-certs on the Pi.
 set -euo pipefail
 
-USAGE="usage: tools/push_site.sh <site> <user@pi> [--certs] [--remote-dir DIR] [--no-modbus-tool] [--no-kiosk]"
+USAGE="usage: tools/push_site.sh <site> [<user@pi>] [--certs] [--remote-dir DIR] [--no-modbus-tool] [--no-kiosk] [--new-hw]"
 SITE="${1:?$USAGE}"
-PI="${2:?$USAGE}"
-shift 2
+shift
+PI=""
+if [ $# -gt 0 ] && [ "${1#--}" = "$1" ]; then PI="$1"; shift; fi
+NEW_HW=0
 CERTS=0
 MODBUS_TOOL=1
 KIOSK=1
@@ -43,6 +54,7 @@ while [ $# -gt 0 ]; do
     --remote-dir) REMOTE_DIR="${2:?--remote-dir needs a value}"; shift ;;
     --no-modbus-tool) MODBUS_TOOL=0 ;;
     --no-kiosk) KIOSK=0 ;;
+    --new-hw) NEW_HW=1 ;;
     *) echo "unknown option: $1" >&2; exit 1 ;;
   esac
   shift
@@ -53,10 +65,12 @@ if [ "$SITE" = "root" ]; then
   CONFIG="$ROOT/config_data/config.json"
   CERT_DIR="$ROOT/gateway/certs"
   WIFI_CSV="$ROOT/config_data/wifi.csv"
+  PI_CSV="$ROOT/config_data/pi.csv"
 else
   CONFIG="$ROOT/sites/$SITE/config_data/config.json"
   CERT_DIR="$ROOT/sites/$SITE/certs"
   WIFI_CSV="$ROOT/sites/$SITE/wifi.csv"
+  PI_CSV="$ROOT/sites/$SITE/pi.csv"
 fi
 [ -f "$CONFIG" ] || { echo "error: $CONFIG not found - build it first (config_manager.py build --config-dir ...)" >&2; exit 1; }
 
@@ -72,6 +86,59 @@ PY
 # password stops the push before the Pi is touched. 2 = no "wifi" section.
 set +e; WIFI_SCRIPT="$(python3 "$ROOT/tools/wifi_profiles.py" "$CONFIG" "$WIFI_CSV")"; WIFI_RC=$?; set -e
 [ "$WIFI_RC" = 0 ] || [ "$WIFI_RC" = 2 ] || exit 1
+
+# ---- Which Pi: pi.csv (hostname,user,serial,mac) -------------------------
+pi_field() {  # pi_field <column> - from pi.csv's first row, empty if absent
+  [ -f "$PI_CSV" ] || return 0
+  python3 - "$PI_CSV" "$1" <<'PY'
+import csv, sys
+rows = list(csv.DictReader(open(sys.argv[1], newline="")))
+print((rows[0].get(sys.argv[2]) or "").strip() if rows else "")
+PY
+}
+HW_HOST="$(pi_field hostname)"; HW_USER="$(pi_field user)"; HW_SERIAL="$(pi_field serial)"
+[ -n "$HW_HOST" ] || { [ "$SITE" = "root" ] || HW_HOST="$SITE"; }
+SSH_PROBE=(-o ConnectTimeout=8 -o BatchMode=yes -o StrictHostKeyChecking=accept-new)
+
+if [ -z "$PI" ]; then
+  [ -n "$HW_USER" ] || { echo "error: no <user@pi> given and no user in $PI_CSV - pass it once (e.g. pi@192.168.68.124)" >&2; exit 1; }
+  if [ -n "$HW_HOST" ] && ssh "${SSH_PROBE[@]}" "$HW_USER@$HW_HOST.local" true 2>/dev/null; then
+    PI="$HW_USER@$HW_HOST.local"
+  else
+    # The gateway reports its IP to AWS every system_interval (latest/system.json).
+    BUCKET="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["aws"].get("data_bucket") or "")' "$CONFIG")"
+    IP=""
+    [ -n "$BUCKET" ] && IP="$(aws s3 cp "s3://$BUCKET/latest/system.json" - 2>/dev/null \
+      | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("ip_address") or "", d.get("ts") or "")' 2>/dev/null || true)"
+    [ -n "${IP%% *}" ] || { echo "error: $HW_HOST.local doesn't answer and AWS has no IP for $SITE - pass <user@pi>" >&2; exit 1; }
+    echo "   $HW_HOST.local doesn't answer - using the IP last reported to AWS: ${IP%% *} (at ${IP#* })"
+    PI="$HW_USER@${IP%% *}"
+  fi
+fi
+ssh "${SSH_PROBE[@]}" "$PI" true 2>/dev/null || ssh -o ConnectTimeout=8 "$PI" true \
+  || { echo "error: can't reach $PI over ssh" >&2; exit 1; }
+# shellcheck disable=SC2016
+read -r R_SERIAL R_HOST R_MAC R_MODEL <<<"$(ssh "$PI" 'printf "%s %s %s %s" \
+  "$(tr -d "\0" < /proc/device-tree/serial-number 2>/dev/null || echo -)" "$(hostname)" \
+  "$(cat /sys/class/net/$(ip route show default 2>/dev/null | awk "{print \$5; exit}")/address 2>/dev/null || echo -)" \
+  "$(tr -d "\0" < /proc/device-tree/model 2>/dev/null | tr " " "_" || echo -)"')"
+echo "== Pi: $PI - ${R_MODEL//_/ }, serial $R_SERIAL, hostname $R_HOST"
+if [ -n "$HW_SERIAL" ] && [ "$HW_SERIAL" != "$R_SERIAL" ] && [ "$NEW_HW" = 0 ]; then
+  echo "error: this Pi (serial $R_SERIAL) is not $SITE's Pi (serial $HW_SERIAL in $PI_CSV)." >&2
+  echo "       Wrong address? If $SITE really moved to this Pi, push again with --new-hw." >&2
+  exit 1
+fi
+if [ -z "$HW_SERIAL" ] || [ "$HW_SERIAL" != "$R_SERIAL" ]; then
+  printf 'hostname,user,serial,mac\n%s,%s,%s,%s\n' "${HW_HOST:-$R_HOST}" "${PI%@*}" "$R_SERIAL" "$R_MAC" > "$PI_CSV"
+  echo "   registered this Pi in $PI_CSV - commit it"
+fi
+# Hostname = the site's, so <host>.local finds it on the network (avahi/mDNS).
+if [ -n "$HW_HOST" ] && [ "$R_HOST" != "$HW_HOST" ]; then
+  echo "== hostname: $R_HOST -> $HW_HOST (reach it as ${PI%@*}@$HW_HOST.local)"
+  ssh -t "$PI" "sudo raspi-config nonint do_hostname '$HW_HOST' && sudo hostnamectl set-hostname '$HW_HOST' \
+    && sudo systemctl restart avahi-daemon" \
+    || echo "   warning: setting the hostname failed - the push goes on"
+fi
 
 echo "== code -> $PI:$REMOTE_DIR"
 ssh "$PI" "mkdir -p '$REMOTE_DIR/config_data' '$REMOTE_DIR/gateway/certs'"

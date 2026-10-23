@@ -389,9 +389,10 @@ async function viewSistema() {
   const [sys, st] = await Promise.all([api(`/api/system?start=${start}&end=${end}`), api("/api/status"), refreshInfo()]);
   renderConnections(st);
   renderAws(st.links || {});
-  const info = state.info, l = sys.latest || {};
+  const info = state.info, l = sys.latest || {}, hw = info.hardware || {};
   fillDl($("#s-gw"), [
     ["Cliente", info.client || null], ["Gateway", info.gateway_id], ["IP", l.ip_address], ["Plataforma", l.platform_type], ["Sistema", l.os],
+    ["Equipo", hw.hw_model], ["N.º de serie", hw.hw_serial], ["Hostname", hw.hostname],
     ["Zona horaria", info.city], ["Lectura cada", `${info.poll_interval} s`],
     ["Modo Modbus", info.simulated ? "⚠ simulado (datos sintéticos)" : "sensores reales"],
     ["Último reporte", l.ts ? fmtTime(Date.parse(l.ts)) : null],
