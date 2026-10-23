@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-10-23T20:37:55.757140+00:00",
-        "hash": "22cbc943ae66f56d5cbe125de1cd2ab1"
+        "generated_at": "2026-10-23T21:14:21.745360+00:00",
+        "hash": "86d111ff8d4a0e160a55cd0fdeb6dd39"
     },
     "gateway": {
         "gateway_id": "AKVO_cmd4",
@@ -162,7 +162,7 @@
         },
         {
             "id": "DEV_8",
-            "slave": 11,
+            "slave": 12,
             "enabled": true,
             "sensors": [
                 {
