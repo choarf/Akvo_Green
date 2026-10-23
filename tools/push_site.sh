@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # Deploy the gateway code plus one site's config (and optionally its certs) to a Pi.
 #
-#   tools/push_site.sh <site> [<user@pi>] [--certs] [--remote-dir DIR] [--no-modbus-tool] [--no-kiosk] [--new-hw]
+#   tools/push_site.sh <site> [<user@pi>] [--certs] [--remote-dir DIR] [--no-modbus-tool] [--no-kiosk] [--new-hw] [--overlay-ok]
 #
 #   <site>            key under sites/ (e.g. akvo); "root" = the repo-root config_data/ (site 1)
 #   <user@pi>         optional: without it the Pi is found by name, then through AWS (see below)
 #   --new-hw          the site moved to another Pi: accept its serial and re-register it
+#   --overlay-ok      push even though the Pi runs the read-only overlay (lost at next reboot)
 #   --certs           also copy sites/<site>/certs/* to the Pi's gateway/certs/
 #   --remote-dir      install location on the Pi, relative to its home (default: Akvo_Green)
 #   --no-modbus-tool  skip the AKVO Modbus Tool (see below)
@@ -35,15 +36,20 @@
 # Pi's serial with pi.csv and stops on a mismatch, so a site's config can't land
 # on another site's Pi; the first push writes pi.csv (commit it). The Pi's
 # hostname is set to pi.csv's (default: the site key), so <key>.local works.
+# Overlay: with the read-only overlay file system on (raspi-config
+# enable_overlayfs, / is an overlay in RAM) everything pushed is gone at the
+# next reboot, so the push stops unless --overlay-ok; turn it off first with
+# sudo raspi-config nonint disable_overlayfs && sudo reboot.
 # First install on a new Pi: run this, then ./install.sh --skip-certs on the Pi.
 set -euo pipefail
 
-USAGE="usage: tools/push_site.sh <site> [<user@pi>] [--certs] [--remote-dir DIR] [--no-modbus-tool] [--no-kiosk] [--new-hw]"
+USAGE="usage: tools/push_site.sh <site> [<user@pi>] [--certs] [--remote-dir DIR] [--no-modbus-tool] [--no-kiosk] [--new-hw] [--overlay-ok]"
 SITE="${1:?$USAGE}"
 shift
 PI=""
 if [ $# -gt 0 ] && [ "${1#--}" = "$1" ]; then PI="$1"; shift; fi
 NEW_HW=0
+OVERLAY_OK=0
 CERTS=0
 MODBUS_TOOL=1
 KIOSK=1
@@ -55,6 +61,7 @@ while [ $# -gt 0 ]; do
     --no-modbus-tool) MODBUS_TOOL=0 ;;
     --no-kiosk) KIOSK=0 ;;
     --new-hw) NEW_HW=1 ;;
+    --overlay-ok) OVERLAY_OK=1 ;;
     *) echo "unknown option: $1" >&2; exit 1 ;;
   esac
   shift
@@ -118,15 +125,25 @@ fi
 ssh "${SSH_PROBE[@]}" "$PI" true 2>/dev/null || ssh -o ConnectTimeout=8 "$PI" true \
   || { echo "error: can't reach $PI over ssh" >&2; exit 1; }
 # shellcheck disable=SC2016
-read -r R_SERIAL R_HOST R_MAC R_MODEL <<<"$(ssh "$PI" 'printf "%s %s %s %s" \
+read -r R_SERIAL R_HOST R_MAC R_OVERLAY R_MODEL <<<"$(ssh "$PI" 'printf "%s %s %s %s %s" \
   "$(tr -d "\0" < /proc/device-tree/serial-number 2>/dev/null || echo -)" "$(hostname)" \
   "$(cat /sys/class/net/$(ip route show default 2>/dev/null | awk "{print \$5; exit}")/address 2>/dev/null || echo -)" \
+  "$(awk "\$2 == \"/\" {t = \$3} END {print (t == \"overlay\" ? \"yes\" : \"no\")}" /proc/mounts)" \
   "$(tr -d "\0" < /proc/device-tree/model 2>/dev/null | tr " " "_" || echo -)"')"
 echo "== Pi: $PI - ${R_MODEL//_/ }, serial $R_SERIAL, hostname $R_HOST"
 if [ -n "$HW_SERIAL" ] && [ "$HW_SERIAL" != "$R_SERIAL" ] && [ "$NEW_HW" = 0 ]; then
   echo "error: this Pi (serial $R_SERIAL) is not $SITE's Pi (serial $HW_SERIAL in $PI_CSV)." >&2
   echo "       Wrong address? If $SITE really moved to this Pi, push again with --new-hw." >&2
   exit 1
+fi
+if [ "$R_OVERLAY" = yes ]; then
+  if [ "$OVERLAY_OK" = 0 ]; then
+    echo "error: $PI runs the read-only overlay file system - this push would be lost at its next reboot." >&2
+    echo "       Turn it off first: ssh -t $PI 'sudo raspi-config nonint disable_overlayfs && sudo reboot'" >&2
+    echo "       then push again (and re-enable it afterwards if wanted), or pass --overlay-ok to push anyway." >&2
+    exit 1
+  fi
+  echo "   WARNING: overlay file system on - everything pushed now is lost at the next reboot"
 fi
 if [ -z "$HW_SERIAL" ] || [ "$HW_SERIAL" != "$R_SERIAL" ]; then
   printf 'hostname,user,serial,mac\n%s,%s,%s,%s\n' "${HW_HOST:-$R_HOST}" "${PI%@*}" "$R_SERIAL" "$R_MAC" > "$PI_CSV"
