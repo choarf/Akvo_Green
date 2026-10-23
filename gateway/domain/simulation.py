@@ -65,13 +65,30 @@ class SimSensor:
         hi = self.max_v if self.max_v is not None else self.value + 50
         span = max(hi - lo, 1.0)
 
+        # Gentle pull back to the middle, so a spike is a short excursion
+        # rather than where the walk then wanders off and stays.
+        self.value += ((lo + hi) / 2.0 - self.value) * 0.1
         self.value += random.uniform(-span * 0.03, span * 0.03)
 
         if random.random() < 0.03:
             self.value = hi + span * 0.1 if random.random() < 0.5 else lo - span * 0.1
 
         self.value = max(lo - span * 0.2, min(hi + span * 0.2, self.value))
+        # Unsigned register types can't hold a value below this (a float
+        # sensor at min=0 would otherwise read a clamped 0 for as long as
+        # the walk sits below it) - a real sensor can't report it either.
+        floor = self._encodable_min()
+        if floor is not None:
+            self.value = max(floor, self.value)
         return self.value
+
+    def _encodable_min(self) -> float | None:
+        """Lowest physical value registers() can encode, None if signed."""
+        if self.type in ("int", "uint16", "uint32"):
+            return 0.0
+        if self.type == "float":
+            return self.offset if self.scale > 0 else None
+        return None
 
     def registers(self) -> list[int]:
         """Encode the current physical value into the raw holding-register

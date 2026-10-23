@@ -4,6 +4,7 @@ config.json's modbus.simulate is on. The core correctness property is that
 SimSensor.registers() round-trips through the REAL domain.sensors.decode()
 for every supported type - not a parallel reimplementation of decoding."""
 
+import random
 import threading
 
 import pytest
@@ -208,3 +209,23 @@ def test_publisher_omits_simulated_key_when_mode_is_off(monkeypatch):
     node.publisher()
 
     assert "simulated" not in node.mqtt.published[0]
+
+
+def test_unsigned_float_never_walks_below_what_its_register_can_hold():
+    # min=0 on a one-register float: a walk below 0 used to encode as a
+    # clamped raw 0, so the sensor read a flat 0 for long stretches.
+    random.seed(1)
+    s = SimSensor("float", scale=0.1, offset=0.0, min_v=0.0, max_v=50.0)
+    values = [s.step() for _ in range(2000)]
+    assert min(values) >= 0.0
+    assert sum(v < 1.0 for v in values) / len(values) < 0.05
+
+
+def test_walk_returns_towards_the_middle_after_a_spike(monkeypatch):
+    s = SimSensor("float32", min_v=0.0, max_v=100.0)
+    s.value = -20.0
+    monkeypatch.setattr("domain.simulation.random.random", lambda: 0.5)  # never spikes
+    monkeypatch.setattr("domain.simulation.random.uniform", lambda a, b: 0.0)
+    for _ in range(30):
+        s.step()
+    assert 40.0 < s.value < 60.0
