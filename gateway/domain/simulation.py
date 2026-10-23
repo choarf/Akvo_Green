@@ -28,6 +28,7 @@ from __future__ import annotations
 import logging
 import random
 import struct
+import threading
 
 logger = logging.getLogger("EdgeNode")
 
@@ -140,6 +141,7 @@ class SimulatedModbusManager:
     config.json's modbus.simulate flag - see its own comment)."""
 
     def __init__(self, devices_cfg: list[dict]):
+        self.connected = threading.Event()
         self._sensors: dict[tuple[int, int], SimSensor] = {}
         for dev in devices_cfg:
             for s in dev.get("sensors", []):
@@ -153,6 +155,7 @@ class SimulatedModbusManager:
 
     def connect(self) -> None:
         logger.info("Modbus SIMULATED - no serial port opened, synthetic readings only")
+        self.connected.set()
 
     def status(self) -> dict:
         """For the gateway's status file - no port is open in simulate mode."""

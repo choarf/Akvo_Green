@@ -303,3 +303,61 @@ def test_system_publisher_records_history_before_aws(monkeypatch):
     monkeypatch.setattr(en, "get_system_status", lambda gw: {})
     node.system_publisher()
     assert order == ["history", "aws"]
+
+
+# ---------------------------------------------------------------------------
+# Startup: first poll waits for the Modbus port, first publish for readings
+# ---------------------------------------------------------------------------
+
+def test_scheduler_first_poll_waits_for_modbus_to_connect(monkeypatch):
+    node = make_node()
+    node.stop_event = threading.Event()
+    node.queue = en.queue.Queue()
+    node.config_mgr = FakeConfigMgr({"gateway": {"poll_interval": 0}})
+    node.modbus.connected = threading.Event()
+    node.build_devices({"devices": [device_cfg("A")]})
+    waited = []
+
+    def wait(timeout):
+        waited.append(timeout)
+        assert node.queue.empty()  # nothing polled before the port is open
+        return True
+
+    node.modbus.connected.wait = wait
+    monkeypatch.setattr(en.time, "sleep", lambda s: node.stop_event.set())
+    node.scheduler()
+    assert waited == [en.STARTUP_MODBUS_WAIT]
+    assert node.queue.qsize() == 1
+
+
+def test_publisher_first_publish_waits_for_the_first_poll_round(monkeypatch):
+    node = make_node()
+    node.stop_event = threading.Event()
+    node.simulate_modbus = False
+    node.history = None
+    node.config_mgr = FakeConfigMgr({"gateway": {"poll_interval": 20}, "aws": {"topic_pub": "t"}})
+    node.build_devices({"devices": [device_cfg("A")]})
+    sent = []
+
+    class Mqtt:
+        def publish(self, topic, payload):
+            sent.append(payload["devices"])
+            node.stop_event.set()
+
+    node.mqtt = Mqtt()
+    monkeypatch.setattr(node, "write_status", lambda *a, **k: None)
+
+    def fake_sleep(s):  # the worker reads device A during the startup wait
+        node.devices["A"].cache = {"T": {"val": 21.0, "status": "OK", "alarm": "NORMAL"}}
+
+    monkeypatch.setattr(en.time, "sleep", fake_sleep)
+    node.publisher()
+    assert sent == [{"A": {"T": {"val": 21.0, "status": "OK", "alarm": "NORMAL"}}}]
+
+
+def test_simulated_modbus_reports_connected():
+    from domain.simulation import SimulatedModbusManager
+    m = SimulatedModbusManager([])
+    assert not m.connected.is_set()
+    m.connect()
+    assert m.connected.is_set()

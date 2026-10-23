@@ -41,6 +41,9 @@ BASE_DIR = Path(__file__).resolve().parent
 # same config.json - src/ is one level down from there.
 REPO_ROOT = BASE_DIR.parent
 
+# How long the first poll waits for the Modbus port to open (scheduler()).
+STARTUP_MODBUS_WAIT = 10
+
 # Live connection state for local readers (history_web.py). In RAM when the
 # OS has /dev/shm (every Linux/Pi), so the every-poll write costs no SD-card
 # wear; data/ otherwise. history_web.py resolves the same path.
@@ -644,6 +647,9 @@ class ModbusManager:
         # Serial pymodbus clients are not thread-safe; every read/connect
         # against self.client must go through this lock.
         self.lock = threading.RLock()
+        # Set once the serial port is open - EdgeNode.scheduler() waits on
+        # it before the first poll.
+        self.connected = threading.Event()
         self._reboot = _RebootEscalator(reboot_after, reboot_fn)
 
     def connect(self):
@@ -663,6 +669,7 @@ class ModbusManager:
                 if client.connect():
                     with self.lock:
                         self.client = client
+                    self.connected.set()
                     elapsed = time.time() - start
                     if attempt:
                         logger.info(f"Modbus connected (after {attempt} retries, {elapsed:.1f}s)")
@@ -993,6 +1000,15 @@ class EdgeNode:
     # THREADS
     # =========================
     def scheduler(self):
+        # Modbus connects in its own thread (init_system()), so without this
+        # the first poll can run before the serial port is open - a first
+        # round of "not yet connected" errors on every sensor. A port that
+        # isn't open after STARTUP_MODBUS_WAIT is polled anyway, so a dead
+        # bus still shows up as read errors.
+        connected = getattr(self.modbus, "connected", None)
+        if connected is not None:
+            connected.wait(STARTUP_MODBUS_WAIT)
+
         while not self.stop_event.is_set():
             interval = 5  # fallback if config access below fails
             try:
@@ -1037,6 +1053,18 @@ class EdgeNode:
                 self._last_heartbeat = time.time()
 
     def publisher(self):
+        # The first publish waits for the first poll round (or one poll
+        # interval past the Modbus wait), instead of sending - and showing
+        # on the OLED/local page - devices that haven't been read yet.
+        try:
+            first_wait = STARTUP_MODBUS_WAIT + self.config_mgr.get()["gateway"]["poll_interval"]
+        except Exception:
+            first_wait = STARTUP_MODBUS_WAIT
+        deadline = time.time() + first_wait
+        while (not self.stop_event.is_set() and time.time() < deadline
+               and any(not d.snapshot() for d in self.devices.values())):
+            time.sleep(0.2)
+
         while not self.stop_event.is_set():
             interval = 5  # fallback if config access below fails
             try:
