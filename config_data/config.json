@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-10-08T01:20:32.482037+00:00",
-        "hash": "d5c4f6cf11445fbd6ab48ea2e9512f48"
+        "generated_at": "2026-10-09T14:41:57.099326+00:00",
+        "hash": "3eff8bd45e7bc8912805051eb15a35a5"
     },
     "gateway": {
         "gateway_id": "AKVO_Gateway",
@@ -26,46 +26,28 @@
         "ca": "./certs/AmazonRootCA1.pem",
         "cert": "./certs/certificate.pem.crt",
         "key": "./certs/private.pem.key",
-        "topic_pub": "AKVO/demo_data",
-        "topic_system": "AKVO/demo_system",
+        "topic_pub": "AKVO/data",
+        "topic_system": "AKVO/system",
         "dashboard_url": "https://ddlxtxblzvu22.cloudfront.net",
         "data_bucket": "venko-demo-884520769610-us-east-1",
         "web_bucket": "venko-demo-web-884520769610"
     },
     "devices": [
         {
-            "id": "DEV_1",
-            "slave": 2,
-            "enabled": true,
-            "sensors": [
-                {
-                    "name": "Pt100Sensor",
-                    "addr": 0,
-                    "count": 1,
-                    "scale": 1.0,
-                    "offset": 0.0,
-                    "unit": "\u00b0C",
-                    "type": "float",
-                    "min": 0.0,
-                    "max": 55.0
-                }
-            ]
-        },
-        {
             "id": "DEV_2",
             "slave": 3,
             "enabled": true,
             "sensors": [
                 {
-                    "name": "Ambient",
+                    "name": "TempAgua",
                     "addr": 0,
                     "count": 1,
                     "scale": 1.0,
                     "offset": 0.0,
-                    "unit": "\u00b0C",
+                    "unit": "0.1 \u00b0C",
                     "type": "float",
                     "min": 0.0,
-                    "max": 55.0
+                    "max": 500.0
                 }
             ]
         },
@@ -75,231 +57,62 @@
             "enabled": true,
             "sensors": [
                 {
-                    "name": "Humedad",
-                    "addr": 1,
+                    "name": "TempAmb",
+                    "addr": 0,
                     "count": 1,
                     "scale": 1.0,
                     "offset": 0.0,
-                    "unit": "%HR",
+                    "unit": "0.1 \u00b0C",
                     "type": "float",
                     "min": 0.0,
-                    "max": 80.0
+                    "max": 500.0
+                },
+                {
+                    "name": "HumAmb",
+                    "addr": 1,
+                    "count": 1,
+                    "scale": 1.0,
+                    "offset": 1.0,
+                    "unit": "0.1 %HR",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 1000.0
                 }
             ]
         },
         {
             "id": "DEV_4",
-            "slave": 10,
+            "slave": 4,
             "enabled": true,
             "sensors": [
                 {
-                    "name": "ORPSensor",
-                    "addr": 0,
-                    "count": 2,
+                    "name": "Presion1",
+                    "addr": 8,
+                    "count": 1,
                     "scale": 1.0,
                     "offset": 0.0,
-                    "unit": "mV",
+                    "unit": "Mpa",
                     "type": "float",
-                    "min": -1500.0,
-                    "max": 1500.0
+                    "min": 0.0,
+                    "max": 450.0
                 }
             ]
         },
         {
             "id": "DEV_5",
-            "slave": 25,
-            "enabled": true,
-            "sensors": [
-                {
-                    "name": "PhSensor",
-                    "addr": 0,
-                    "count": 2,
-                    "scale": 1.0,
-                    "offset": 0.0,
-                    "unit": "unit",
-                    "type": "float",
-                    "min": 0.0,
-                    "max": 14.0
-                }
-            ]
-        },
-        {
-            "id": "DEV_6",
-            "slave": 25,
-            "enabled": true,
-            "sensors": [
-                {
-                    "name": "TempPhSensor",
-                    "addr": 2,
-                    "count": 2,
-                    "scale": 1.0,
-                    "offset": 0.0,
-                    "unit": "\u00b0C",
-                    "type": "float",
-                    "min": 0.0,
-                    "max": 55.0
-                }
-            ]
-        },
-        {
-            "id": "DEV_7",
             "slave": 5,
             "enabled": true,
             "sensors": [
                 {
-                    "name": "DOSensor",
-                    "addr": 0,
-                    "count": 4,
-                    "scale": 1.0,
-                    "offset": 0.0,
-                    "unit": "mg/L",
-                    "type": "float",
-                    "min": 0.0,
-                    "max": 2500.0
-                }
-            ]
-        },
-        {
-            "id": "DEV_8",
-            "slave": 9,
-            "enabled": true,
-            "sensors": [
-                {
-                    "name": "CODSensor",
-                    "addr": 0,
-                    "count": 2,
-                    "scale": 1.0,
-                    "offset": 0.0,
-                    "unit": "mg/L",
-                    "type": "float",
-                    "min": 0.0,
-                    "max": 1500.0
-                }
-            ]
-        },
-        {
-            "id": "DEV_9",
-            "slave": 9,
-            "enabled": true,
-            "sensors": [
-                {
-                    "name": "TempCODSensor",
-                    "addr": 2,
-                    "count": 2,
-                    "scale": 1.0,
-                    "offset": 0.0,
-                    "unit": "\u00b0C",
-                    "type": "float",
-                    "min": 0.0,
-                    "max": 55.0
-                }
-            ]
-        },
-        {
-            "id": "DEV_10",
-            "slave": 9,
-            "enabled": true,
-            "sensors": [
-                {
-                    "name": "TurbCODSensort",
-                    "addr": 4,
-                    "count": 2,
-                    "scale": 1.0,
-                    "offset": 0.0,
-                    "unit": "NTU",
-                    "type": "float",
-                    "min": 0.0,
-                    "max": 100.0
-                }
-            ]
-        },
-        {
-            "id": "DEV_11",
-            "slave": 9,
-            "enabled": true,
-            "sensors": [
-                {
-                    "name": "BODSensor",
-                    "addr": 6,
-                    "count": 2,
-                    "scale": 1.0,
-                    "offset": 0.0,
-                    "unit": "mg/L",
-                    "type": "float",
-                    "min": 0.0,
-                    "max": 40.0
-                }
-            ]
-        },
-        {
-            "id": "DEV_12",
-            "slave": 9,
-            "enabled": true,
-            "sensors": [
-                {
-                    "name": "TOCSensor",
+                    "name": "Presion2",
                     "addr": 8,
-                    "count": 2,
+                    "count": 1,
                     "scale": 1.0,
                     "offset": 0.0,
-                    "unit": "mg/L",
+                    "unit": "Mpa",
                     "type": "float",
                     "min": 0.0,
-                    "max": 300.0
-                }
-            ]
-        },
-        {
-            "id": "DEV_13",
-            "slave": 20,
-            "enabled": true,
-            "sensors": [
-                {
-                    "name": "CondSensor",
-                    "addr": 0,
-                    "count": 6,
-                    "scale": 1.0,
-                    "offset": 0.0,
-                    "unit": "uc/cm",
-                    "type": "float",
-                    "min": 0.0,
-                    "max": 200.0
-                }
-            ]
-        },
-        {
-            "id": "DEV_14",
-            "slave": 20,
-            "enabled": true,
-            "sensors": [
-                {
-                    "name": "TempCondSensor",
-                    "addr": 0,
-                    "count": 6,
-                    "scale": 1.0,
-                    "offset": 0.0,
-                    "unit": "\u00b0C",
-                    "type": "float",
-                    "min": 0.0,
-                    "max": 55.0
-                }
-            ]
-        },
-        {
-            "id": "DEV_15",
-            "slave": 20,
-            "enabled": true,
-            "sensors": [
-                {
-                    "name": "TDSCondSensor",
-                    "addr": 0,
-                    "count": 6,
-                    "scale": 1.0,
-                    "offset": 0.0,
-                    "unit": "uS/cm",
-                    "type": "float",
-                    "min": 10.0,
-                    "max": 5000.0
+                    "max": 450.0
                 }
             ]
         }
