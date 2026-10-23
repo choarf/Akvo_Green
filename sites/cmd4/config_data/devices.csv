@@ -1,6 +1,11 @@
 device_id,slave,sensor_name,addr,count,scale,offset,unit,type,min,max,enabled
-DEV_2,3,TempAgua,0,1,0.1,0,°C,float,0,50,1
-DEV_3,3,TempAmb,0,1,0.1,0,°C,float,0,50,1
-DEV_3,3,HumAmb,1,1,0.1,0.1,%HR,float,0,100,1
-DEV_4,4,Presion1,8,1,1,0,Mpa,float,0,450,1
-DEV_5,5,Presion2,8,1,1,0,Mpa,float,0,450,1
+DEV_1,1,P1_pre_filtro,0,1,1,0,psi,float,0,1000,1
+DEV_2,2,P2_pos_filtro,0,1,1,0,psi,float,0,1000,1
+DEV_3,3,P3_pre_membranas,0,1,1,0,psi,float,0,200,1
+DEV_4,4,P4_pos_membranas,0,1,1,0,psi,float,0,200,1
+DEV_5,5,P5_presion_de_rechazo,0,1,1,0,psi,float,0,200,1
+DEV_6,10,Fj1_flujo_de_alimentacion,0,1,1,0,gpm,float,0,40,1
+DEV_7,11,Fj2_flujo_de_permeado,0,1,1,0,gpm,float,0,40,1
+DEV_8,11,Fj3_flujo_de_rechazo,0,1,1,0,gpm,float,0,40,1
+DEV_50,50,T1-Temp-Amb,0,1,0.1,0,°C,float,0,50,1
+DEV_51,51,H1-Humedad-Amb,1,1,0.1,0.1,%HR,float,0,95,1

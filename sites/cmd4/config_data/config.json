@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-10-23T17:38:58.371301+00:00",
-        "hash": "03b8aa24d0ec15fb335315b7c37e87ea"
+        "generated_at": "2026-10-23T20:37:55.757140+00:00",
+        "hash": "22cbc943ae66f56d5cbe125de1cd2ab1"
     },
     "gateway": {
         "gateway_id": "AKVO_cmd4",
@@ -35,20 +35,38 @@
     },
     "devices": [
         {
-            "id": "DEV_2",
-            "slave": 3,
+            "id": "DEV_1",
+            "slave": 1,
             "enabled": true,
             "sensors": [
                 {
-                    "name": "TempAgua",
+                    "name": "P1_pre_filtro",
                     "addr": 0,
                     "count": 1,
-                    "scale": 0.1,
+                    "scale": 1.0,
                     "offset": 0.0,
-                    "unit": "\u00b0C",
+                    "unit": "psi",
                     "type": "float",
                     "min": 0.0,
-                    "max": 50.0
+                    "max": 1000.0
+                }
+            ]
+        },
+        {
+            "id": "DEV_2",
+            "slave": 2,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "P2_pos_filtro",
+                    "addr": 0,
+                    "count": 1,
+                    "scale": 1.0,
+                    "offset": 0.0,
+                    "unit": "psi",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 1000.0
                 }
             ]
         },
@@ -58,26 +76,15 @@
             "enabled": true,
             "sensors": [
                 {
-                    "name": "TempAmb",
+                    "name": "P3_pre_membranas",
                     "addr": 0,
                     "count": 1,
-                    "scale": 0.1,
+                    "scale": 1.0,
                     "offset": 0.0,
-                    "unit": "\u00b0C",
+                    "unit": "psi",
                     "type": "float",
                     "min": 0.0,
-                    "max": 50.0
-                },
-                {
-                    "name": "HumAmb",
-                    "addr": 1,
-                    "count": 1,
-                    "scale": 0.1,
-                    "offset": 0.1,
-                    "unit": "%HR",
-                    "type": "float",
-                    "min": 0.0,
-                    "max": 100.0
+                    "max": 200.0
                 }
             ]
         },
@@ -87,15 +94,15 @@
             "enabled": true,
             "sensors": [
                 {
-                    "name": "Presion1",
-                    "addr": 8,
+                    "name": "P4_pos_membranas",
+                    "addr": 0,
                     "count": 1,
                     "scale": 1.0,
                     "offset": 0.0,
-                    "unit": "Mpa",
+                    "unit": "psi",
                     "type": "float",
                     "min": 0.0,
-                    "max": 450.0
+                    "max": 200.0
                 }
             ]
         },
@@ -105,15 +112,105 @@
             "enabled": true,
             "sensors": [
                 {
-                    "name": "Presion2",
-                    "addr": 8,
+                    "name": "P5_presion_de_rechazo",
+                    "addr": 0,
                     "count": 1,
                     "scale": 1.0,
                     "offset": 0.0,
-                    "unit": "Mpa",
+                    "unit": "psi",
                     "type": "float",
                     "min": 0.0,
-                    "max": 450.0
+                    "max": 200.0
+                }
+            ]
+        },
+        {
+            "id": "DEV_6",
+            "slave": 10,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "Fj1_flujo_de_alimentacion",
+                    "addr": 0,
+                    "count": 1,
+                    "scale": 1.0,
+                    "offset": 0.0,
+                    "unit": "gpm",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 40.0
+                }
+            ]
+        },
+        {
+            "id": "DEV_7",
+            "slave": 11,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "Fj2_flujo_de_permeado",
+                    "addr": 0,
+                    "count": 1,
+                    "scale": 1.0,
+                    "offset": 0.0,
+                    "unit": "gpm",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 40.0
+                }
+            ]
+        },
+        {
+            "id": "DEV_8",
+            "slave": 11,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "Fj3_flujo_de_rechazo",
+                    "addr": 0,
+                    "count": 1,
+                    "scale": 1.0,
+                    "offset": 0.0,
+                    "unit": "gpm",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 40.0
+                }
+            ]
+        },
+        {
+            "id": "DEV_50",
+            "slave": 50,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "T1-Temp-Amb",
+                    "addr": 0,
+                    "count": 1,
+                    "scale": 0.1,
+                    "offset": 0.0,
+                    "unit": "\u00b0C",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 50.0
+                }
+            ]
+        },
+        {
+            "id": "DEV_51",
+            "slave": 51,
+            "enabled": true,
+            "sensors": [
+                {
+                    "name": "H1-Humedad-Amb",
+                    "addr": 1,
+                    "count": 1,
+                    "scale": 0.1,
+                    "offset": 0.1,
+                    "unit": "%HR",
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 95.0
                 }
             ]
         }
