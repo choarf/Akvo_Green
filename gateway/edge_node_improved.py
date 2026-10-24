@@ -24,7 +24,7 @@ from config.schema import validate as validate_config
 from domain.sensors import decode as decode_sensor
 from domain.simulation import SimulatedModbusManager
 from storage import HistoryStore
-from hwinfo import hardware_info
+from hwinfo import hardware_info, wifi_info
 
 # aws.{ca,cert,key} in config.json are conventionally relative (e.g.
 # "./certs/AmazonRootCA1.pem", as config_manager.py's aws.csv -> config.json
@@ -352,6 +352,7 @@ def get_system_status(gateway_cfg: dict) -> dict:
         "ip_address": ip_address,
         "os": os_info,
         **hardware_info(),
+        "uptime_s": int(time.time() - psutil.boot_time()),
         "net_bytes_recv": net_recv,
         "net_bytes_sent": net_sent,
     }
@@ -1147,6 +1148,25 @@ class EdgeNode:
         tmp.write_text(json.dumps(status))
         os.replace(tmp, path)
 
+    def link_status(self, cfg):
+        """Connection state for the system telemetry (the cloud dashboard's Sistema page):
+        Modbus port, since when AWS is connected, WiFi network and whether the OLED is on.
+        Best-effort: a failing probe leaves its field None and never blocks the report."""
+        out = {"modbus": None, "mqtt_since": None, "wifi": None,
+               "oled_enabled": bool(cfg.get("display", {}).get("enabled", False))}
+        try:
+            st = self.modbus.status()
+            out["modbus"] = {k: st.get(k) for k in ("connected", "port", "baudrate", "simulated")}
+        except Exception as e:
+            logger.debug(f"link_status modbus: {e}")
+        if getattr(self.mqtt, "connected", False):
+            out["mqtt_since"] = getattr(self.mqtt, "last_change", None)
+        try:
+            out["wifi"] = wifi_info()
+        except Exception as e:
+            logger.debug(f"link_status wifi: {e}")
+        return out
+
     def system_publisher(self):
         while not self.stop_event.is_set():
             interval = 5  # fallback if config access below fails
@@ -1154,7 +1174,7 @@ class EdgeNode:
                 cfg = self.config_mgr.get()
                 interval = cfg["gateway"]["system_interval"]
 
-                payload = get_system_status(cfg["gateway"])
+                payload = {**get_system_status(cfg["gateway"]), **self.link_status(cfg)}
 
                 if self.history is not None:
                     try:

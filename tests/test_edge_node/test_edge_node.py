@@ -361,3 +361,34 @@ def test_simulated_modbus_reports_connected():
     assert not m.connected.is_set()
     m.connect()
     assert m.connected.is_set()
+
+
+# ---------------------------------------------------------------------------
+# System telemetry: uptime and connection state for the cloud Sistema page
+# ---------------------------------------------------------------------------
+
+def test_system_status_reports_uptime(monkeypatch):
+    monkeypatch.setattr(en.psutil, "cpu_percent", lambda interval: 1.0)
+    monkeypatch.setattr(en.psutil, "boot_time", lambda: time.time() - 3600)
+    assert 3599 <= en.get_system_status({"gateway_id": "GW1"})["uptime_s"] <= 3601
+
+
+def test_link_status_modbus_mqtt_wifi_and_oled(monkeypatch):
+    from domain.simulation import SimulatedModbusManager
+    node = make_node()
+    node.modbus = SimulatedModbusManager([])
+    node.mqtt = type("M", (), {"connected": True, "last_change": 1792780556.0})()
+    monkeypatch.setattr(en, "wifi_info", lambda: {"ssid": "Vocho", "profile": "akvo-wifi1", "signal": 72})
+    st = node.link_status({"display": {"enabled": True}})
+    assert st == {"modbus": {"connected": True, "port": None, "baudrate": None, "simulated": True},
+                  "mqtt_since": 1792780556.0, "oled_enabled": True,
+                  "wifi": {"ssid": "Vocho", "profile": "akvo-wifi1", "signal": 72}}
+
+
+def test_link_status_never_raises(monkeypatch):
+    node = make_node()
+    node.modbus = object()                      # no status()
+    node.mqtt = type("M", (), {"connected": False, "last_change": 1.0})()
+    monkeypatch.setattr(en, "wifi_info", lambda: (_ for _ in ()).throw(OSError("nmcli")))
+    st = node.link_status({})
+    assert st == {"modbus": None, "mqtt_since": None, "wifi": None, "oled_enabled": False}
