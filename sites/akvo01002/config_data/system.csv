@@ -1,0 +1,2 @@
+gateway_id,client,city,poll_interval,system_interval,watchdog_timeout,database_enabled,database_retention_days,database_max_mb,database_interval,web_enabled,web_port,wifi1_ssid,wifi2_ssid
+AKVO_akvo01002,Ghotrix,America/Mexico_City,20,60,120,1,30,500,60,1,8080,,
