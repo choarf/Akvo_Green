@@ -379,9 +379,10 @@ def test_link_status_modbus_mqtt_wifi_and_oled(monkeypatch):
     node.modbus = SimulatedModbusManager([])
     node.mqtt = type("M", (), {"connected": True, "last_change": 1792780556.0})()
     monkeypatch.setattr(en, "wifi_info", lambda: {"ssid": "Vocho", "profile": "akvo-wifi1", "signal": 72})
+    monkeypatch.setattr(en, "network_info", lambda: {"iface": "wlan0", "type": "wifi"})
     st = node.link_status({"display": {"enabled": True}})
     assert st == {"modbus": {"connected": True, "port": None, "baudrate": None, "simulated": True},
-                  "mqtt_since": 1792780556.0, "oled_enabled": True,
+                  "mqtt_since": 1792780556.0, "oled_enabled": True, "network": {"iface": "wlan0", "type": "wifi"},
                   "wifi": {"ssid": "Vocho", "profile": "akvo-wifi1", "signal": 72}}
 
 
@@ -390,5 +391,6 @@ def test_link_status_never_raises(monkeypatch):
     node.modbus = object()                      # no status()
     node.mqtt = type("M", (), {"connected": False, "last_change": 1.0})()
     monkeypatch.setattr(en, "wifi_info", lambda: (_ for _ in ()).throw(OSError("nmcli")))
+    monkeypatch.setattr(en, "network_info", lambda: (_ for _ in ()).throw(OSError("proc")))
     st = node.link_status({})
-    assert st == {"modbus": None, "mqtt_since": None, "wifi": None, "oled_enabled": False}
+    assert st == {"modbus": None, "mqtt_since": None, "network": None, "wifi": None, "oled_enabled": False}

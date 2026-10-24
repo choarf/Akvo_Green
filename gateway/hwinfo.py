@@ -55,3 +55,36 @@ def wifi_info(run=subprocess.run) -> dict | None:
     ssid, signal = active[0][1], active[0][2]
     return {"ssid": ssid or None, "profile": profiles[0] if profiles else None,
             "signal": int(signal) if signal.isdigit() else None}
+
+
+PROC_ROUTE = Path("/proc/net/route")
+SYS_NET = Path("/sys/class/net")
+# Names Linux / ModemManager give cellular data links (QMI/MBIM wwan, PPP, USB modems in RNDIS/ECM mode).
+_CELLULAR_PREFIXES = ("wwan", "wwp", "ppp", "usb")
+
+
+def default_interface(route_file: Path = PROC_ROUTE) -> str | None:
+    """Interface of the default route with the lowest metric (the way out to the internet)."""
+    try:
+        rows = [line.split() for line in route_file.read_text().splitlines()[1:]]
+    except OSError:
+        return None
+    defaults = [(int(r[6]), r[0]) for r in rows if len(r) > 6 and r[1] == "00000000" and int(r[3], 16) & 1]
+    return min(defaults)[1] if defaults else None
+
+
+def interface_type(iface: str, sys_net: Path = SYS_NET) -> str:
+    """'wifi' | 'cellular' | 'ethernet' | 'other'."""
+    if (sys_net / iface / "wireless").exists() or (sys_net / iface / "phy80211").exists():
+        return "wifi"
+    if iface.startswith(_CELLULAR_PREFIXES):
+        return "cellular"
+    if iface.startswith(("eth", "en")):
+        return "ethernet"
+    return "other"
+
+
+def network_info(route_file: Path = PROC_ROUTE, sys_net: Path = SYS_NET) -> dict | None:
+    """{"iface", "type"} of the link the gateway uses to reach the internet, None without a default route."""
+    iface = default_interface(route_file)
+    return {"iface": iface, "type": interface_type(iface, sys_net)} if iface else None

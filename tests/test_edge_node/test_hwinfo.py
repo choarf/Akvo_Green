@@ -53,3 +53,36 @@ def test_wifi_info_ssid_with_escaped_colon():
 def test_wifi_info_none_without_wifi_or_nmcli():
     assert hwinfo.wifi_info(FakeRun(wifi="no:Vecino:40\n")) is None          # Ethernet only
     assert hwinfo.wifi_info(FakeRun(raise_=FileNotFoundError("nmcli"))) is None
+
+
+
+# ---------------------------------------------------------------------------
+# network_info: interface and type of the default route
+# ---------------------------------------------------------------------------
+
+ROUTE = """Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT
+eth0\t0044A8C0\t00000000\t0001\t0\t0\t100\t00FFFFFF\t0\t0\t0
+wlan0\t00000000\t0144A8C0\t0003\t0\t0\t600\t00000000\t0\t0\t0
+eth0\t00000000\t0144A8C0\t0003\t0\t0\t100\t00000000\t0\t0\t0
+"""
+
+
+def test_network_info_picks_lowest_metric_default_route(tmp_path):
+    (tmp_path / "route").write_text(ROUTE)
+    (tmp_path / "net" / "eth0").mkdir(parents=True)
+    assert hwinfo.network_info(tmp_path / "route", tmp_path / "net") == {"iface": "eth0", "type": "ethernet"}
+
+
+def test_interface_types(tmp_path):
+    (tmp_path / "wlan0" / "wireless").mkdir(parents=True)
+    assert hwinfo.interface_type("wlan0", tmp_path) == "wifi"
+    assert hwinfo.interface_type("wwan0", tmp_path) == "cellular"
+    assert hwinfo.interface_type("ppp0", tmp_path) == "cellular"
+    assert hwinfo.interface_type("enp1s0", tmp_path) == "ethernet"
+    assert hwinfo.interface_type("tun0", tmp_path) == "other"
+
+
+def test_network_info_none_without_default_route(tmp_path):
+    (tmp_path / "route").write_text(ROUTE.splitlines()[0] + "\n")
+    assert hwinfo.network_info(tmp_path / "route", tmp_path) is None
+    assert hwinfo.network_info(tmp_path / "missing", tmp_path) is None

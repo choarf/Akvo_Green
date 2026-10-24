@@ -24,7 +24,7 @@ from config.schema import validate as validate_config
 from domain.sensors import decode as decode_sensor
 from domain.simulation import SimulatedModbusManager
 from storage import HistoryStore
-from hwinfo import hardware_info, wifi_info
+from hwinfo import hardware_info, network_info, wifi_info
 
 # aws.{ca,cert,key} in config.json are conventionally relative (e.g.
 # "./certs/AmazonRootCA1.pem", as config_manager.py's aws.csv -> config.json
@@ -1150,9 +1150,10 @@ class EdgeNode:
 
     def link_status(self, cfg):
         """Connection state for the system telemetry (the cloud dashboard's Sistema page):
-        Modbus port, since when AWS is connected, WiFi network and whether the OLED is on.
+        Modbus port, since when AWS is connected, the network in use (type + interface),
+        the WiFi network and whether the OLED is on.
         Best-effort: a failing probe leaves its field None and never blocks the report."""
-        out = {"modbus": None, "mqtt_since": None, "wifi": None,
+        out = {"modbus": None, "mqtt_since": None, "network": None, "wifi": None,
                "oled_enabled": bool(cfg.get("display", {}).get("enabled", False))}
         try:
             st = self.modbus.status()
@@ -1161,6 +1162,10 @@ class EdgeNode:
             logger.debug(f"link_status modbus: {e}")
         if getattr(self.mqtt, "connected", False):
             out["mqtt_since"] = getattr(self.mqtt, "last_change", None)
+        try:
+            out["network"] = network_info()
+        except Exception as e:
+            logger.debug(f"link_status network: {e}")
         try:
             out["wifi"] = wifi_info()
         except Exception as e:
