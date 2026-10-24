@@ -1,12 +1,12 @@
 device_id,slave,sensor_name,addr,count,scale,offset,unit,type,min,max,enabled
-DEV_1,1,P1_pre_filtro,0,1,1,0,1, psi,float,0,1000,1
-DEV_2,2,P2_ pos_filtro,0,1,1,0,1, psi,loat,0,1000,1
+DEV_1,1,P1_pre_filtro,0,1,1,0,1, psi,float,0,100,1
+DEV_2,2,P2_ pos_filtro,0,1,1,0,1, psi,loat,0,100,1
 DEV_3,3,P3_pre_membranas,0,1,1,0,1 ,psi ,float,0,200,1
 DEV_4,4,P4_pos_membranas,0,1,1,0,1,psi,float,0,200,1
 DEV_5,5,P5_presión_de_rechazo,0,1,1,0,1, psi,float,0,200,1
 DEV_6,10,Fj1_flujo_de_alimentacion,0,1,1,0,1,gmp, float,0,40,1
-DEV_7,11,Fj2_flujo_de_permeado,0,1,1,0,1, gmp,float,0,40,1
-DEV_8,12,Fj3_flujo_de_rechazo,0,1,1,0,1, gmp,float,0,40,1
+DEV_7,11,Fj2_flujo_de_permeado,0,1,1,0,1, gmp,float,0,30,1
+DEV_8,12,Fj3_flujo_de_rechazo,0,1,1,0,1, gmp,float,0,30,1
 DEV_50,50,T1-Temp-Amb,0,1,1,0,0.1, °C,float,0,500,1
 DEV_51,51,H1-Humedad-Amb,1,1,1,1,0.1 %HR,float,0,950,1
 
