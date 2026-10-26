@@ -11,26 +11,55 @@ the exact interface ModbusManager.read_holding_registers() exposes to
 SensorNode.read() - so there's no serial port, no socat, nothing to set
 up beyond one config flag, and it runs anywhere Python runs.
 
-SimSensor's random-walk-with-occasional-excursion shape mirrors
-mock_devices_slave.py's SimSensor on purpose (same demo "feel", bounded
-drift plus rare alarm-triggering spikes) - but it encodes directly to/from
-physical values via domain.sensors' own decode(), instead of writing into
-a simulated holding-register array, so every sensor type decode_sensor()
-supports (including the 2-register uint32/int32/float32 types) round-trips
-correctly. mock_devices_slave.py's holding-register model only ever fills
-one word of a multi-register sensor, which is fine for exercising protocol
-handling in tests but would not produce a sensible decoded value for a
-float32/uint32/int32 sensor here.
+SimSensor behaves like a slow thermal process: a setpoint that drifts over
+hours inside the middle of the sensor's min/max, followed through a
+first-order lag. Alarm excursions are rare and slow - the manager starts
+about ALARMS_PER_DAY of them per day across the whole site, each one
+ramping a single sensor's setpoint past its min or max, holding it there
+and ramping back, so a reading takes tens of minutes to go into alarm and
+as long to come out of it, with one alarm episode per excursion (no
+chatter at the limit). Everything runs on elapsed time, not on the number
+of reads, so the poll interval doesn't change how the demo looks.
+
+It encodes directly to/from physical values via domain.sensors' own
+decode(), instead of writing into a simulated holding-register array
+(tests/edge_node_mock/mock_devices_slave.py's model only ever fills one
+word of a multi-register sensor), so every sensor type decode_sensor()
+supports, including the 2-register uint32/int32/float32 types,
+round-trips correctly.
 """
 
 from __future__ import annotations
 
 import logging
+import math
 import random
 import struct
 import threading
+import time
 
 logger = logging.getLogger("EdgeNode")
+
+# Site-wide alarm excursions per day (Poisson arrivals, one sensor each).
+ALARMS_PER_DAY = 10
+# First-order lag of the reading behind its setpoint, like a thermal mass.
+LAG_TAU_S = 10 * 60
+# Normal setpoint drift: mean-reverting, wanders over hours, stays inside
+# the middle NORMAL_BAND of the range (so normal running never alarms).
+DRIFT_TAU_S = 2 * 3600
+NORMAL_BAND = 0.5
+# An excursion ramps the setpoint to EXCURSION_DEPTH * span past the limit
+# over RAMP_UP_S, holds it there for HOLD_S, then ramps it back over
+# RAMP_DOWN_S (cooling down slower than heating up, like a thermal mass).
+EXCURSION_DEPTH = 0.08
+RAMP_UP_S = 25 * 60
+RAMP_DOWN_S = 50 * 60
+HOLD_S = (15 * 60, 45 * 60)
+# Measurement noise, small enough that a crossing never flickers.
+NOISE = 0.0005
+# Longest gap one step() integrates over (a stalled poll loop resumes
+# smoothly instead of jumping).
+MAX_DT_S = 300.0
 
 
 class SimSensor:
@@ -47,41 +76,95 @@ class SimSensor:
         offset: float = 0.0,
         min_v: float | None = None,
         max_v: float | None = None,
+        rng: random.Random | None = None,
     ):
         self.type = sensor_type
         self.scale = scale or 1.0
         self.offset = offset or 0.0
         self.min_v = min_v
         self.max_v = max_v
+        self.rng = rng or random.Random()
 
-        lo = min_v if min_v is not None else 0.0
-        hi = max_v if max_v is not None else lo + 100.0
-        self.value = (lo + hi) / 2.0
+        self.lo = min_v if min_v is not None else 0.0
+        self.hi = max_v if max_v is not None else self.lo + 100.0
+        self.span = max(self.hi - self.lo, 1e-9)
+        # Normal running is centred on the part of the range the register
+        # can encode (a one-register float at -1500..1500 can't go below 0).
+        floor = self._encodable_min()
+        lo_ok = self.lo if floor is None or floor < self.lo or floor >= self.hi else floor
+        self.band = max(self.hi - lo_ok, 1e-9)
+        self.mid = (lo_ok + self.hi) / 2.0
 
-    def step(self) -> float:
-        """Advance the simulated physical value one tick (bounded random
-        walk, occasionally spiking out of range to exercise HIGH/LOW
-        alarm evaluation) and return it."""
-        lo = self.min_v if self.min_v is not None else self.value - 50
-        hi = self.max_v if self.max_v is not None else self.value + 50
-        span = max(hi - lo, 1.0)
+        self.drift = self.mid          # normal setpoint
+        self.process = self.mid        # the lagged process value
+        self.value = self.mid          # what the sensor reports (process + noise)
+        self._last_t: float | None = None
+        # Active excursion: (start, end of hold, peak setpoint), or None.
+        self._excursion: tuple[float, float, float] | None = None
 
-        # Gentle pull back to the middle, so a spike is a short excursion
-        # rather than where the walk then wanders off and stays.
-        self.value += ((lo + hi) / 2.0 - self.value) * 0.1
-        self.value += random.uniform(-span * 0.03, span * 0.03)
+    # -- excursions -------------------------------------------------------
 
-        if random.random() < 0.03:
-            self.value = hi + span * 0.1 if random.random() < 0.5 else lo - span * 0.1
+    def in_excursion(self, now: float) -> bool:
+        return self._excursion is not None and now < self._excursion[1] + RAMP_DOWN_S
 
-        self.value = max(lo - span * 0.2, min(hi + span * 0.2, self.value))
+    def can_go_low(self) -> bool:
+        """A LOW excursion must be encodable (an unsigned register at
+        min=0 can't report a value below 0, so it only ever goes HIGH)."""
+        floor = self._encodable_min()
+        return floor is None or self.lo - EXCURSION_DEPTH * self.span > floor
+
+    def start_excursion(self, now: float, high: bool, hold_s: float) -> None:
+        peak = (self.hi + EXCURSION_DEPTH * self.span if high
+                else self.lo - EXCURSION_DEPTH * self.span)
+        self._excursion = (now, now + RAMP_UP_S + hold_s, peak)
+
+    def setpoint(self, now: float) -> float:
+        """Normal drift, blended towards the excursion peak with a smooth
+        (cosine) ramp up, a hold, and a ramp back down."""
+        if self._excursion is None:
+            return self.drift
+        start, hold_end, peak = self._excursion
+        if now < start + RAMP_UP_S:
+            w = (now - start) / RAMP_UP_S
+        elif now < hold_end:
+            w = 1.0
+        elif now < hold_end + RAMP_DOWN_S:
+            w = 1.0 - (now - hold_end) / RAMP_DOWN_S
+        else:
+            self._excursion = None
+            return self.drift
+        w = 0.5 - 0.5 * math.cos(math.pi * max(0.0, min(1.0, w)))
+        return self.drift + (peak - self.drift) * w
+
+    # -- dynamics ---------------------------------------------------------
+
+    def step(self, now: float | None = None) -> float:
+        """Advance the simulated value to time `now` (seconds, monotonic)
+        and return the reading."""
+        now = time.monotonic() if now is None else now
+        dt = 0.0 if self._last_t is None else max(0.0, min(MAX_DT_S, now - self._last_t))
+        self._last_t = now
+
+        if dt > 0:
+            # Ornstein-Uhlenbeck drift around the middle, clamped to the band.
+            a = math.exp(-dt / DRIFT_TAU_S)
+            sigma = 0.15 * self.band * math.sqrt(1 - a * a)
+            self.drift = self.mid + (self.drift - self.mid) * a + self.rng.gauss(0, sigma)
+            half = NORMAL_BAND * self.band / 2
+            self.drift = max(self.mid - half, min(self.mid + half, self.drift))
+            # Thermal lag towards the setpoint.
+            target = self.setpoint(now)
+            self.process = target + (self.process - target) * math.exp(-dt / LAG_TAU_S)
+
+        reading = self.process + self.rng.gauss(0, NOISE * self.span)
         # Unsigned register types can't hold a value below this (a float
-        # sensor at min=0 would otherwise read a clamped 0 for as long as
-        # the walk sits below it) - a real sensor can't report it either.
+        # sensor at min=0 would otherwise read a clamped 0) - a real
+        # sensor can't report it either.
         floor = self._encodable_min()
         if floor is not None:
-            self.value = max(floor, self.value)
-        return self.value
+            reading = max(floor, reading)
+        self.value = reading
+        return reading
 
     def _encodable_min(self) -> float | None:
         """Lowest physical value registers() can encode, None if signed."""
@@ -96,21 +179,22 @@ class SimSensor:
         word(s) that domain.sensors.decode(self.type, ..., self.scale,
         self.offset) would decode back into (approximately, after rounding)
         that same value - the inverse of each decoder in domain/sensors.py."""
+        value = self.value
         if self.type in ("int", "uint16"):
-            return [max(0, min(0xFFFF, round(self.value)))]
+            return [max(0, min(0xFFFF, round(value)))]
 
         if self.type == "float":
-            raw = round((self.value - self.offset) / self.scale)
+            raw = round((value - self.offset) / self.scale)
             return [max(0, min(0xFFFF, raw))]
 
         if self.type == "uint32":
-            raw = max(0, min(0xFFFFFFFF, round(self.value)))
+            raw = max(0, min(0xFFFFFFFF, round(value)))
             packed = struct.pack(">I", raw)
         elif self.type == "int32":
-            raw = max(-(2**31), min(2**31 - 1, round(self.value)))
+            raw = max(-(2**31), min(2**31 - 1, round(value)))
             packed = struct.pack(">i", raw)
         elif self.type == "float32":
-            packed = struct.pack(">f", (self.value - self.offset) / self.scale)
+            packed = struct.pack(">f", (value - self.offset) / self.scale)
         else:
             raise ValueError(f"simulation: unsupported sensor type {self.type!r}")
 
@@ -140,8 +224,18 @@ class SimulatedModbusManager:
     init_system() picks this class instead of ModbusManager based on
     config.json's modbus.simulate flag - see its own comment)."""
 
-    def __init__(self, devices_cfg: list[dict]):
+    def __init__(
+        self,
+        devices_cfg: list[dict],
+        alarms_per_day: float = ALARMS_PER_DAY,
+        clock=time.monotonic,
+        rng: random.Random | None = None,
+    ):
         self.connected = threading.Event()
+        self.clock = clock
+        self.rng = rng or random.Random()
+        self.alarms_per_day = alarms_per_day
+        self._lock = threading.Lock()
         self._sensors: dict[tuple[int, int], SimSensor] = {}
         for dev in devices_cfg:
             for s in dev.get("sensors", []):
@@ -151,7 +245,25 @@ class SimulatedModbusManager:
                     offset=s.get("offset", 0.0),
                     min_v=s.get("min"),
                     max_v=s.get("max"),
+                    rng=self.rng,
                 )
+        self._next_alarm = self._draw_next(self.clock())
+
+    def _draw_next(self, now: float) -> float:
+        if self.alarms_per_day <= 0:
+            return math.inf
+        return now + self.rng.expovariate(self.alarms_per_day / 86400.0)
+
+    def _schedule(self, now: float) -> None:
+        """Start every excursion whose Poisson arrival time has passed, on
+        a random sensor that isn't already in one."""
+        while now >= self._next_alarm:
+            free = [s for s in self._sensors.values() if not s.in_excursion(self._next_alarm)]
+            if free:
+                s = self.rng.choice(free)
+                high = not s.can_go_low() or self.rng.random() < 0.5
+                s.start_excursion(self._next_alarm, high, self.rng.uniform(*HOLD_S))
+            self._next_alarm = self._draw_next(self._next_alarm)
 
     def connect(self) -> None:
         logger.info("Modbus SIMULATED - no serial port opened, synthetic readings only")
@@ -173,8 +285,12 @@ class SimulatedModbusManager:
             # Not a configured (slave, addr) pair - mirrors a real bus
             # response for an address nothing is listening on.
             return _SimResult(error=True)
-        sensor.step()
-        return _SimResult(registers=sensor.registers()[:count])
+        with self._lock:
+            now = self.clock()
+            self._schedule(now)
+            sensor.step(now)
+            regs = sensor.registers()[:count]
+        return _SimResult(registers=regs)
 
     def disconnect(self) -> None:
         pass

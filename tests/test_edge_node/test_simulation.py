@@ -15,23 +15,56 @@ from domain.simulation import SimSensor, SimulatedModbusManager
 
 
 # ---------------------------------------------------------------------------
-# SimSensor: bounded walk
+# SimSensor: slow thermal-like dynamics
 # ---------------------------------------------------------------------------
 
-def test_step_stays_within_the_expanded_bound(monkeypatch):
-    monkeypatch.setattr("domain.simulation.random.random", lambda: 0.5)  # never spikes
-    s = SimSensor("float", scale=1.0, offset=0.0, min_v=0.0, max_v=100.0)
-    for _ in range(500):
-        v = s.step()
-        assert -20.0 <= v <= 120.0  # lo - 0.2*span .. hi + 0.2*span
+def run(sensor, seconds, poll=20, start=0):
+    return [sensor.step(t) for t in range(start, start + seconds, poll)]
 
 
-def test_step_can_spike_out_of_configured_range(monkeypatch):
-    monkeypatch.setattr("domain.simulation.random.random", lambda: 0.0)  # always spikes
-    monkeypatch.setattr("domain.simulation.random.uniform", lambda a, b: b)
-    s = SimSensor("float", scale=1.0, offset=0.0, min_v=0.0, max_v=100.0)
-    v = s.step()
-    assert v > 100.0 or v < 0.0  # outside min/max -> exercises HIGH/LOW alarms downstream
+def test_normal_running_stays_inside_min_max():
+    s = SimSensor("float32", min_v=0.0, max_v=100.0, rng=random.Random(1))
+    values = run(s, 3 * 86400)
+    assert 0.0 < min(values) and max(values) < 100.0  # no excursion -> no alarm
+
+
+def test_reading_changes_slowly_between_polls():
+    s = SimSensor("float32", min_v=0.0, max_v=100.0, rng=random.Random(2))
+    s.start_excursion(0, high=True, hold_s=1800)
+    values = run(s, 4 * 3600)
+    assert max(abs(b - a) for a, b in zip(values, values[1:])) < 1.5  # % of span per 20 s
+
+
+def test_excursion_goes_into_alarm_and_out_slowly():
+    s = SimSensor("float32", min_v=0.0, max_v=100.0, rng=random.Random(3))
+    s.process = s.drift = 60.0
+    s.start_excursion(0, high=True, hold_s=1800)
+    trace = list(zip(range(0, 5 * 3600, 20), run(s, 5 * 3600)))
+    first = lambda pred: next(t for t, v in trace if pred(t, v))
+    up70 = first(lambda t, v: v >= 70)
+    up100 = first(lambda t, v: v > 100)
+    down100 = first(lambda t, v: t > up100 and v <= 100)
+    down70 = first(lambda t, v: t > down100 and v < 70)
+    assert up100 - up70 >= 10 * 60      # into the alarm: tens of minutes, not one poll
+    assert down70 - down100 >= 10 * 60  # and out of it
+    # One alarm episode: once back under the limit it stays there.
+    assert all(v <= 100 for t, v in trace if t >= down100)
+
+
+def test_low_excursion_only_where_the_register_can_encode_it():
+    assert SimSensor("float", scale=1.0, offset=0.0, min_v=0.0, max_v=50.0).can_go_low() is False
+    assert SimSensor("uint16", min_v=0, max_v=50).can_go_low() is False
+    assert SimSensor("int32", min_v=0, max_v=50).can_go_low() is True
+    assert SimSensor("float", scale=1.0, offset=0.0, min_v=10.0, max_v=50.0).can_go_low() is True
+
+
+def test_unsigned_float_is_centred_on_its_encodable_range():
+    # ORP-style -1500..1500 on a one-register float can't encode < 0, so
+    # normal running sits in 0..1500 instead of reading a clamped 0.
+    s = SimSensor("float", scale=1.0, offset=0.0, min_v=-1500.0, max_v=1500.0, rng=random.Random(4))
+    values = run(s, 86400)
+    assert min(values) > 0.0
+    assert sum(v < 1.0 for v in values) == 0
 
 
 def test_defaults_when_min_max_are_both_absent():
@@ -211,21 +244,38 @@ def test_publisher_omits_simulated_key_when_mode_is_off(monkeypatch):
     assert "simulated" not in node.mqtt.published[0]
 
 
-def test_unsigned_float_never_walks_below_what_its_register_can_hold():
-    # min=0 on a one-register float: a walk below 0 used to encode as a
-    # clamped raw 0, so the sensor read a flat 0 for long stretches.
-    random.seed(1)
-    s = SimSensor("float", scale=0.1, offset=0.0, min_v=0.0, max_v=50.0)
-    values = [s.step() for _ in range(2000)]
-    assert min(values) >= 0.0
-    assert sum(v < 1.0 for v in values) / len(values) < 0.05
+# ---------------------------------------------------------------------------
+# SimulatedModbusManager: alarm excursions, ALARMS_PER_DAY site-wide
+# ---------------------------------------------------------------------------
+
+def count_episodes(devices, days, poll=60, seed=0, alarms_per_day=10):
+    t = [0.0]
+    mgr = SimulatedModbusManager(devices, alarms_per_day=alarms_per_day,
+                                 clock=lambda: t[0], rng=random.Random(seed))
+    sensors = [(d["slave"], s) for d in devices for s in d["sensors"]]
+    inside = {}
+    episodes = 0
+    for i in range(int(days * 86400 / poll)):
+        t[0] = i * poll
+        for slave, s in sensors:
+            regs = mgr.read_holding_registers(s["addr"], s["count"], slave).registers
+            v = decode_sensor(s["type"], regs, scale=s.get("scale", 1.0), offset=s.get("offset", 0.0))
+            out = v > s["max"] or v < s["min"]
+            if out and inside.get(s["name"], True):
+                episodes += 1
+            inside[s["name"]] = not out
+    return episodes
 
 
-def test_walk_returns_towards_the_middle_after_a_spike(monkeypatch):
-    s = SimSensor("float32", min_v=0.0, max_v=100.0)
-    s.value = -20.0
-    monkeypatch.setattr("domain.simulation.random.random", lambda: 0.5)  # never spikes
-    monkeypatch.setattr("domain.simulation.random.uniform", lambda a, b: 0.0)
-    for _ in range(30):
-        s.step()
-    assert 40.0 < s.value < 60.0
+def five_sensors():
+    return [device(f"D{i}", i, [sensor(f"S{i}", 0, type="float32", count=2, min=0, max=100)])
+            for i in range(1, 6)]
+
+
+def test_about_ten_alarms_per_day_across_the_site():
+    episodes = count_episodes(five_sensors(), days=20, seed=11)
+    assert 150 <= episodes <= 250  # Poisson mean 200 over 20 days
+
+
+def test_no_alarms_when_rate_is_zero():
+    assert count_episodes(five_sensors(), days=3, alarms_per_day=0) == 0

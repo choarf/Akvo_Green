@@ -106,11 +106,20 @@ port,baudrate,timeout,parity,stopbits,bytesize,simulate_enabled
 |---|---|---|
 | `simulate_enabled` | bool (optional) | `1`/`true`/`yes`/`on` runs against `gateway/domain/simulation.py`'s in-process simulator instead of the real serial port; `0`/blank/absent uses real hardware (the default — absent means every existing `modbus.csv` builds and behaves exactly as before). Becomes `modbus.simulate` in `config.json`. |
 
-Every sensor in `devices.csv` gets its own simulated value: a bounded
-random walk within that sensor's `min`/`max`, with an occasional
-excursion outside them to exercise `HIGH`/`LOW` alarms — generated from
-*this gateway's own config*, not canned data, so changing `devices.csv`
-changes what the demo shows with no other changes needed. Every published
+Every sensor in `devices.csv` gets its own simulated value, behaving
+like a slow thermal process: a setpoint that drifts over hours inside the
+middle of that sensor's `min`/`max`, followed with a ~10 min lag and
+almost no noise. About **10 alarm excursions per day across the whole
+site** (`ALARMS_PER_DAY` in `gateway/domain/simulation.py`, random
+arrivals) each take one sensor slowly past its `max` (or its `min`, when
+the register type can encode a value below it): ~25 min ramp in, a
+15-45 min hold, ~50 min ramp out, so a reading needs tens of minutes to
+go into `HIGH`/`LOW` and as long to come back, with one alarm episode per
+excursion. It runs on elapsed time, so `poll_interval` doesn't change it.
+It's generated from *this gateway's own config*, not canned data, so
+changing `devices.csv` changes what the demo shows with no other changes
+needed. Sensors that share one slave and register (e.g. several values
+configured at the same address) share one simulated value. Every published
 reading is also tagged `"simulated": true` in the MQTT payload (and so in
 S3/Athena too), so synthetic and real data can never be confused with each
 other downstream, even after the fact.
