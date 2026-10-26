@@ -27,7 +27,6 @@ The full procedure covers the AWS IoT certificate and policy, the AWS stack and 
 |---|---|---|---|---|---|---|---|
 | `cmd4` | `AKVO_cmd4` | `VENKO/cmd4/*` | `pi@192.168.68.124` (CM5) | **simulated** | none (off) | 7 days | http://192.168.68.124:8080 |
 | `akvo01005` | `AKVO_akvo01005` | `VENKO/akvo01005/*` | `akvo@192.168.68.107` (Pi 4) | **simulated** | sh1106, offset 3, pages | 30 days / 500 MB, every 60 s | http://192.168.68.107:8080 |
-| `demo` | `AKVO_Demo` | `VENKO/demo/*` | `akvo@192.168.68.117` (Pi 4, 7 GB card) | **real sensors** (`/dev/ttyUSB0`) | off | 30 days / 200 MB | http://192.168.68.117:8080 |
 | `akvo01002` | `AKVO_akvo01002` | `VENKO/akvo01002/*` | `akvo@192.168.68.130` (Pi 4) | **real sensors** (`/dev/ttySC0`, 9600 8N1) | off | 30 days / 500 MB, every 60 s | http://192.168.68.130:8080 |
 
 AWS side of each site:
@@ -36,7 +35,6 @@ AWS side of each site:
 |---|---|---|---|
 | `cmd4` | https://d29127v2virrqh.cloudfront.net | `venko-cmd4-884520769610-us-east-1` | `venko-cmd4-web-884520769610` |
 | `akvo01005` | https://d3quloi3nf2hd4.cloudfront.net | `venko-akvo01005-884520769610-us-east-1` | `venko-akvo01005-web-884520769610` |
-| `demo` | https://d1f1ymj0tb4k52.cloudfront.net | `venko-demo-884520769610-us-east-1` | `venko-demo-web-884520769610` |
 | `akvo01002` | https://dcjm9hzmbcx07.cloudfront.net | `venko-akvo01002-884520769610-us-east-1` | `venko-akvo01002-web-884520769610` |
 
 Everything else about a site (IoT certificate and policy, API, Lambdas, Athena, live status, commands) is in its summary page in VenkoDemo: `docs/sites/README.md` (all sites) and `docs/sites/<key>.md`. Regenerate with `python3 tools/site_summary.py <key> --pi pi@<address>`, and add a row to both tables above for every new site.
