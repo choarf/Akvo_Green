@@ -125,7 +125,8 @@ S3/Athena too), so synthetic and real data can never be confused with each
 other downstream, even after the fact.
 
 **Read once at startup, like `database.*`** — toggling `simulate_enabled`
-on a running gateway needs a restart, not just a config reload (`sam deploy`
+on a running gateway needs a restart, not just a config reload (through the
+IoT shadow the gateway restarts itself - see `aws.csv` `shadow_enabled`) (`sam deploy`
 isn't involved at all; this is purely a Akvo_Green-side setting). The
 startup log makes it unmistakable either way: `Modbus SIMULATE mode is ON
 - every reading is synthetic, not real sensor data`.
@@ -186,6 +187,7 @@ ones `edge_node_improved.py` actually reads.
 | `dashboard_url` | *(optional)* The site's cloud dashboard (`https://...cloudfront.net`). Shown as a link on the local dashboard's *Sistema* page; not used by the gateway. |
 | `data_bucket` | *(optional)* The site's S3 data bucket name - linked to the S3 console on *Sistema*. |
 | `web_bucket` | *(optional)* The site's S3 web bucket name - same. |
+| `shadow_enabled` | *(optional)* `1` = also take config changes from the AWS IoT named shadow `config` (see [Config through the IoT shadow](#config-through-the-iot-shadow-optional-shadow_enabled)). Blank/`0`/absent = off. Becomes the boolean `aws.shadow_enabled`; read once at startup. |
 
 `ca`/`cert`/`key` are conventionally relative paths (`./certs/...`).
 `ConfigManager.load()` resolves them against `edge_node_improved.py`'s own
@@ -200,6 +202,17 @@ a2zzu55sjawy4x-ats.iot.us-east-1.amazonaws.com,AKVO_Gateway,./certs/AmazonRootCA
 ```
 
 The three link columns come from VenkoDemo's site summary (`docs/sites/<key>.md`: web page, S3 data bucket, S3 web bucket). Changing them reconnects MQTT once (the `aws` section's hash changes) - harmless.
+
+### Config through the IoT shadow (optional `shadow_enabled`)
+
+With `shadow_enabled=1`, `gateway/shadow_sync.py` keeps `config.json` in step with the desired state of the thing's named shadow `config` (`$aws/things/<client_id>/shadow/name/config/...`), which VenkoDemo's `tools/push_shadow.py <key>` writes from the committed `sites/<key>/config_data/config.json`. The Pi doesn't need to be reachable over SSH; a change sent while it's offline is applied when it reconnects.
+
+- **What it takes:** every section except `aws` and `modbus`, plus `modbus.simulate`. The endpoint, certs, topics and serial settings only ever change through `tools/push_site.sh`, so a bad remote change can't cut the Pi off.
+- **How:** on every (re)connect and every delta it fetches the whole desired document, merges it into the local file, validates it with `config/schema.py` and writes it atomically; `config_watcher` then reloads it as usual. A config the schema refuses is not written - the last good one keeps running and the reason goes to `reported.error`.
+- **Reported:** `config_hash` (sha256 of the shadow-managed part, `shadow_sync.config_hash`), `git_rev`, `simulate`, `error`, `applied_at` - never a copy of the config (8 KB shadow limit).
+- **Start-up-only settings** (`modbus.simulate`, `database.*`): applied to the file, then the gateway restarts itself (exit code 75; systemd's `Restart=on-failure` starts it again). A `web` change is reported as `pending_service_restart` - that service restarts with `push_site.sh`.
+- **Before turning it on**, the site's IoT policy (`sites/<key>/certs/policy.json`) must allow `iot:Subscribe`/`iot:Receive` on `$aws/things/<client_id>/shadow/name/config/*` and `iot:Publish` on its `get` and `update` - otherwise AWS IoT drops the connection at the first subscribe. Apply it with `aws iot create-policy-version --policy-name venko-<key>-gateway --policy-document file://sites/<key>/certs/policy.json --set-as-default`.
+- **Once a site uses it**, the shadow's desired state wins on every reconnect: send config changes with `push_shadow.py`, not only with `push_site.sh`, or the Pi goes back to the older desired config.
 
 ## config.json (generated)
 
