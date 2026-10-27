@@ -25,6 +25,7 @@ from domain.sensors import decode as decode_sensor
 from domain.simulation import SimulatedModbusManager
 from storage import HistoryStore
 from hwinfo import hardware_info, network_info, wifi_info
+from shadow_sync import ShadowSync, RESTART_EXIT_CODE
 
 # aws.{ca,cert,key} in config.json are conventionally relative (e.g.
 # "./certs/AmazonRootCA1.pem", as config_manager.py's aws.csv -> config.json
@@ -485,6 +486,9 @@ class MQTTManager:
         self.last_publish = None   # epoch s of the last publish() handed to a live connection
         self.last_error = None
         self._connect_thread = None   # the background connect (connect_in_background)
+        # Called (no arguments, must not block) after every successful
+        # connect and every resume - ShadowSync re-subscribes from there.
+        self.on_connect = []
         # Built once and reused for every connect() attempt over this
         # manager's whole lifetime (including retries and update_config()'s
         # reconnects) - a ClientBootstrap/EventLoopGroup is meant to serve
@@ -530,6 +534,7 @@ class MQTTManager:
                     logger.info(f"MQTT connected (after {attempt} retries, {elapsed:.1f}s)")
                 else:
                     logger.info("MQTT connected")
+                self._notify_connected()
                 return
 
             except Exception as e:
@@ -580,6 +585,25 @@ class MQTTManager:
     def _on_resumed(self, connection, return_code, session_present, **kwargs):
         self._set_connected(True)
         logger.info(f"MQTT connection resumed (return code {return_code})")
+        self._notify_connected()
+
+    def _notify_connected(self):
+        for callback in getattr(self, "on_connect", ()):
+            try:
+                callback()
+            except Exception as e:
+                logger.error(f"MQTT on_connect callback failed: {e}")
+
+    def subscribe(self, topic, callback):
+        """Subscribe on the current connection (QoS 1). Returns the
+        subscribe future, or None when not connected - ShadowSync
+        subscribes again from on_connect anyway."""
+        with self.lock:
+            connection = self.connection
+        if connection is None:
+            return None
+        future, _ = connection.subscribe(topic=topic, qos=mqtt.QoS.AT_LEAST_ONCE, callback=callback)
+        return future
 
     def status(self):
         """For the status file (EdgeNode.write_status)."""
@@ -600,7 +624,8 @@ class MQTTManager:
         """Never blocks on the network. No connection yet (or a send that
         raised): skip this message and make sure a background connect is
         running. With a connection, the AWS library takes the message even
-        during an outage and sends it after its own reconnect."""
+        during an outage and sends it after its own reconnect. Returns the
+        publish future (completes on PUBACK), or None if nothing was sent."""
         with self.lock:
             connection = self.connection
         if connection is None:
@@ -608,15 +633,16 @@ class MQTTManager:
             if thread is None or not thread.is_alive():
                 logger.error("MQTT publish skipped: not connected - connecting in the background")
             self.connect_in_background()
-            return
+            return None
         try:
-            connection.publish(
+            future, _ = connection.publish(
                 topic=topic,
                 payload=json.dumps(payload),
                 qos=mqtt.QoS.AT_LEAST_ONCE
             )
             if self.connected:
                 self.last_publish = time.time()
+            return future
         except Exception as e:
             self.last_error = str(e)
             logger.error(f"MQTT publish failed: {e} - reconnecting in the background")
@@ -841,6 +867,7 @@ class EdgeNode:
         self.mqtt = None
         self.modbus = None
         self.wifi = None
+        self.shadow = None   # ShadowSync, only with aws.shadow_enabled
         # Set from config.json's modbus.simulate in init_system() - read
         # once at startup (not live-reloadable, same as database.* and
         # AKVO_LOG_LEVEL). Tags every publisher() payload with
@@ -891,6 +918,16 @@ class EdgeNode:
             self.modbus = ModbusManager(cfg["modbus"], reboot_after=gw.get("modbus_reboot_timeout"))
         self.mqtt = MQTTManager(cfg["aws"], reboot_after=gw.get("aws_reboot_timeout"))
         self.wifi = WifiManager(gw)
+
+        # Remote config through the IoT named shadow "config" - registered
+        # before the first connect so its subscriptions happen on it. Read
+        # once at startup, like modbus.simulate.
+        if cfg["aws"].get("shadow_enabled"):
+            self.shadow = ShadowSync(self.mqtt, self.config_mgr.path, cfg["aws"]["client_id"],
+                                     restart_fn=self._restart_for_config)
+            self.mqtt.on_connect.append(self.shadow.on_connected)
+            self.shadow.start()
+            logger.info(f"Config shadow enabled ({self.shadow.base})")
 
         # Connect Modbus, WiFi, and MQTT concurrently. Both Modbus's and
         # WiFi's connect() calls retry forever on failure - previously
@@ -1326,6 +1363,14 @@ class EdgeNode:
                 time.sleep(1)
         except KeyboardInterrupt:
             self.stop()
+
+    def _restart_for_config(self):
+        """ShadowSync applied a setting that is read only at start-up
+        (modbus.simulate, database.*). Stops cleanly and exits non-zero so
+        systemd's Restart=on-failure starts the gateway again with it. Not
+        a reboot: nothing is stuck, so _RebootEscalator isn't involved."""
+        self.stop()
+        os._exit(RESTART_EXIT_CODE)
 
     def stop(self):
         logger.info("Stopping Edge Node")

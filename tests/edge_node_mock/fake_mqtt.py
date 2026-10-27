@@ -4,7 +4,7 @@ without real AWS credentials, certificates, or network access.
 
 edge_node_improved.py's MQTTManager calls
 awsiot.mqtt_connection_builder.mtls_from_path(...) to get a connection
-object, then only ever calls .connect(), .publish(), and .disconnect() on
+object, then calls .connect(), .publish(), .subscribe() and .disconnect() on
 it (each returning something with a .result() method, matching awscrt's
 API). FakeMqttConnection reproduces that surface and prints instead of
 publishing to AWS IoT Core.
@@ -118,6 +118,14 @@ class FakeMqttConnection:
             data = payload
         self._on_publish(topic, data)
         return _ImmediateFuture(), 0
+
+    def subscribe(
+        self, topic: str, qos: Any = None, callback: Callable[..., None] | None = None
+    ) -> tuple[_ImmediateFuture, int]:
+        """Accepted and never delivered to - enough for ShadowSync
+        (aws.shadow_enabled) to start; its get finds no shadow."""
+        print(f"[FakeMQTT] subscribed {topic}")
+        return _ImmediateFuture({"topic": topic, "qos": qos}), 0
 
 
 def make_fake_mtls_from_path(

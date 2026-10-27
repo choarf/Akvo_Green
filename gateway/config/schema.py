@@ -89,6 +89,7 @@ def validate(config: dict) -> tuple[list[str], list[str]]:
     errors += _validate_section(config, "aws", REQUIRED_AWS_KEYS)
     errors += _validate_database(config)
     errors += _validate_modbus_simulate(config)
+    errors += _validate_aws_shadow(config)
     errors += _validate_web(config)
     errors += _validate_display(config)
     errors += _validate_wifi(config)
@@ -273,6 +274,17 @@ def _validate_modbus_simulate(config: dict) -> list[str]:
         return []
     if not isinstance(data["simulate"], bool):
         return [f"modbus.simulate must be a boolean, got {data['simulate']!r}"]
+    return []
+
+
+def _validate_aws_shadow(config: dict) -> list[str]:
+    """aws.shadow_enabled is optional - absent/false means config.json is
+    only ever changed by push_site.sh, not through the IoT shadow."""
+    data = config.get("aws")
+    if not isinstance(data, dict) or "shadow_enabled" not in data:
+        return []
+    if not isinstance(data["shadow_enabled"], bool):
+        return [f"aws.shadow_enabled must be a boolean, got {data['shadow_enabled']!r}"]
     return []
 
 

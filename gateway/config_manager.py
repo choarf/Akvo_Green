@@ -404,6 +404,11 @@ class ConfigManager:
         # column present in aws.csv - now or in the future - survives the
         # build/export round trip.
         config["aws"] = self.load_single_row_csv(AWS_CSV)
+        # Config delivery through the IoT shadow (gateway/shadow_sync.py).
+        # Off unless the column says so: the site's IoT policy must allow
+        # the shadow topics first, or AWS drops the connection.
+        if "shadow_enabled" in config["aws"]:
+            config["aws"]["shadow_enabled"] = _parse_bool(config["aws"]["shadow_enabled"], default=False)
 
         config["meta"]["generated_at"] = datetime.now(timezone.utc).isoformat()
         config["meta"]["hash"] = self.calculate_hash()
@@ -573,7 +578,10 @@ class ConfigManager:
 
     def export_aws(self, config: Dict[str, Any]) -> None:
         logger.info("Exporting aws.csv")
-        self._write_single_row_csv(AWS_CSV, config["aws"])
+        row = dict(config["aws"])
+        if "shadow_enabled" in row:
+            row["shadow_enabled"] = int(bool(row["shadow_enabled"]))
+        self._write_single_row_csv(AWS_CSV, row)
 
     def export_config(self) -> None:
         logger.info("Exporting configuration")
