@@ -27,7 +27,7 @@ The full procedure covers the AWS IoT certificate and policy, the AWS stack and 
 |---|---|---|---|---|---|---|---|
 | `cmd4` | `AKVO_cmd4` | `VENKO/cmd4/*` | `pi@192.168.68.124` (CM5) | **simulated** | none (off) | 7 days | http://192.168.68.124:8080 |
 | `akvo01005` | `AKVO_akvo01005` | `VENKO/akvo01005/*` | `akvo@192.168.68.107` (Pi 4) | **simulated** | sh1106, offset 3, pages | 30 days / 500 MB, every 60 s | http://192.168.68.107:8080 |
-| `akvo01002` | `AKVO_akvo01002` | `VENKO/akvo01002/*` | `akvo@192.168.68.130` (Pi 4) | **real sensors** (`/dev/ttySC0`, 9600 8N1) | sh1106, offset 0, pages | 30 days / 500 MB, every 60 s | http://192.168.68.130:8080 |
+| `akvo01002` | `AKVO_akvo01002` | `VENKO/akvo01002/*` | `akvo@192.168.68.130` (Pi 4) | **simulated** (real port `/dev/ttySC0`, 9600 8N1) | sh1106, offset 0, pages | 30 days / 500 MB, every 60 s | http://192.168.68.130:8080 |
 
 AWS side of each site:
 

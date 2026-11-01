@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-11-01T22:39:33.321197+00:00",
-        "hash": "85cafc39bffba75e7e1873b4d7c0fad6"
+        "generated_at": "2026-11-01T23:11:53.872939+00:00",
+        "hash": "98f14c0dac0e625b13e275a46cac0dc2"
     },
     "gateway": {
         "gateway_id": "AKVO_akvo01002",
@@ -19,7 +19,7 @@
         "parity": "N",
         "stopbits": 1,
         "bytesize": 8,
-        "simulate": false
+        "simulate": true
     },
     "aws": {
         "host": "a2zzu55sjawy4x-ats.iot.us-east-1.amazonaws.com",
