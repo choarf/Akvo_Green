@@ -210,7 +210,7 @@ With `shadow_enabled=1`, `gateway/shadow_sync.py` keeps `config.json` in step wi
 - **What it takes:** every section except `aws` and `modbus`, plus `modbus.simulate`. The endpoint, certs, topics and serial settings only ever change through `tools/push_site.sh`, so a bad remote change can't cut the Pi off.
 - **How:** on every (re)connect and every delta it fetches the whole desired document, merges it into the local file, validates it with `config/schema.py` and writes it atomically; `config_watcher` then reloads it as usual. A config the schema refuses is not written - the last good one keeps running and the reason goes to `reported.error`.
 - **Reported:** `config_hash` (sha256 of the shadow-managed part, `shadow_sync.config_hash`), `git_rev`, `simulate`, `error`, `applied_at` - never a copy of the config (8 KB shadow limit).
-- **Start-up-only settings** (`modbus.simulate`, `database.*`): applied to the file, then the gateway restarts itself (exit code 75; systemd's `Restart=on-failure` starts it again). A `web` change is reported as `pending_service_restart` - that service restarts with `push_site.sh`.
+- **Start-up-only settings** (`modbus.simulate`, `database.*`): applied to the file, then the gateway restarts itself (exit code 75; systemd's `Restart=on-failure` starts it again). A `web` change is reported as `pending_service_restart` - that service restarts with `push_site.sh`. A `display` change needs nothing: `akvo-oled` watches `config.json` and starts over by itself.
 - **Before turning it on**, the site's IoT policy (`sites/<key>/certs/policy.json`) must allow `iot:Subscribe`/`iot:Receive` on `$aws/things/<client_id>/shadow/name/config/*` and `iot:Publish` on its `get` and `update` - otherwise AWS IoT drops the connection at the first subscribe. Apply it with `aws iot create-policy-version --policy-name venko-<key>-gateway --policy-document file://sites/<key>/certs/policy.json --set-as-default`.
 - **Once a site uses it**, the shadow's desired state wins on every reconnect: send config changes with `push_shadow.py`, not only with `push_site.sh`, or the Pi goes back to the older desired config.
 
@@ -507,9 +507,12 @@ enabled,driver,address,column_offset,font,sensor_repeats,sensor_list,per_page,sc
   - Check that the display shows up: `i2cdetect -y 1` should show `3c`.
   - `install.sh` installs `luma.oled` and `i2c-tools` and adds the service user to the
     `i2c` group.
-- **Restart to apply.** `display.*` and the sensor list are read at service start;
-  `tools/push_site.sh` restarts `akvo-oled` on every push.
-- When `enabled` is off, the service logs `OLED display is off` and exits 0.
+- **Applied without a restart.** The service checks `config.json` every 5 s and starts
+  over when `display`, `gateway` or the sensor list change - so a change through the
+  IoT shadow (which can't restart `akvo-oled`) shows up within seconds.
+  `tools/push_site.sh` also restarts `akvo-oled` on every push.
+- When `enabled` is off, the service logs `OLED display is off ... waiting` and stays
+  up, idle, until `enabled` is turned on in `config.json`.
 - **If the display can't be opened** (I2C off, nothing at the address, `luma.oled`
   missing), the service logs the error and exits 1; systemd retries every 30 s.
 - Check it on the Pi: `systemctl status akvo-oled`, `journalctl -u akvo-oled -n 20`.

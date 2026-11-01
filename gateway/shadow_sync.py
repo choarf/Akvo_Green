@@ -51,6 +51,11 @@ RESTART_KEYS = (("modbus", "simulate"), ("database", None))
 # gateway can't restart (push_site.sh does).
 OTHER_SERVICE_SECTIONS = ("web",)
 
+# Read by the separate akvo-oled service, which the gateway (not root) can't
+# restart either - but that one watches config.json and starts over by itself
+# (oled_display.ConfigWatch), also when "display" turns it on.
+SELF_RELOADING_SECTIONS = ("display",)
+
 # Exit code for a restart the gateway asks for itself (any non-zero exit
 # makes systemd's Restart=on-failure start it again).
 RESTART_EXIT_CODE = 75
@@ -273,6 +278,9 @@ class ShadowSync:
         restart = restart_needed(current, new)
         others = [s for s in OTHER_SERVICE_SECTIONS if current.get(s) != new.get(s)]
         logger.info(f"Config shadow: applied {new_hash[:12]} (git {new.get('meta', {}).get('git_rev')})")
+        reloads = [s for s in SELF_RELOADING_SECTIONS if current.get(s) != new.get(s)]
+        if reloads:
+            logger.info(f"Config shadow: {reloads} changed - akvo-oled picks it up from config.json")
         if others:
             logger.warning(f"Config shadow: {others} changed - read by another service at its start; "
                            f"restart it (push_site.sh does) for the change to take effect")

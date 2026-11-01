@@ -21,7 +21,11 @@ module. So the screens can be rendered and tested without the hardware:
   python3 oled_display.py --png /tmp/oled      # writes each screen as PNG and exits
 
 Enabled and tuned by the site's display.csv (config.json "display" section).
-Read once at startup: a change needs a service restart (push_site.sh does it).
+The service watches config.json (every CONFIG_EVERY s) and starts over with
+the new settings when "display", "gateway" or "devices" change - so a change
+through the IoT shadow (shadow_sync.py, which runs as the gateway's user and
+can't restart this service) takes effect without a service restart. With
+display.enabled off it stays running, idle, waiting for it to be turned on.
 """
 
 from __future__ import annotations
@@ -62,6 +66,8 @@ SCREEN_SECONDS = 5.0      # default display.screen_seconds
 SCROLL_PAUSE = 1.5        # s still at the top and at the bottom of the sensor list
 SCROLL_SPEED = 6.0        # px/s, default display.scroll_speed: one 3x5 text row per second
 STATUS_EVERY = 1.0        # s between status-file reads
+CONFIG_EVERY = 5.0        # s between config.json checks (ConfigWatch)
+WATCHED_SECTIONS = ("display", "gateway", "devices")   # what the display reads at start
 SHIFTS = ((0, 0), (1, 0), (1, 1), (0, 1))   # burn-in: whole image moves 1 px per round
 
 logger = logging.getLogger("oled_display")
@@ -776,9 +782,43 @@ class Display:
         return self.kind == "sensors" and not self.paged and bool(scroll_max(len(self.sensors), self.font))
 
 
-def run(display: Display, device) -> None:
+class ConfigWatch:
+    """Tells when config.json's WATCHED_SECTIONS differ from the ones the
+    display started with. The file is replaced atomically (config_manager,
+    shadow_sync), so a read never sees half a file; one that fails anyway
+    (missing, bad JSON) counts as no change."""
+
+    def __init__(self, path: Path, config: dict):
+        self.path, self.key, self.checked = path, self.key_of(config), time.monotonic()
+
+    @staticmethod
+    def key_of(config: dict) -> str:
+        return json.dumps({k: config.get(k) for k in WATCHED_SECTIONS}, sort_keys=True, default=str)
+
+    def changed(self) -> bool:
+        mono = time.monotonic()
+        if mono - self.checked < CONFIG_EVERY:
+            return False
+        self.checked = mono
+        try:
+            config = json.loads(self.path.read_text())
+        except (OSError, ValueError):
+            return False
+        return self.key_of(config) != self.key
+
+
+def wait_for_change(watch: ConfigWatch) -> None:
+    """Idle until config.json's watched sections change."""
+    while not watch.changed():
+        time.sleep(CONFIG_EVERY)
+
+
+def run(display: Display, device, watch: ConfigWatch | None = None) -> None:
+    """Draw until config.json's watched sections change (then return), or forever."""
     last = None
     while True:
+        if watch is not None and watch.changed():
+            return
         frame = display.tick()
         img = frame.image(display.shift)
         data = img.tobytes()
@@ -833,18 +873,33 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
-    config = json.loads(args.config.read_text())
-    ds = display_settings(config)
-    font = FONTS[args.font or ds["font"]]
-
+    signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
     if args.png:
+        config = json.loads(args.config.read_text())
+        font = FONTS[args.font or display_settings(config)["font"]]
         for p in write_pngs(config, args.status, font, args.png, args.scale):
             print(p)
         return 0
+    while True:
+        rc = run_once(args)
+        if rc is not None:
+            return rc
+        logger.info("config.json display settings changed - starting over")
+
+
+def run_once(args) -> int | None:
+    """One pass with the current config.json: None when its watched sections
+    changed (main() starts over), else the exit code."""
+    config = json.loads(args.config.read_text())
+    ds = display_settings(config)
+    font = FONTS[args.font or ds["font"]]
+    watch = ConfigWatch(args.config, config)
     if not (ds["enabled"] or args.force):
-        # Exit 0 so systemd (Restart=on-failure) leaves it stopped.
-        logger.info("OLED display is off (display.csv enabled) - exiting")
-        return 0
+        # Stay up (idle) so turning it on in config.json - e.g. through the
+        # IoT shadow - starts the display without a service restart.
+        logger.info("OLED display is off (display.csv enabled) - waiting for it to be turned on")
+        wait_for_change(watch)
+        return None
 
     driver, address = args.driver or ds["driver"], args.address or ds["address"]
     offset = ds["column_offset"] if args.column_offset is None else args.column_offset
@@ -855,7 +910,6 @@ def main(argv=None) -> int:
         # Exit 1: systemd retries (RestartSec), the gateway is unaffected.
         logger.error(f"Can't open the {driver} display at I2C 0x{address:02X}: {e!r}")
         return 1
-    signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
     if ds["contrast"] is not None:
         device.contrast(contrast_level(int(ds["contrast"])))
     if driver == "sh1106":
@@ -863,12 +917,12 @@ def main(argv=None) -> int:
     logger.info(f"OLED display: {driver} at I2C 0x{address:02X}, font {font.cols}x{font.rows + 1}, "
                 f"status {args.status}")
     try:
-        run(Display(config, args.status, font, ds["sensor_repeats"]), device)
+        run(Display(config, args.status, font, ds["sensor_repeats"]), device, watch)
     except KeyboardInterrupt:
-        pass
+        return 0
     finally:
         device.cleanup()   # blank the panel rather than leave a frozen frame
-    return 0
+    return None
 
 
 if __name__ == "__main__":

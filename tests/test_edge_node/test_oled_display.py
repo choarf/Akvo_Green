@@ -452,9 +452,68 @@ def test_main_png_writes_every_screen(tmp_path):
                      "oled_sensores_medio.png", "oled_sistema.png"]
 
 
-def test_main_exits_quietly_when_disabled(tmp_path):
+def test_main_waits_while_disabled_and_starts_when_turned_on(tmp_path, monkeypatch):
+    # Off: the service stays up, idle; turning display.enabled on in
+    # config.json (as the IoT shadow does) starts the display.
     cfg, st = write_files(tmp_path, {"enabled": False})
-    assert od.main(["--config", str(cfg), "--status", str(st)]) == 0
+    monkeypatch.setattr(od, "CONFIG_EVERY", 0)
+    sleeps, opened = [], []
+
+    def fake_sleep(s):
+        sleeps.append(s)
+        if len(sleeps) == 2:
+            cfg.write_text(json.dumps({**CONFIG, "display": {"enabled": True}}))
+
+    def no_i2c(driver, address, column_offset):
+        opened.append(driver)
+        raise FileNotFoundError("/dev/i2c-1")   # stop before the display loop
+
+    monkeypatch.setattr(od.time, "sleep", fake_sleep)
+    monkeypatch.setattr(od, "open_device", no_i2c)
+    assert od.main(["--config", str(cfg), "--status", str(st)]) == 1
+    assert len(sleeps) == 2 and opened == ["ssd1309"]
+
+
+def test_config_watch_sees_only_the_display_s_sections(tmp_path, monkeypatch):
+    monkeypatch.setattr(od, "CONFIG_EVERY", 0)
+    cfg, _ = write_files(tmp_path, {"enabled": True})
+    config = json.loads(cfg.read_text())
+    watch = od.ConfigWatch(cfg, config)
+    assert not watch.changed()
+    cfg.write_text(json.dumps({**config, "modbus": {"simulate": True}, "aws": {"x": 1}}))
+    assert not watch.changed()
+    cfg.write_text("{not json")
+    assert not watch.changed()
+    cfg.unlink()
+    assert not watch.changed()
+    cfg.write_text(json.dumps({**config, "display": {"enabled": True, "font": "5x7"}}))
+    assert watch.changed()
+
+
+def test_config_watch_checks_at_most_every_config_every(tmp_path):
+    cfg, _ = write_files(tmp_path, {"enabled": True})
+    watch = od.ConfigWatch(cfg, json.loads(cfg.read_text()))
+    cfg.write_text(json.dumps({**CONFIG, "display": {"enabled": False}}))
+    assert not watch.changed()   # checked less than CONFIG_EVERY ago
+
+
+def test_run_returns_when_the_display_settings_change(tmp_path, monkeypatch):
+    monkeypatch.setattr(od, "CONFIG_EVERY", 0)
+    cfg, st = write_files(tmp_path, {"enabled": True})
+    config = json.loads(cfg.read_text())
+    frames = []
+
+    class Device:
+        def display(self, img):
+            frames.append(img)
+
+    def fake_sleep(s):
+        if len(frames) == 1:
+            cfg.write_text(json.dumps({**config, "display": {"enabled": False}}))
+
+    monkeypatch.setattr(od.time, "sleep", fake_sleep)
+    od.run(od.Display(config, st, F35, 2), Device(), od.ConfigWatch(cfg, config))
+    assert len(frames) == 1
 
 
 def test_main_fails_when_the_display_cant_be_opened(tmp_path, monkeypatch):

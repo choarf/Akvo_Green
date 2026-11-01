@@ -267,8 +267,9 @@ EOF
     rm -f "$SERVICE_TMP"
 
     # OLED status display (gateway/oled_display.py). Same idea: its own
-    # service that only reads the status file and config.json, and exits 0
-    # at start unless display.csv has enabled=1. RestartSec=30: with
+    # service that only reads the status file and config.json; with
+    # display.csv enabled=0 it stays up, idle, watching config.json until
+    # it is turned on (e.g. through the IoT shadow). RestartSec=30: with
     # no display wired (or I2C off) it fails and retries slowly.
     OLED_SERVICE_FILE="/etc/systemd/system/${OLED_SERVICE_NAME}.service"
     SERVICE_TMP="$(mktemp)"
@@ -298,7 +299,7 @@ EOF
     echo "Installed and enabled $WEB_SERVICE_FILE (local dashboard on port 8080 when" \
          "system.csv has web_enabled=1; otherwise it exits at start)."
     echo "Installed and enabled $OLED_SERVICE_FILE (OLED display when display.csv has" \
-         "enabled=1 and I2C is on; otherwise it exits at start)."
+         "enabled=1 and I2C is on; otherwise it waits, idle, for it to be turned on)."
     echo "Restart=on-failure: systemd restarts the process on an unexpected crash," \
          "on top of the gateway's own OS-level reboot escalation for a communication" \
          "layer that stays stuck (see CLAUDE.md's Architecture section)."
