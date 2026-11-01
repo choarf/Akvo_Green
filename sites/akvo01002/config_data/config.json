@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-10-27T00:13:56.102375+00:00",
-        "hash": "70ee1eb123c613e82a6bf7763f2bbbb6"
+        "generated_at": "2026-11-01T22:39:33.321197+00:00",
+        "hash": "85cafc39bffba75e7e1873b4d7c0fad6"
     },
     "gateway": {
         "gateway_id": "AKVO_akvo01002",
@@ -317,7 +317,7 @@
         "port": 8080
     },
     "display": {
-        "enabled": false,
+        "enabled": true,
         "driver": "sh1106",
         "address": 60,
         "column_offset": 0,
