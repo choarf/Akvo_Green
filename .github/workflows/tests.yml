@@ -1,0 +1,49 @@
+name: Pruebas
+
+# Corre las pruebas unitarias en cada push y pull request.
+# Sin hardware ni red: no conecta a AWS IoT Core ni a equipos Modbus reales.
+# Las pruebas de integración, estrés y hardware real siguen corriéndose a mano
+# con ./run_tests.sh (ver docs/testing/TEST_PLAN.md).
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    name: Unitarias (software de campo y cliente Modbus)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"   # la misma que el Raspberry Pi OS del sitio cmd4
+          cache: pip
+          cache-dependency-path: |
+            gateway/requirements.txt
+            gateway/requirements-oled.txt
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r gateway/requirements.txt -r gateway/requirements-oled.txt pytest
+
+      - name: Pruebas unitarias del software de campo
+        run: ./run_tests.sh unit
+
+      - name: Pruebas unitarias del cliente Modbus
+        working-directory: tests/test_modbus_client/akvo_modbus_api_test_environment
+        run: python -m pytest tests/test_api_unit.py -v
+
+      - name: Guardar reporte
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-pruebas
+          path: reports/
+          if-no-files-found: ignore
