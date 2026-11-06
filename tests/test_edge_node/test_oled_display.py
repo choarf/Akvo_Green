@@ -4,6 +4,7 @@ rendered frames - all without the hardware (luma.oled isn't needed).
 """
 
 import json
+import math
 import time
 from datetime import UTC, datetime, timedelta
 
@@ -343,8 +344,10 @@ def test_display_tick_follows_the_clock(monkeypatch, tmp_path):
         clock["t"] = float(t)
         d.tick()
         seen.append(d.kind)
-    assert seen[0] == "logo" and seen[5] == "logo" and seen[6] == "system" and seen[11] == "sensors"
-    assert "logo" not in seen[6:]
+    logo_end = math.ceil(od.LOGO_SECONDS)
+    assert seen[0] == "logo" and seen[logo_end - 1] == "logo" and seen[logo_end] == "system"
+    assert seen[logo_end + 5] == "sensors"
+    assert "logo" not in seen[logo_end:]
 
 
 @pytest.mark.parametrize("over, ready", [
@@ -382,9 +385,10 @@ def test_start_up_logo_waits_for_the_gateway_then_finishes_its_pass(monkeypatch,
     st.write_text(json.dumps({**json.loads(ready), "mqtt": {"connected": False}}))   # AWS not up yet
     d, at = ticking(monkeypatch, tmp_path, st)
     assert all(at(t) == "logo" for t in (0.0, 5.0, 30.0, 60.0)) and d.boot_passes is None
-    st.write_text(ready)                                   # AWS connects at 61 s, mid pass 51
-    assert at(61.0) == "logo" and d.boot_passes == 51
-    end = 51 * od.BOOT_PASS_SECONDS + od.BOOT_FLASHES * od.BOOT_FLASH_SECONDS
+    st.write_text(ready)                                   # AWS connects at 61 s, mid pass
+    passes = math.ceil(61.0 / od.BOOT_PASS_SECONDS)
+    assert at(61.0) == "logo" and d.boot_passes == passes
+    end = passes * od.BOOT_PASS_SECONDS + od.BOOT_FLASHES * od.BOOT_FLASH_SECONDS
     assert at(end - 0.1) == "logo" and at(end + 0.1) == "system"
 
 
@@ -407,10 +411,12 @@ def test_logo_every_shows_the_plain_logo_later(monkeypatch, tmp_path):
 
 
 def test_waiting_boot_line_keeps_writing():
-    assert od.boot_line_state(0.6, None) == (pytest.approx(0.5), True)
-    assert od.boot_line_state(100 * od.BOOT_PASS_SECONDS + 0.6, None) == (pytest.approx(0.5), True)
+    half = od.BOOT_PASS_SECONDS / 2
+    assert od.boot_line_state(half, None) == (pytest.approx(0.5), True)
+    assert od.boot_line_state(100 * od.BOOT_PASS_SECONDS + half, None) == (pytest.approx(0.5), True)
     assert od.logo_seconds(None) == float("inf") and od.logo_seconds() == pytest.approx(od.LOGO_SECONDS)
-    assert od.boot_passes_when_ready(0.5) == od.BOOT_PASSES and od.boot_passes_when_ready(10.0) == 9
+    assert od.boot_passes_when_ready(0.5) == od.BOOT_PASSES
+    assert od.boot_passes_when_ready(10.5 * od.BOOT_PASS_SECONDS) == 11
 
 
 # ---------------------------------------------------------------------------
@@ -439,15 +445,18 @@ def test_fault_row_is_inverted():
 
 
 def test_text_logo_boot_bar_fills_with_progress():
-    early = od.render("logo", 0.5, view())
-    late = od.render("logo", 4.5, view())
+    early = od.render("logo", od.BOOT_PASS_SECONDS / 4, view())
+    late = od.render("logo", od.LOGO_SECONDS, view())
     assert lit(late, 16, 52, od.W - 16, 55) > lit(early, 16, 52, od.W - 16, 55)
 
 
 def test_boot_line_writes_three_times_then_flashes_three_times():
-    states = [od.boot_line_state(t) for t in (0.6, 1.3, 3.5, 3.7, 3.95, 4.2, 4.45, 5.0, 5.1)]
+    p = od.BOOT_PASS_SECONDS
+    write = od.BOOT_PASSES * p
+    states = [od.boot_line_state(t) for t in (p / 2, p + 0.1, write - 0.1)
+              + tuple(write + dt for dt in (0.1, 0.35, 0.6, 0.85, 1.4, 1.5))]
     assert states[0] == (pytest.approx(0.5), True)          # pass 1, half written
-    assert states[1][0] == pytest.approx(0.1 / 1.2)         # pass 2 starts over
+    assert states[1][0] == pytest.approx(0.1 / p)           # pass 2 starts over
     assert states[2][0] > 0.9                               # pass 3 nearly at 100%
     assert [lit for _, lit in states[3:]] == [False, True, False, True, True, True]
     assert all(written == 1.0 for written, _ in states[3:])
@@ -464,9 +473,9 @@ def test_logo_line_is_drawn_up_to_the_written_part():
     v = view()
     v.logo = od.load_logo(od.LOGO_PATH)
     x0, y0, x1, y1 = od.boot_line_band(v.logo)
-    half = od.render("logo", 0.6, v)
+    half = od.render("logo", od.BOOT_PASS_SECONDS / 2, v)
     full = od.render("logo", od.LOGO_SECONDS, v)
-    off = od.render("logo", 3.7, v)
+    off = od.render("logo", od.BOOT_PASSES * od.BOOT_PASS_SECONDS + 0.1, v)   # first flash, off
     mid = (x0 + x1) // 2
     assert lit(half, x0, y0, mid - 2, y1) > 0 and lit(half, mid + 2, y0, x1, y1) == 0
     assert lit(full, mid + 2, y0, x1, y1) > 0 and lit(off, x0, y0, x1, y1) == 0

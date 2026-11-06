@@ -537,8 +537,8 @@ LOGO_HEX.forEach((h, y) => {
 let customLogo = DEFAULT_LOGO;  // Uint8Array(W*H); null = the old text logo
 // Boot: the logo's last row of ink (the "Venko → Akvo" line) writes itself on left to
 // right BOOT_PASSES times (the last pass ends at 100%), then flashes BOOT_FLASHES times.
-const BOOT_PASSES = 3, BOOT_PASS_MS = 1200, BOOT_FLASHES = 3, BOOT_FLASH_MS = 500;
-const BOOT_MS = BOOT_PASSES * BOOT_PASS_MS + BOOT_FLASHES * BOOT_FLASH_MS;  // 5.1 s
+const BOOT_PASSES = 3, BOOT_PASS_MS = 2000, BOOT_FLASHES = 3, BOOT_FLASH_MS = 500;
+const BOOT_MS = BOOT_PASSES * BOOT_PASS_MS + BOOT_FLASHES * BOOT_FLASH_MS;  // 7.5 s
 
 function bootLineBand(logo) {  // [x0, y0, x1, y1] of the last block of inked rows, or null
   const rows = H - 4, bands = [];

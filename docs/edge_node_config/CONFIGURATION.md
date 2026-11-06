@@ -468,7 +468,7 @@ enabled,driver,address,column_offset,font,sensor_repeats,sensor_list,per_page,sc
   they build (with a deprecation warning) but not together with a `display.csv`.
 
 - **Screens:**
-  - at start-up only, the GHOTRIX logo, with the gateway name (`gateway_id`) as a third row under it: the "Venko → Akvo" line keeps writing itself on (in progress) until the gateway is in normal operation - status file fresh, Modbus and AWS connected, at least one sensor read OK - then finishes that pass and flashes 3 times (at least 3 passes, 5.1 s in all when it's ready at once). After 120 s it moves on anyway, so Sistema shows what isn't working;
+  - at start-up only, the GHOTRIX logo, with the gateway name (`gateway_id`) as a third row under it: the "Venko → Akvo" line keeps writing itself on (in progress) until the gateway is in normal operation - status file fresh, Modbus and AWS connected, at least one sensor read OK - then finishes that pass and flashes 3 times (2 s per pass, at least 3 passes: 7.5 s in all when it's ready at once). After 120 s it moves on anyway, so Sistema shows what isn't working;
   - then forever: **Sistema** (`screen_seconds`) → **Sensores** × `sensor_repeats` → Sistema → …;
     with `logo_every` N the logo comes back after every N rounds.
 - **Sistema** has one line per item (spec: `docs/OLED/init.md`):

@@ -12,7 +12,7 @@ Screens (visual spec: docs/OLED/oled_simulator.html):
                 line keeps writing itself on (in progress) until the gateway
                 is in normal operation (system_ready: fresh status, Modbus
                 and AWS connected, at least one sensor read OK) - at least 3
-                times - then flashes 3 times (5.1 s when it's ready at
+                times - then flashes 3 times (7.5 s when it's ready at
                 once). After BOOT_MAX_SECONDS it moves on anyway, so Sistema
                 shows what isn't working.
   then forever  Sistema (5 s) -> Sensores (scrolling list, or pages) x sensor_repeats
@@ -62,10 +62,10 @@ SENSOR_LISTS = ("scroll", "pages")   # display.sensor_list
 DEFAULT_ADDRESS = 0x3C
 SH1106_COLUMN_OFFSET = 2   # luma's default; display.column_offset overrides it per board
 BOOT_PASSES = 3           # the logo's boot line writes itself on left to right this many times...
-BOOT_PASS_SECONDS = 1.2
+BOOT_PASS_SECONDS = 2.0
 BOOT_FLASHES = 3          # ...then flashes (off, on) this many times
 BOOT_FLASH_SECONDS = 0.5
-LOGO_SECONDS = BOOT_PASSES * BOOT_PASS_SECONDS + BOOT_FLASHES * BOOT_FLASH_SECONDS   # 5.1 s
+LOGO_SECONDS = BOOT_PASSES * BOOT_PASS_SECONDS + BOOT_FLASHES * BOOT_FLASH_SECONDS   # 7.5 s
 BOOT_MAX_SECONDS = 120.0  # start-up logo waits at most this long for system_ready()
 SCREEN_SECONDS = 5.0      # default display.screen_seconds
 SCROLL_PAUSE = 1.5        # s still at the top and at the bottom of the sensor list
@@ -810,7 +810,7 @@ class Display:
             if self.kind == "system":
                 self.rounds += 1
             elif self.kind == "logo":
-                self.boot_passes = BOOT_PASSES   # logo_every: the plain 5.1 s logo
+                self.boot_passes = BOOT_PASSES   # logo_every: the plain 7.5 s logo
         clock = datetime.fromtimestamp(now, self.tz).strftime("%H:%M:%S")
         view = View(self.font, self.status, self.sensors, self.gateway_id, clock, now, self.ip, self.logo, self.db,
                     self.ssid, self.client, self.speed, self.page_of(self.k), self.boot_passes)
