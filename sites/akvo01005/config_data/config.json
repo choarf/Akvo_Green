@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-10-21T23:31:05.780882+00:00",
-        "hash": "ed150b67496075ff34788046f662eb87"
+        "generated_at": "2026-11-06T03:00:11.402881+00:00",
+        "hash": "ed6c79ddd7cf936458000722e22bb27e"
     },
     "gateway": {
         "gateway_id": "AKVO_akvo01005",
@@ -31,7 +31,8 @@
         "topic_system": "VENKO/akvo01005/system",
         "dashboard_url": "https://d3quloi3nf2hd4.cloudfront.net",
         "data_bucket": "venko-akvo01005-884520769610-us-east-1",
-        "web_bucket": "venko-akvo01005-web-884520769610"
+        "web_bucket": "venko-akvo01005-web-884520769610",
+        "shadow_enabled": true
     },
     "devices": [
         {
