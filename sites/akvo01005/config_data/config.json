@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-11-06T03:00:11.402881+00:00",
-        "hash": "ed6c79ddd7cf936458000722e22bb27e"
+        "generated_at": "2026-11-06T03:52:50.410660+00:00",
+        "hash": "9546848bc52928ce9789f5a799f030d3"
     },
     "gateway": {
         "gateway_id": "AKVO_akvo01005",
@@ -140,7 +140,8 @@
         "screen_seconds": 5.0,
         "scroll_speed": 6.0,
         "logo_every": 4,
-        "burn_in_shift": true
+        "burn_in_shift": true,
+        "rotate": 180
     },
     "wifi": {
         "networks": [
