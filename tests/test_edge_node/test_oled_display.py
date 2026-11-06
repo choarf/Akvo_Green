@@ -464,7 +464,7 @@ def test_main_waits_while_disabled_and_starts_when_turned_on(tmp_path, monkeypat
         if len(sleeps) == 2:
             cfg.write_text(json.dumps({**CONFIG, "display": {"enabled": True}}))
 
-    def no_i2c(driver, address, column_offset):
+    def no_i2c(driver, address, column_offset, rotate=0):
         opened.append(driver)
         raise FileNotFoundError("/dev/i2c-1")   # stop before the display loop
 
@@ -519,7 +519,7 @@ def test_run_returns_when_the_display_settings_change(tmp_path, monkeypatch):
 def test_main_fails_when_the_display_cant_be_opened(tmp_path, monkeypatch):
     cfg, st = write_files(tmp_path, {"enabled": True})
 
-    def no_i2c(driver, address, column_offset):
+    def no_i2c(driver, address, column_offset, rotate=0):
         raise FileNotFoundError("/dev/i2c-1")
 
     monkeypatch.setattr(od, "open_device", no_i2c)
@@ -530,7 +530,7 @@ def test_main_passes_the_column_offset(tmp_path, monkeypatch):
     cfg, st = write_files(tmp_path, {"enabled": True, "driver": "sh1106", "column_offset": 3})
     seen = {}
 
-    def fake_open(driver, address, column_offset):
+    def fake_open(driver, address, column_offset, rotate=0):
         seen.update(driver=driver, offset=column_offset)
         raise FileNotFoundError("/dev/i2c-1")   # stop before the display loop
 
@@ -539,6 +539,51 @@ def test_main_passes_the_column_offset(tmp_path, monkeypatch):
     assert seen == {"driver": "sh1106", "offset": 3}
     assert od.main(["--config", str(cfg), "--status", str(st), "--column-offset", "0"]) == 1
     assert seen["offset"] == 0
+
+
+def test_main_passes_the_rotation(tmp_path, monkeypatch):
+    seen = []
+
+    def fake_open(driver, address, column_offset, rotate=0):
+        seen.append(rotate)
+        raise FileNotFoundError("/dev/i2c-1")   # stop before the display loop
+
+    monkeypatch.setattr(od, "open_device", fake_open)
+    for display in ({"enabled": True}, {"enabled": True, "rotate": 180}):
+        cfg, st = write_files(tmp_path, display)
+        assert od.main(["--config", str(cfg), "--status", str(st)]) == 1
+    assert seen == [0, 180]
+
+
+def test_open_device_hands_the_rotation_to_luma(monkeypatch):
+    """luma's rotate is in quarter turns; the SH1106 keeps its column offset."""
+    import sys
+    import types
+    made = []
+
+    class FakeDevice:
+        def __init__(self, serial, **kw):
+            made.append(kw)
+
+        def command(self, *a):
+            pass
+
+        def data(self, d):
+            pass
+
+    luma = types.ModuleType("luma")
+    core, iface, serial = (types.ModuleType(n) for n in ("luma.core", "luma.core.interface", "luma.core.interface.serial"))
+    serial.i2c = lambda port, address: (port, address)
+    oled, dev = types.ModuleType("luma.oled"), types.ModuleType("luma.oled.device")
+    dev.sh1106 = dev.ssd1309 = FakeDevice
+    luma.core, core.interface, iface.serial, luma.oled, oled.device = core, iface, serial, oled, dev
+    for name, mod in (("luma", luma), ("luma.core", core), ("luma.core.interface", iface),
+                      ("luma.core.interface.serial", serial), ("luma.oled", oled), ("luma.oled.device", dev)):
+        monkeypatch.setitem(sys.modules, name, mod)
+
+    od.open_device("sh1106", 0x3C, 3, rotate=180)
+    od.open_device("ssd1309", 0x3C)
+    assert made == [{"rotate": 2, "page_address_offset": 3}, {"rotate": 0}]
 
 
 def test_display_settings_column_offset_defaults_to_luma_s():

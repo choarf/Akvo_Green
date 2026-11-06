@@ -171,6 +171,7 @@ def _validate_web(config: dict) -> list[str]:
 DISPLAY_DRIVERS = ("ssd1309", "ssd1306", "sh1106")
 DISPLAY_FONTS = ("3x5", "5x7")
 DISPLAY_SENSOR_LISTS = ("scroll", "pages")
+DISPLAY_ROTATIONS = (0, 180)
 
 
 def _validate_display(config: dict) -> list[str]:
@@ -222,6 +223,10 @@ def _validate_display(config: dict) -> list[str]:
         errors.append(f"display.per_page must be an int between 1 and 9, got {per!r}")
     if "burn_in_shift" in data and not isinstance(data["burn_in_shift"], bool):
         errors.append(f"display.burn_in_shift must be a boolean, got {data['burn_in_shift']!r}")
+    # Degrees; 90/270 would make the 128x64 layouts 64x128.
+    rotate = data.get("rotate")
+    if "rotate" in data and not (is_int(rotate) and rotate in DISPLAY_ROTATIONS):
+        errors.append(f"display.rotate must be one of {list(DISPLAY_ROTATIONS)}, got {rotate!r}")
     return errors
 
 

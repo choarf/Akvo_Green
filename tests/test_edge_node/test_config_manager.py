@@ -336,12 +336,12 @@ def test_build_maps_display_csv_into_its_own_section(workspace):
     write_system(workspace)
     write_display(workspace, enabled="1", driver="sh1106", address="0x3D", column_offset="3", font="3x5",
                   sensor_repeats="2", sensor_list="pages", per_page="5", screen_seconds="4.5", scroll_speed="8", logo_every="3", contrast="60",
-                  burn_in_shift="0")
+                  burn_in_shift="0", rotate="180")
     assert build()["display"] == {"enabled": True, "driver": "sh1106", "address": 0x3D, "column_offset": 3,
                                   "font": "3x5", "sensor_repeats": 2, "sensor_list": "pages", "per_page": 5,
                                   "screen_seconds": 4.5,
                                   "scroll_speed": 8.0, "logo_every": 3, "contrast": 60,
-                                  "burn_in_shift": False}
+                                  "burn_in_shift": False, "rotate": 180}
 
 
 def test_build_display_blank_columns_are_left_out_so_defaults_apply(workspace):
@@ -389,7 +389,7 @@ def test_build_refuses_display_settings_in_both_files(workspace):
 def test_export_writes_display_csv_and_keeps_system_csv_free_of_it(workspace):
     write_system(workspace)
     write_display(workspace, enabled="1", driver="sh1106", address="0x3c", column_offset="3",
-                  screen_seconds="5", logo_every="2", burn_in_shift="1")
+                  screen_seconds="5", logo_every="2", burn_in_shift="1", rotate="180")
     build()
     (workspace / "display.csv").unlink()
     cm.ConfigManager().export_config()
@@ -397,7 +397,7 @@ def test_export_writes_display_csv_and_keeps_system_csv_free_of_it(workspace):
     assert list(row) == list(cm.DISPLAY_COLUMNS)   # every column, blank = default
     assert {k: v for k, v in row.items() if v} == {"enabled": "1", "driver": "sh1106", "address": "0x3C",
                                                    "column_offset": "3", "screen_seconds": "5",
-                                                   "logo_every": "2", "burn_in_shift": "1"}
+                                                   "logo_every": "2", "burn_in_shift": "1", "rotate": "180"}
     assert not any(k.startswith("display") for k in read_system_row(workspace))
 
 

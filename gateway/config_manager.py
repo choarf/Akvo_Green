@@ -58,6 +58,7 @@ DISPLAY_COLUMNS = {
     "enabled": "bool", "driver": "str", "address": "addr", "column_offset": "int",
     "font": "str", "sensor_repeats": "int", "sensor_list": "str", "per_page": "int", "screen_seconds": "float",
     "scroll_speed": "float", "logo_every": "int", "contrast": "int", "burn_in_shift": "bool",
+    "rotate": "int",
 }
 
 

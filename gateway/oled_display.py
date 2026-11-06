@@ -650,7 +650,8 @@ def display_settings(config: dict) -> dict:
             "sensor_list": d.get("sensor_list", "scroll"),
             "per_page": d.get("per_page"),
             "contrast": d.get("contrast"),
-            "burn_in_shift": bool(d.get("burn_in_shift", True))}
+            "burn_in_shift": bool(d.get("burn_in_shift", True)),
+            "rotate": int(d.get("rotate", 0))}
 
 
 def contrast_level(percent: int) -> int:
@@ -712,15 +713,20 @@ def load_logo(path: Path = LOGO_PATH) -> bytes | None:
     return bytes(1 if p > 127 else 0 for p in canvas.tobytes())
 
 
-def open_device(driver: str, address: int, column_offset: int = SH1106_COLUMN_OFFSET):
+def open_device(driver: str, address: int, column_offset: int = SH1106_COLUMN_OFFSET, rotate: int = 0):
+    """rotate: 0 or 180 degrees (display.rotate, a panel mounted upside
+    down). luma turns the image in software before sending it, so the panel's
+    RAM columns - and the SH1106 column offset - stay the same."""
     from luma.core.interface.serial import i2c
     from luma.oled import device as luma_device
+    turns = rotate // 90
     if driver != "sh1106":
-        return getattr(luma_device, driver)(i2c(port=1, address=address))
+        return getattr(luma_device, driver)(i2c(port=1, address=address), rotate=turns)
     # SH1106 RAM is 132 columns wide; which 128 the panel shows varies by
     # board (display.column_offset). luma writes only those 128, so zero all
     # 132 first or the 2-4 columns it never writes keep power-on garbage.
-    device = luma_device.sh1106(i2c(port=1, address=address), page_address_offset=column_offset)
+    device = luma_device.sh1106(i2c(port=1, address=address), rotate=turns,
+                                page_address_offset=column_offset)
     for page in range(8):
         device.command(0xB0 + page, 0x00, 0x10)
         device.data([0] * 132)
@@ -904,7 +910,7 @@ def run_once(args) -> int | None:
     driver, address = args.driver or ds["driver"], args.address or ds["address"]
     offset = ds["column_offset"] if args.column_offset is None else args.column_offset
     try:
-        device = open_device(driver, address, offset)
+        device = open_device(driver, address, offset, rotate=ds["rotate"])
     except Exception as e:
         # Missing luma.oled, I2C off (no /dev/i2c-1), nothing at the address...
         # Exit 1: systemd retries (RestartSec), the gateway is unaffected.
@@ -914,7 +920,8 @@ def run_once(args) -> int | None:
         device.contrast(contrast_level(int(ds["contrast"])))
     if driver == "sh1106":
         driver = f"sh1106 (column offset {offset})"
-    logger.info(f"OLED display: {driver} at I2C 0x{address:02X}, font {font.cols}x{font.rows + 1}, "
+    rotated = f", rotated {ds['rotate']}°" if ds["rotate"] else ""
+    logger.info(f"OLED display: {driver} at I2C 0x{address:02X}{rotated}, font {font.cols}x{font.rows + 1}, "
                 f"status {args.status}")
     try:
         run(Display(config, args.status, font, ds["sensor_repeats"]), device, watch)

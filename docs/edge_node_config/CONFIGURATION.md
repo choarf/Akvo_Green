@@ -433,8 +433,8 @@ Its settings have their own file, **`display.csv`** in the site's `config_data/`
 one row, every column optional; no file = display off):
 
 ```csv
-enabled,driver,address,column_offset,font,sensor_repeats,sensor_list,per_page,screen_seconds,scroll_speed,logo_every,contrast,burn_in_shift
-1,sh1106,0x3C,3,3x5,2,scroll,,5,6,0,,1
+enabled,driver,address,column_offset,font,sensor_repeats,sensor_list,per_page,screen_seconds,scroll_speed,logo_every,contrast,burn_in_shift,rotate
+1,sh1106,0x3C,3,3x5,2,scroll,,5,6,0,,1,
 ```
 
 ```json
@@ -457,6 +457,7 @@ enabled,driver,address,column_offset,font,sensor_repeats,sensor_list,per_page,sc
 | `logo_every` | int 0-10 | `0` | `0`: logo only at start-up. `N`: also after every N rounds of Sistema + Sensores. |
 | `contrast` | int 1-100 | blank | Contrast in %, like the simulator's slider; blank = the controller's own default. |
 | `burn_in_shift` | bool | `1` | Move the whole image 1 px each round against burn-in. |
+| `rotate` | int `0`/`180` | `0` | `180` for a panel mounted upside down. The image is turned in software, so `column_offset` stays the same. The simulator always shows it upright. |
 
 - **Simulator link.** `python3 tools/oled_sim.py <site>` opens the simulator on that site:
   the sensors and every setting above come from `sites/<site>/config_data/config.json`
@@ -597,7 +598,7 @@ whichever thread hits the missing/malformed field first:
   `ssd1309`/`ssd1306`/`sh1106`, `address` an int 0x03-0x77, `font` `3x5` or `5x7`,
   `sensor_repeats` an int 1-5, `sensor_list` `scroll` or `pages`, `per_page` an int 1-9, `column_offset` an int 0-4, `screen_seconds` and
   `scroll_speed` numbers 1-60, `logo_every` an int 0-10, `contrast` an int 1-100,
-  `burn_in_shift` a boolean.
+  `burn_in_shift` a boolean, `rotate` `0` or `180`.
 - Two devices sharing one `slave` ID is a *warning*, not an error (the
   normal way to model two sensors on one physical unit).
 - A `config.json` edit that fails validation while the gateway is already

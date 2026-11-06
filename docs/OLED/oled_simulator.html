@@ -806,9 +806,12 @@ $("#c-random-alarm").addEventListener("click", () => {
 // ../../sites/<key>/config_data/config.json (the repo layout, served by
 // tools/oled_sim.py); ?config=<url> any other config.json.
 const DISPLAY_COLUMNS = ["enabled", "driver", "address", "column_offset", "font", "sensor_repeats",
-  "sensor_list", "per_page", "screen_seconds", "scroll_speed", "logo_every", "contrast", "burn_in_shift"];
+  "sensor_list", "per_page", "screen_seconds", "scroll_speed", "logo_every", "contrast", "burn_in_shift", "rotate"];
 const DISPLAY_DEFAULTS = { enabled: false, driver: "ssd1309", address: 0x3C, column_offset: 2, font: "3x5",
-  sensor_repeats: 2, sensor_list: "scroll", per_page: null, screen_seconds: 5, scroll_speed: 6, logo_every: 0, contrast: null, burn_in_shift: true };
+  sensor_repeats: 2, sensor_list: "scroll", per_page: null, screen_seconds: 5, scroll_speed: 6, logo_every: 0, contrast: null, burn_in_shift: true, rotate: 0 };
+// rotate (0/180) has no control here - the preview is always upright; it is kept
+// from the loaded config so exporting display.csv doesn't drop it.
+let siteRotate = 0;
 let siteName = "";
 const hex = n => "0x" + n.toString(16).toUpperCase().padStart(2, "0");
 const siteUrl = key => `../../sites/${encodeURIComponent(key)}/config_data/config.json`;
@@ -868,6 +871,7 @@ function applyConfig(cfg, source, name) {
   $("#c-logo-n").value = ds.logo_every;
   setContrast(ds.contrast);
   $("#c-shift").checked = ds.burn_in_shift !== false;
+  siteRotate = +ds.rotate || 0;
   $("#c-list").value = ds.sensor_list === "pages" ? "pages" : "scroll";
   $("#c-per-page").value = ds.per_page ?? "";
   updatePerPage();
@@ -938,6 +942,7 @@ function displayCsv() {
     per_page: $("#c-list").value === "pages" && $("#c-per-page").value ? +$("#c-per-page").value : "",
     screen_seconds: +$("#c-dur").value, scroll_speed: +$("#c-speed").value, logo_every: +$("#c-logo-n").value,
     contrast: $("#c-bright").dataset.set ? +$("#c-bright").value : "", burn_in_shift: $("#c-shift").checked ? 1 : 0,
+    rotate: siteRotate || "",
   };
   // every column, blank = the Pi's default (like config_manager.py export)
   return DISPLAY_COLUMNS.join(",") + "\n" + DISPLAY_COLUMNS.map(k => v[k]).join(",") + "\n";
