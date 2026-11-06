@@ -1,0 +1,8 @@
+Variante: oled
+Medidas exteriores (mm): 68.2 x 95.5 x 66.2 (con clip DIN)
+Sin clip: 68.2 x 95.5 x 61.1
+base volumen 50.0 cm3
+tapa volumen 10.9 cm3
+clip_din volumen 3.3 cm3
+componentes revisados: 155
+choques: 0

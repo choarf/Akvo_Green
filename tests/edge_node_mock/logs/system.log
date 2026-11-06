@@ -5815,3 +5815,119 @@
 2026-09-26 16:51:19,589 | INFO | MainThread | MQTT disconnected
 2026-09-26 16:51:19,590 | INFO | MainThread | Modbus disconnected
 2026-09-26 16:51:19,590 | INFO | MainThread | WiFi disconnected
+2026-10-15 20:07:08,183 | INFO | MainThread | Log level: INFO (set AKVO_LOG_LEVEL to change, e.g. AKVO_LOG_LEVEL=DEBUG)
+2026-10-15 20:07:08,802 | INFO | Thread-1 (start) | Starting Edge Node
+2026-10-15 20:07:08,803 | INFO | ModbusConnect | Connecting Modbus (/tmp/akvo_edge_node_master)...
+2026-10-15 20:07:08,804 | ERROR | ModbusConnect | Modbus connect error: ModbusSerialClient.__init__() got an unexpected keyword argument 'simulate' - retrying in 5.1s
+2026-10-15 20:07:08,804 | INFO | WifiConnect | WiFi connected
+2026-10-15 20:07:08,805 | INFO | MqttConnect | Connecting MQTT...
+2026-10-15 20:07:08,805 | INFO | MqttConnect | MQTT connected
+2026-10-15 20:07:08,934 | INFO | Thread-1 (start) | History DB synced from config.json -> added:['LOAD_1', 'LOAD_2', 'LOAD_3', 'LOAD_4', 'LOAD_5', 'LOAD_6', 'LOAD_7', 'LOAD_8', 'LOAD_9', 'LOAD_10', 'LOAD_11', 'LOAD_12', 'LOAD_13', 'LOAD_14', 'LOAD_15', 'LOAD_16', 'LOAD_17', 'LOAD_18', 'LOAD_19', 'LOAD_20', 'LOAD_21', 'LOAD_22', 'LOAD_23', 'LOAD_24', 'LOAD_25', 'LOAD_26', 'LOAD_27', 'LOAD_28', 'LOAD_29', 'LOAD_30', 'LOAD_31', 'LOAD_32', 'LOAD_33', 'LOAD_34', 'LOAD_35', 'LOAD_36', 'LOAD_37', 'LOAD_38', 'LOAD_39', 'LOAD_40'] removed:['DEV_1', 'DEV_2', 'DEV_3', 'DEV_4', 'DEV_5', 'DEV_6', 'DEV_7', 'DEV_8', 'DEV_9', 'DEV_10', 'DEV_11', 'DEV_12', 'DEV_13', 'DEV_14', 'DEV_15'] updated:[]
+2026-10-15 20:07:08,940 | INFO | ConfigWatcher | Reloading config...
+2026-10-15 20:07:08,947 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-10-15 20:07:13,859 | INFO | ModbusConnect | Connecting Modbus (/tmp/akvo_edge_node_master)...
+2026-10-15 20:07:13,859 | ERROR | ModbusConnect | Modbus connect error: ModbusSerialClient.__init__() got an unexpected keyword argument 'simulate' - retrying in 7.4s
+2026-10-15 20:07:13,940 | WARNING | WifiMonitor | WiFi disconnected
+2026-10-15 20:07:13,940 | ERROR | WifiMonitor | WiFi unreachable - retrying in 4.3s
+2026-10-15 20:07:13,971 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:13,972 | INFO | MqttConnect | Connecting MQTT...
+2026-10-15 20:07:13,972 | ERROR | MqttConnect | MQTT connect failed: simulated AWS/network failure - retrying in 5.2s
+2026-10-15 20:07:14,977 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:15,946 | ERROR | SystemPublisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:15,982 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:16,987 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:17,992 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:18,213 | ERROR | WifiMonitor | WiFi unreachable - retrying in 9.2s
+2026-10-15 20:07:18,997 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:19,210 | INFO | MqttConnect | Connecting MQTT...
+2026-10-15 20:07:19,210 | ERROR | MqttConnect | MQTT connect failed: simulated AWS/network failure - retrying in 11.4s
+2026-10-15 20:07:19,999 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:21,001 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:21,233 | INFO | ModbusConnect | Connecting Modbus (/tmp/akvo_edge_node_master)...
+2026-10-15 20:07:21,233 | ERROR | ModbusConnect | Modbus connect error: ModbusSerialClient.__init__() got an unexpected keyword argument 'simulate' - retrying in 23.7s
+2026-10-15 20:07:21,233 | CRITICAL | ModbusConnect | Modbus has not connected in 12s (reboot_after=8.0s) - rebooting the system
+2026-10-15 20:07:21,234 | CRITICAL | ModbusConnect | Rebooting the system now (sudo reboot) - reboot 1/3 allowed in the last 3600s
+2026-10-15 20:07:21,948 | ERROR | SystemPublisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:22,007 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:23,012 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:24,014 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:25,016 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:26,020 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:27,022 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:27,453 | ERROR | WifiMonitor | WiFi unreachable - retrying in 18.0s
+2026-10-15 20:07:27,454 | CRITICAL | WifiMonitor | WiFi has not connected in 14s (reboot_after=8.0s) - rebooting the system
+2026-10-15 20:07:27,454 | CRITICAL | WifiMonitor | Rebooting the system now (sudo reboot) - reboot 2/3 allowed in the last 3600s
+2026-10-15 20:07:27,951 | ERROR | SystemPublisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:28,024 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:28,948 | INFO | ConfigWatcher | Reloading config...
+2026-10-15 20:07:28,950 | ERROR | ConfigWatcher | Watcher error: Invalid config: LOAD_1.S0: Unsupported type 'not_a_real_type'
+2026-10-15 20:07:29,029 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:30,032 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:30,646 | INFO | MqttConnect | Connecting MQTT...
+2026-10-15 20:07:30,647 | ERROR | MqttConnect | MQTT connect failed: simulated AWS/network failure - retrying in 24.2s
+2026-10-15 20:07:30,647 | CRITICAL | MqttConnect | MQTT has not connected in 17s (reboot_after=8.0s) - rebooting the system
+2026-10-15 20:07:30,648 | CRITICAL | MqttConnect | Rebooting the system now (sudo reboot) - reboot 3/3 allowed in the last 3600s
+2026-10-15 20:07:33,279 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:33,951 | INFO | ConfigWatcher | Reloading config...
+2026-10-15 20:07:33,959 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-10-15 20:07:38,331 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:39,958 | ERROR | SystemPublisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:40,343 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:41,348 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:42,354 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:43,359 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:44,607 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:44,985 | INFO | ModbusConnect | Connecting Modbus (/tmp/akvo_edge_node_master)...
+2026-10-15 20:07:44,985 | ERROR | ModbusConnect | Modbus connect error: ModbusSerialClient.__init__() got an unexpected keyword argument 'simulate' - retrying in 37.4s
+2026-10-15 20:07:45,489 | ERROR | WifiMonitor | WiFi unreachable - retrying in 51.7s
+2026-10-15 20:07:45,678 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:45,960 | ERROR | SystemPublisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:46,680 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:47,682 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:48,687 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:07:54,814 | INFO | MqttConnect | Connecting MQTT...
+2026-10-15 20:07:54,814 | INFO | MqttConnect | MQTT connected (after 3 retries, 40.8s)
+2026-10-15 20:07:58,960 | INFO | ConfigWatcher | Reloading config...
+2026-10-15 20:07:58,962 | ERROR | ConfigWatcher | Watcher error: Invalid config: LOAD_1.S0: Unsupported type 'not_a_real_type'
+2026-10-15 20:08:03,963 | INFO | ConfigWatcher | Reloading config...
+2026-10-15 20:08:03,970 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-10-15 20:08:04,427 | ERROR | Publisher | MQTT publish failed: simulated AWS/network failure - reconnecting in the background
+2026-10-15 20:08:04,428 | INFO | MqttConnect | Connecting MQTT...
+2026-10-15 20:08:04,428 | INFO | MqttConnect | MQTT connected
+2026-10-15 20:08:08,807 | INFO | MainThread | Stopping Edge Node
+2026-10-15 20:08:08,808 | INFO | MainThread | MQTT disconnected
+2026-10-15 20:08:08,808 | INFO | MainThread | WiFi disconnected
+2026-10-26 20:08:05,798 | INFO | MainThread | Log level: INFO (set AKVO_LOG_LEVEL to change, e.g. AKVO_LOG_LEVEL=DEBUG)
+2026-10-26 20:08:05,800 | WARNING | MainThread | DEV_3: Duplicate slave ID 3
+2026-10-26 20:08:05,800 | INFO | Thread-1 (start) | Starting Edge Node
+2026-10-26 20:08:05,801 | INFO | ModbusConnect | Connecting Modbus (/tmp/akvo_edge_node_master)...
+2026-10-26 20:08:05,802 | INFO | MqttConnect | Connecting MQTT...
+2026-10-26 20:08:05,803 | INFO | ModbusConnect | Modbus connected
+2026-10-26 20:08:05,815 | INFO | WifiConnect | WiFi connected
+2026-10-26 20:08:06,106 | INFO | Thread-1 (start) | History DB synced from config.json -> added:['DEV_2', 'DEV_3', 'DEV_4', 'DEV_5'] removed:['LOAD_1', 'LOAD_2', 'LOAD_3', 'LOAD_4', 'LOAD_5', 'LOAD_6', 'LOAD_7', 'LOAD_8', 'LOAD_9', 'LOAD_10', 'LOAD_11', 'LOAD_12', 'LOAD_13', 'LOAD_14', 'LOAD_15', 'LOAD_16', 'LOAD_17', 'LOAD_18', 'LOAD_19', 'LOAD_20', 'LOAD_21', 'LOAD_22', 'LOAD_23', 'LOAD_24', 'LOAD_25', 'LOAD_26', 'LOAD_27', 'LOAD_28', 'LOAD_29', 'LOAD_30', 'LOAD_31', 'LOAD_32', 'LOAD_33', 'LOAD_34', 'LOAD_35', 'LOAD_36', 'LOAD_37', 'LOAD_38', 'LOAD_39', 'LOAD_40'] updated:[]
+2026-10-26 20:08:06,110 | INFO | ConfigWatcher | Reloading config...
+2026-10-26 20:08:06,111 | WARNING | ConfigWatcher | DEV_3: Duplicate slave ID 3
+2026-10-26 20:08:06,116 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-10-26 20:08:06,215 | ERROR | MqttConnect | MQTT connect failed: AWS_ERROR_MQTT_UNEXPECTED_HANGUP: The connection was closed unexpectedly. - retrying in 4.7s
+2026-10-26 20:08:10,916 | INFO | MqttConnect | Connecting MQTT...
+2026-10-26 20:08:11,030 | ERROR | MqttConnect | MQTT connect failed: AWS_ERROR_MQTT_UNEXPECTED_HANGUP: The connection was closed unexpectedly. - retrying in 7.0s
+2026-10-26 20:08:18,079 | INFO | MqttConnect | Connecting MQTT...
+2026-10-26 20:08:18,204 | ERROR | MqttConnect | MQTT connect failed: AWS_ERROR_MQTT_UNEXPECTED_HANGUP: The connection was closed unexpectedly. - retrying in 17.5s
+2026-10-26 20:08:20,801 | INFO | MainThread | Stopping Edge Node
+2026-10-26 20:08:20,801 | INFO | MainThread | Modbus disconnected
+2026-10-26 20:08:20,801 | INFO | MainThread | WiFi disconnected
+2026-10-26 20:08:33,059 | INFO | MainThread | Log level: INFO (set AKVO_LOG_LEVEL to change, e.g. AKVO_LOG_LEVEL=DEBUG)
+2026-10-26 20:08:33,059 | WARNING | MainThread | DEV_3: Duplicate slave ID 3
+2026-10-26 20:08:33,060 | INFO | Thread-1 (start) | Starting Edge Node
+2026-10-26 20:08:33,060 | INFO | ModbusConnect | Connecting Modbus (/tmp/akvo_edge_node_master)...
+2026-10-26 20:08:33,061 | INFO | ModbusConnect | Modbus connected
+2026-10-26 20:08:33,062 | INFO | MqttConnect | Connecting MQTT...
+2026-10-26 20:08:33,062 | INFO | MqttConnect | MQTT connected
+2026-10-26 20:08:33,065 | INFO | ConfigWatcher | Reloading config...
+2026-10-26 20:08:33,066 | WARNING | ConfigWatcher | DEV_3: Duplicate slave ID 3
+2026-10-26 20:08:33,067 | INFO | ConfigWatcher | Config reload finished in 0.0s
+2026-10-26 20:08:33,075 | INFO | WifiConnect | WiFi connected
+2026-10-26 20:08:45,060 | INFO | MainThread | Stopping Edge Node
+2026-10-26 20:08:45,060 | INFO | MainThread | MQTT disconnected
+2026-10-26 20:08:45,060 | INFO | MainThread | Modbus disconnected
+2026-10-26 20:08:45,060 | INFO | MainThread | WiFi disconnected

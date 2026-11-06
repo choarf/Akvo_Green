@@ -1,0 +1,5 @@
+Antena: sólo LTE; tapón en el barreno GNSS de E_geeve_base_drilled (diámetro 6.6 mm)
+Gabinete box_E con la caja impresa, variante oled
+Desplazamiento de la caja: (156.4, 50.2, 24.8) mm; 1.8 mm más alta que la GeeekPi
+piezas revisadas: 158 contra 196
+choques: 0
