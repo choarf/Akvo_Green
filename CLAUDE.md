@@ -6,6 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Akvo Green (aka Venko Green) is an industrial IoT edge gateway: it polls Modbus RTU sensors over RS-485 and publishes device data + host telemetry to AWS IoT Core over MQTT (mTLS), running unattended on something like a Raspberry Pi. See `docs/README.md` for the full project README (features, installation, usage) and `docs/edge_node_config/CONFIGURATION.md` for a field-by-field reference of every CSV column and `config.json` key.
 
+## Working rules
+
+- **Commit and push without asking** once a change is finished and checked. Stage files by name, never `git add -A` (and never certificates or keys: `sites/<key>/certs/` stays out of git); commit Akvo_Green and VenkoDemo separately. Deploys still need the user to ask: `tools/push_site.sh` (code/config to a Pi), `install.sh` on a Pi, and VenkoDemo's `push_shadow.py` / `deploy_web.sh` / `sam deploy`.
+- **Keep this file current automatically**: when a change alters anything documented here (commands, architecture, conventions, known gaps) or the user states a new working preference, update `CLAUDE.md` in the same change, without asking. Same for `docs/README.md`, `docs/edge_node_config/CONFIGURATION.md` (CSV/config.json reference) and `sites/README.md`.
+- Shared knowledge belongs here, not in Claude's local memory: the user works from more than one computer and only git is shared.
+
 ## Working across both repos
 
 The cloud side and web dashboard are the sibling repo **VenkoDemo** (`../VenkoDemo`): `tools/sync_config.py` there reads `sites/<key>/config_data/config.json` from here, so a new `config.json` key the dashboard should show needs changes in both. VenkoDemo must be a working directory of the session, or reads/edits there are refused (`blockReadsOutsideWorkingDirectories`):
