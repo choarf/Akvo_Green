@@ -271,12 +271,14 @@ EOF
     # display.csv enabled=0 it stays up, idle, watching config.json until
     # it is turned on (e.g. through the IoT shadow). RestartSec=30: with
     # no display wired (or I2C off) it fails and retries slowly.
+    # Not After= the gateway: that waits for network-online (~10 s more at
+    # boot), and the OLED needs only I2C (loaded in sysinit) - its start-up
+    # logo covers the time until the gateway is up.
     OLED_SERVICE_FILE="/etc/systemd/system/${OLED_SERVICE_NAME}.service"
     SERVICE_TMP="$(mktemp)"
     cat > "$SERVICE_TMP" <<EOF
 [Unit]
 Description=Akvo Green OLED status display
-After=${SERVICE_NAME}.service
 
 [Service]
 Type=simple
