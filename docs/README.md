@@ -440,6 +440,17 @@ Desktop app (scan, read and write Modbus registers on site), installed on the Pi
 | Port busy / no answers from any slave | `akvo-green` still running (step 1), or wrong port/baud rate |
 | The dashboard kiosk covers the screen | In TigerVNC: F8 → tick **Alt** → Tab (switch) or F4 (close) → F8 → untick **Alt**; or `tools/setup_kiosk.sh --window` for a normal window |
 
+### On a Windows PC
+
+The same tool as a single `AKVO_Modbus.exe` (no Python needed), for a laptop with a USB-RS485 adapter:
+
+**Download:** [AKVO_Modbus Actions → Windows exe](https://github.com/choarf/AKVO_Modbus/actions/workflows/windows-exe.yml) → newest green run → **Artifacts** → **AKVO_Modbus-windows** (a zip with the exe). The repo is private: sign in to GitHub with an account that has access. Each push to the tool's `src/` builds a new one; **Run workflow** on that page builds one on demand (artifacts expire after 90 days).
+
+- Keep the exe in a folder you can write to (Desktop, Documents - not `Program Files`): it creates `logs\` next to where it's started.
+- It isn't signed: on the first start SmartScreen says "Windows protected your PC" → **More info** → **Run anyway**.
+- Ports are `COM3`, `COM4`... (Device Manager → Ports). The adapter may need its driver, usually CH340 or FTDI.
+- Details and building it yourself: the [AKVO_Modbus README](https://github.com/choarf/AKVO_Modbus#windows---akvo_modbusexe).
+
 ## License
 
 See [LICENSE](../LICENSE).
