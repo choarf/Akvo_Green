@@ -21,7 +21,7 @@ AWS IoT Core (MQTT, mTLS)
 
 ## Features
 
-- **Modbus RTU client (V3)** — thread-safe wrapper around PyModbus supporting FC01/02/03/04/05/06/15/16, connection/reconnection helpers, input validation, and per-call statistics (success rate, response time). See [`docs/Modbus_client/AKVO_Modbus_Client_API_V3.md`](docs/Modbus_client/AKVO_Modbus_Client_API_V3.md) for the full API reference.
+- **Modbus RTU client (V3)** — thread-safe wrapper around PyModbus supporting FC01/02/03/04/05/06/15/16, connection/reconnection helpers, input validation, and per-call statistics (success rate, response time). See [`docs/ppModbus_client/AKVO_Modbus_Client_API_V3.md`](ppModbus_client/AKVO_Modbus_Client_API_V3.md) for the full API reference.
 - **Edge Node engine** (`gateway/edge_node_improved.py`) — polls configured devices/sensors on a schedule, evaluates min/max alarms, and publishes device data and host telemetry (CPU/RAM/disk/IP) to AWS IoT via MQTT. Modbus and MQTT connections retry independently and forever, so a dead serial bus doesn't block cloud reporting.
 - **Live config reload** — a background watcher detects changes to `config.json` and reconnects Modbus/MQTT or rebuilds only the affected devices, without restarting the process.
 - **CSV-driven configuration** (`gateway/config_manager.py`) — builds `config.json` from `devices.csv`, `modbus.csv`, `system.csv`, and `aws.csv`, with validation (duplicate slave IDs, overlapping registers, invalid sensor types) and a matching `export` command to go back from JSON to CSV.
@@ -58,7 +58,7 @@ Akvo_Green/
 │   ├── test_modbus_client/       # Additional pytest suite + real-hardware test plan
 │   ├── edge_node_mock/           # Full edge-node test harness (multi-slave mock + fake MQTT)
 │   └── test_edge_node/           # Unit tests for edge_node_improved.py's own logic
-└── docs/Modbus_client/           # Modbus client API documentation
+└── docs/ppModbus_client/          # Modbus client API documentation
 ```
 
 `config_data/` lives at the repo root (not nested under `gateway/`) specifically so the real gateway and every test suite (`tests/edge_node_mock/run_edge_node_test.py`/`stress_test.py`/`mock_devices_slave.py`) read and build from the exact same `config.json`/CSVs - see `config_manager.py`'s `REPO_ROOT`/`CONFIG_DIR`.
@@ -66,7 +66,7 @@ Akvo_Green/
 ## Requirements
 
 - Python 3.10+ (3.12/3.14 tested; the Pis run 3.13)
-- Python packages, pinned in [`gateway/requirements.txt`](gateway/requirements.txt): `pymodbus`, `pyserial`, `psutil`, `awsiotsdk` (+ `awscrt`); for the optional OLED, [`gateway/requirements-oled.txt`](gateway/requirements-oled.txt): `luma.oled` (+ `Pillow`, `smbus2`). `install.sh` installs both into `.venv`, and `tools/push_site.sh` updates a Pi's venv when either file changes. The local dashboard and `config_manager.py` need only the standard library
+- Python packages, pinned in [`gateway/requirements.txt`](../gateway/requirements.txt): `pymodbus`, `pyserial`, `psutil`, `awsiotsdk` (+ `awscrt`); for the optional OLED, [`gateway/requirements-oled.txt`](../gateway/requirements-oled.txt): `luma.oled` (+ `Pillow`, `smbus2`). `install.sh` installs both into `.venv`, and `tools/push_site.sh` updates a Pi's venv when either file changes. The local dashboard and `config_manager.py` need only the standard library
 - `socat` for the virtual-serial mock environment (Linux/macOS)
 - An AWS IoT Core thing with certificates if running the full edge gateway
 - An RS-485 interface for the Modbus RTU bus - see below (not needed with [virtual Modbus](#virtual-modbus-optional))
@@ -388,7 +388,7 @@ python3 run_edge_node_test.py --no-fake-mqtt
 python3 run_edge_node_test.py --no-fake-modbus
 ```
 
-See [`tests/edge_node_mock/README.md`](tests/edge_node_mock/README.md) for the full configuration reference, a caution about `fake_mqtt: false` against production AWS IoT things, and a manual (multi-terminal) walkthrough.
+See [`tests/edge_node_mock/README.md`](../tests/edge_node_mock/README.md) for the full configuration reference, a caution about `fake_mqtt: false` against production AWS IoT things, and a manual (multi-terminal) walkthrough.
 
 This repo's own `tests/edge_node_mock/` mock simulates at the Modbus *wire* level (real framing over a virtual serial port via `socat`), to test `pymodbus`'s real client path — a different thing from the in-process [Virtual Modbus](#virtual-modbus-optional) feature above, which is a supported deployment option, not a test harness.
 
@@ -409,9 +409,9 @@ python3 -m pytest --cov=edge_node_improved --cov-report=term-missing -q
 
 ## Documentation
 
-- [Modbus Client API V3](docs/Modbus_client/AKVO_Modbus_Client_API_V3.md) — full reference for connection handling, supported function codes, error handling, statistics, and thread safety.
-- [Edge Node Configuration Reference](docs/edge_node_config/CONFIGURATION.md) — every column in `devices.csv`/`modbus.csv`/`system.csv`/`aws.csv` and every field in the generated `config.json`, plus the optional `database` and virtual-Modbus settings and non-obvious behaviors (disabled devices, sensor-type scaling, live-reload semantics).
-- [Testing Guide](docs/testing/TESTING.md) — the three test levels (unit/mocked/real-hardware) across all four test suites, a decision table for which to run, and setup for each.
+- [Modbus Client API V3](ppModbus_client/AKVO_Modbus_Client_API_V3.md) — full reference for connection handling, supported function codes, error handling, statistics, and thread safety.
+- [Edge Node Configuration Reference](edge_node_config/CONFIGURATION.md) — every column in `devices.csv`/`modbus.csv`/`system.csv`/`aws.csv` and every field in the generated `config.json`, plus the optional `database` and virtual-Modbus settings and non-obvious behaviors (disabled devices, sensor-type scaling, live-reload semantics).
+- [Testing Guide](testing/TESTING.md) — the three test levels (unit/mocked/real-hardware) across all four test suites, a decision table for which to run, and setup for each.
 
 ## Running the AKVO Modbus Tool
 
@@ -442,4 +442,4 @@ Desktop app (scan, read and write Modbus registers on site), installed on the Pi
 
 ## License
 
-See [LICENSE](LICENSE).
+See [LICENSE](../LICENSE).
