@@ -8,9 +8,13 @@ EdgeNode.write_status()) and config.json, so a display or I2C problem can
 never stall Modbus polling or MQTT publishing.
 
 Screens (visual spec: docs/OLED/oled_simulator.html):
-  at start-up   GHOTRIX logo; its "Venko -> Akvo" line writes itself on 3
-                times (100%) and then flashes 3 times (5.1 s); the
-                gateway_id below it
+  at start-up   GHOTRIX logo, the gateway_id below it; its "Venko -> Akvo"
+                line keeps writing itself on (in progress) until the gateway
+                is in normal operation (system_ready: fresh status, Modbus
+                and AWS connected, at least one sensor read OK) - at least 3
+                times - then flashes 3 times (5.1 s when it's ready at
+                once). After BOOT_MAX_SECONDS it moves on anyway, so Sistema
+                shows what isn't working.
   then forever  Sistema (5 s) -> Sensores (scrolling list, or pages) x sensor_repeats
 
 Everything is drawn in plain Python into a 128x64 framebuffer (same fonts
@@ -62,6 +66,7 @@ BOOT_PASS_SECONDS = 1.2
 BOOT_FLASHES = 3          # ...then flashes (off, on) this many times
 BOOT_FLASH_SECONDS = 0.5
 LOGO_SECONDS = BOOT_PASSES * BOOT_PASS_SECONDS + BOOT_FLASHES * BOOT_FLASH_SECONDS   # 5.1 s
+BOOT_MAX_SECONDS = 120.0  # start-up logo waits at most this long for system_ready()
 SCREEN_SECONDS = 5.0      # default display.screen_seconds
 SCROLL_PAUSE = 1.5        # s still at the top and at the bottom of the sensor list
 SCROLL_SPEED = 6.0        # px/s, default display.scroll_speed: one 3x5 text row per second
@@ -510,6 +515,7 @@ class View:
     client: str = ""            # config.json gateway.client
     speed: float = SCROLL_SPEED  # display.scroll_speed
     page: tuple | None = None   # pages mode: (page, pages, per page); None = scrolling list
+    boot_passes: int | None = BOOT_PASSES   # logo write passes; None = still waiting (start-up)
 
 
 def blink_on(now: float) -> bool:
@@ -537,11 +543,39 @@ def boot_line_band(logo: bytes) -> tuple[int, int, int, int] | None:
     return min(xs), y0, max(xs) + 1, y1
 
 
-def boot_line_state(elapsed: float) -> tuple[float, bool]:
+def logo_seconds(passes: int | None = BOOT_PASSES) -> float:
+    """How long the logo stays up with `passes` write passes (None: until
+    it's known, i.e. forever for now)."""
+    if passes is None:
+        return math.inf
+    return passes * BOOT_PASS_SECONDS + BOOT_FLASHES * BOOT_FLASH_SECONDS
+
+
+def boot_passes_when_ready(elapsed: float) -> int:
+    """Write passes for a start-up logo that saw the gateway ready at
+    `elapsed` s: the pass under way is finished, and never fewer than
+    BOOT_PASSES."""
+    return max(BOOT_PASSES, math.ceil(elapsed / BOOT_PASS_SECONDS))
+
+
+def system_ready(status: dict) -> bool:
+    """The gateway is in normal operation: its status file is fresh, Modbus
+    and AWS are connected, and the last cycle read at least one sensor OK."""
+    if not status.get("available") or status.get("stale"):
+        return False
+    if not (status.get("modbus") or {}).get("connected") or not (status.get("mqtt") or {}).get("connected"):
+        return False
+    return any(r.get("status") == "OK" for sensors in (status.get("readings") or {}).values()
+               for r in sensors.values())
+
+
+def boot_line_state(elapsed: float, passes: int | None = BOOT_PASSES) -> tuple[float, bool]:
     """(how much of the boot line is written 0..1, whether it's lit) at
-    `elapsed` s: BOOT_PASSES write passes (the last one ends at 100%), then
-    BOOT_FLASHES off/on flashes, then steady."""
-    write = BOOT_PASSES * BOOT_PASS_SECONDS
+    `elapsed` s: `passes` write passes (the last one ends at 100%; None =
+    keeps writing), then BOOT_FLASHES off/on flashes, then steady."""
+    if passes is None:
+        return (elapsed % BOOT_PASS_SECONDS) / BOOT_PASS_SECONDS, True
+    write = passes * BOOT_PASS_SECONDS
     if elapsed < write:
         return (elapsed % BOOT_PASS_SECONDS) / BOOT_PASS_SECONDS, True
     t = elapsed - write
@@ -551,15 +585,14 @@ def boot_line_state(elapsed: float) -> tuple[float, bool]:
 
 
 def draw_logo(fr: Frame, v: View, elapsed: float) -> None:
-    progress = elapsed / LOGO_SECONDS
+    written, lit = boot_line_state(elapsed, v.boot_passes)
     if v.logo:
         fr.px[: len(v.logo)] = v.logo
         band = boot_line_band(v.logo)
         if band is None:
-            fr.fill(14, H - 3, round((W - 28) * min(1.0, progress)), 3)
+            fr.fill(14, H - 3, round((W - 28) * written), 3)
             return
         x0, y0, x1, y1 = band
-        written, lit = boot_line_state(elapsed)
         cut = x0 + round((x1 - x0) * written) if lit else x0
         fr.fill(cut, y0, x1 - cut, y1 - y0, 0)   # erase the part not written yet
         # row 3: this site's gateway name, steady under the animated line
@@ -574,7 +607,7 @@ def draw_logo(fr: Frame, v: View, elapsed: float) -> None:
     sub = fit(f"Gateway {v.gateway_id}", fr.font.cols)
     fr.text(fr.center_x(sub), 38, sub)
     fr.box(14, 50, W - 28, 7)   # boot bar
-    fr.fill(16, 52, round((W - 32) * min(1.0, progress)), 3)
+    fr.fill(16, 52, round((W - 32) * written), 3)
 
 
 def draw_system(fr: Frame, v: View) -> None:
@@ -755,6 +788,7 @@ class Display:
         self.steps = self.repeats * self.pages
         self.logo = load_logo()
         self.kind, self.k, self.started, self.rounds = "logo", 0, time.monotonic(), 0
+        self.boot_passes: int | None = None   # start-up logo: waiting for system_ready()
         self.status, self.status_read, self.ip, self.ip_read, self.db, self.ssid = {}, -1e9, None, -1e9, None, None
 
     def tick(self) -> Frame:
@@ -764,15 +798,22 @@ class Display:
         if mono - self.ip_read >= 10:
             self.ip, self.ip_read = local_ip(), mono
             self.db, self.ssid = database_info(self.config, self.db_path), wifi_ssid()
-        if mono - self.started >= screen_seconds(self.kind, len(self.sensors), self.font, self.screen_s, self.speed,
-                                                  self.paged):
+        if self.kind == "logo" and self.boot_passes is None:
+            waited = mono - self.started
+            if system_ready(self.status) or waited >= BOOT_MAX_SECONDS:
+                self.boot_passes = boot_passes_when_ready(waited)
+        duration = (logo_seconds(self.boot_passes) if self.kind == "logo" else
+                    screen_seconds(self.kind, len(self.sensors), self.font, self.screen_s, self.speed, self.paged))
+        if mono - self.started >= duration:
             self.kind, self.k = next_screen(self.kind, self.k, self.steps, self.rounds, self.logo_every)
             self.started = mono
             if self.kind == "system":
                 self.rounds += 1
+            elif self.kind == "logo":
+                self.boot_passes = BOOT_PASSES   # logo_every: the plain 5.1 s logo
         clock = datetime.fromtimestamp(now, self.tz).strftime("%H:%M:%S")
         view = View(self.font, self.status, self.sensors, self.gateway_id, clock, now, self.ip, self.logo, self.db,
-                    self.ssid, self.client, self.speed, self.page_of(self.k))
+                    self.ssid, self.client, self.speed, self.page_of(self.k), self.boot_passes)
         return render(self.kind, mono - self.started, view)
 
     def page_of(self, k: int) -> tuple | None:

@@ -298,7 +298,7 @@ def test_pages_mode_steps_through_every_page_each_pass(monkeypatch, tmp_path):
     monkeypatch.setattr(od.time, "monotonic", lambda: clock["t"])
     monkeypatch.setattr(od, "local_ip", lambda: "10.0.0.2")
     cfg = {**CONFIG, "display": {"sensor_list": "pages", "per_page": 1, "screen_seconds": 1}}
-    d = od.Display(cfg, tmp_path / "missing.json", F35, 2)
+    d = od.Display(cfg, write_files(tmp_path)[1], F35, 2)
     n = len(d.sensors)
     assert (d.pages, d.per) == (n, 1) and not d.scrolling
     headers = []
@@ -337,7 +337,7 @@ def test_display_tick_follows_the_clock(monkeypatch, tmp_path):
     clock = {"t": 0.0}
     monkeypatch.setattr(od.time, "monotonic", lambda: clock["t"])
     monkeypatch.setattr(od, "local_ip", lambda: "10.0.0.2")
-    d = od.Display(CONFIG, tmp_path / "missing.json", F35, 2)
+    d = od.Display(CONFIG, write_files(tmp_path)[1], F35, 2)   # gateway ready at once
     seen = []
     for t in range(0, 30):
         clock["t"] = float(t)
@@ -345,6 +345,72 @@ def test_display_tick_follows_the_clock(monkeypatch, tmp_path):
         seen.append(d.kind)
     assert seen[0] == "logo" and seen[5] == "logo" and seen[6] == "system" and seen[11] == "sensors"
     assert "logo" not in seen[6:]
+
+
+@pytest.mark.parametrize("over, ready", [
+    ({}, True),
+    ({"available": False}, False),
+    ({"stale": True}, False),
+    ({"modbus": {"connected": False}}, False),
+    ({"mqtt": {"connected": False}}, False),
+    ({"mqtt": None}, False),
+    ({"readings": {}}, False),
+    ({"readings": {"DEV_1": {"Pt100Sensor": {"status": "ERROR"}}}}, False),
+    ({"readings": {"DEV_1": {"Pt100Sensor": {"status": "ERROR"}, "Ph": {"val": 7.0, "status": "OK"}}}}, True),
+])
+def test_system_ready_needs_fresh_status_both_links_and_a_good_reading(over, ready):
+    assert od.system_ready(status(**over)) is ready
+
+
+def ticking(monkeypatch, tmp_path, status_file):
+    clock = {"t": 0.0}
+    monkeypatch.setattr(od.time, "monotonic", lambda: clock["t"])
+    monkeypatch.setattr(od, "local_ip", lambda: "10.0.0.2")
+    monkeypatch.setattr(od, "STATUS_EVERY", 0)
+    d = od.Display(CONFIG, status_file, F35, 2)
+
+    def at(t):
+        clock["t"] = t
+        d.tick()
+        return d.kind
+    return d, at
+
+
+def test_start_up_logo_waits_for_the_gateway_then_finishes_its_pass(monkeypatch, tmp_path):
+    cfg, st = write_files(tmp_path)
+    ready = st.read_text()
+    st.write_text(json.dumps({**json.loads(ready), "mqtt": {"connected": False}}))   # AWS not up yet
+    d, at = ticking(monkeypatch, tmp_path, st)
+    assert all(at(t) == "logo" for t in (0.0, 5.0, 30.0, 60.0)) and d.boot_passes is None
+    st.write_text(ready)                                   # AWS connects at 61 s, mid pass 51
+    assert at(61.0) == "logo" and d.boot_passes == 51
+    end = 51 * od.BOOT_PASS_SECONDS + od.BOOT_FLASHES * od.BOOT_FLASH_SECONDS
+    assert at(end - 0.1) == "logo" and at(end + 0.1) == "system"
+
+
+def test_start_up_logo_moves_on_after_boot_max_seconds(monkeypatch, tmp_path):
+    d, at = ticking(monkeypatch, tmp_path, tmp_path / "missing.json")   # gateway never writes status
+    assert at(od.BOOT_MAX_SECONDS - 1) == "logo" and d.boot_passes is None
+    at(od.BOOT_MAX_SECONDS)
+    assert d.boot_passes == od.boot_passes_when_ready(od.BOOT_MAX_SECONDS)
+    assert at(od.BOOT_MAX_SECONDS + od.logo_seconds(d.boot_passes)) == "system"
+
+
+def test_logo_every_shows_the_plain_logo_later(monkeypatch, tmp_path):
+    d, at = ticking(monkeypatch, tmp_path, write_files(tmp_path)[1])
+    d.logo_every = 1
+    kinds, t = [], 0.0
+    while t < 120:
+        kinds.append(at(t))
+        t += 0.5
+    assert kinds.count("logo") > 12 and d.boot_passes == od.BOOT_PASSES
+
+
+def test_waiting_boot_line_keeps_writing():
+    assert od.boot_line_state(0.6, None) == (pytest.approx(0.5), True)
+    assert od.boot_line_state(100 * od.BOOT_PASS_SECONDS + 0.6, None) == (pytest.approx(0.5), True)
+    assert od.logo_seconds(None) == float("inf") and od.logo_seconds() == pytest.approx(od.LOGO_SECONDS)
+    assert od.boot_passes_when_ready(0.5) == od.BOOT_PASSES and od.boot_passes_when_ready(10.0) == 9
 
 
 # ---------------------------------------------------------------------------
