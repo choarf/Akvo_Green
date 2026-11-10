@@ -1,14 +1,14 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-11-06T03:52:50.410660+00:00",
-        "hash": "9546848bc52928ce9789f5a799f030d3"
+        "generated_at": "2026-11-10T12:35:12.465685+00:00",
+        "hash": "e5ef5ae0f505d1747866dea9ddd1f58b"
     },
     "gateway": {
         "gateway_id": "AKVO_akvo01005",
         "client": "SEMCA",
         "city": "America/Mexico_City",
-        "poll_interval": 20,
+        "poll_interval": 30,
         "system_interval": 60,
         "watchdog_timeout": 120
     },
