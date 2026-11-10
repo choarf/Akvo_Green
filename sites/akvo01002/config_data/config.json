@@ -1,14 +1,14 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-11-06T03:58:11.179164+00:00",
-        "hash": "e249811c45402691b58702a9615c6c97"
+        "generated_at": "2026-11-10T12:01:10.340652+00:00",
+        "hash": "ed51d8111ddc7d8bc2d0322e8333d212"
     },
     "gateway": {
         "gateway_id": "AKVO_akvo01002",
         "client": "Ghotrix",
         "city": "America/Mexico_City",
-        "poll_interval": 20,
+        "poll_interval": 30,
         "system_interval": 60,
         "watchdog_timeout": 120
     },
