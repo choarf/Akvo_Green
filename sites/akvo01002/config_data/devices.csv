@@ -1,7 +1,7 @@
 device_id,slave,sensor_name,addr,count,scale,offset,unit,type,min,max,enabled
 DEV_1,2,Pt100Sensor,0,1,1,0,°C,float,0,55,1
-DEV_2,3,Ambient,0,1,1,0,°C,float,0,55,1
-DEV_3,3,Humedad,1,1,1,0,%HR,float,0,80,1
+DEV_2,3,Ambient,0,1,0.01,0,°C,float,0,55,1
+DEV_3,3,Humedad,1,1,0.01,0,%HR,float,0,80,1
 DEV_4,10,ORPSensor,0,2,1,0,mV,float,-1500,1500,1
 DEV_5,25,PhSensor,0,2,1,0,unit,float,0,14,1
 DEV_6,25,TempPhSensor,2,2,1,0,°C,float,0,55,1

@@ -1,8 +1,8 @@
 {
     "meta": {
         "version": "2.0",
-        "generated_at": "2026-11-19T00:27:59.749635+00:00",
-        "hash": "fd464c30903758e1d39810f09b200f13"
+        "generated_at": "2026-11-19T02:28:17.099117+00:00",
+        "hash": "6d327cc046d99db70087488cdde5805f"
     },
     "gateway": {
         "gateway_id": "AKVO_akvo01002",
@@ -62,7 +62,7 @@
                     "name": "Ambient",
                     "addr": 0,
                     "count": 1,
-                    "scale": 1.0,
+                    "scale": 0.01,
                     "offset": 0.0,
                     "unit": "\u00b0C",
                     "type": "float",
@@ -80,7 +80,7 @@
                     "name": "Humedad",
                     "addr": 1,
                     "count": 1,
-                    "scale": 1.0,
+                    "scale": 0.01,
                     "offset": 0.0,
                     "unit": "%HR",
                     "type": "float",
